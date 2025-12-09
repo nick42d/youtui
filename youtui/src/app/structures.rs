@@ -1,6 +1,7 @@
-use super::server::album_art_downloader::AlbumArt;
 use super::server::song_downloader::InMemSong;
+use super::server::song_thumbnail_downloader::SongThumbnail;
 use super::view::SortDirection;
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use itertools::Itertools;
 use std::borrow::Cow;
 use std::ops::Deref;
@@ -62,7 +63,7 @@ pub struct Percentage(pub u8);
 pub enum AlbumArtState {
     #[default]
     Init,
-    Downloaded(Rc<AlbumArt>),
+    Downloaded(Rc<SongThumbnail>),
     None,
     Error,
 }
@@ -515,27 +516,23 @@ impl BrowserSongsList {
         self.next_id.0 += 1;
         id
     }
-    pub fn update_album_art(&mut self, album_art: AlbumArt) {
-        let shared = Rc::new(album_art);
+    pub fn add_song_thumbnail(&mut self, song_thumbnail: SongThumbnail) {
+        // Thumbanil is refcounted since it could be shared by multiple songs on the
+        // playlist (even if its a video thumbnail).
+        let thumbnail_shared = Rc::new(song_thumbnail);
         for song in &mut self.list {
             if !matches!(song.album_art, AlbumArtState::Downloaded(_))
-                && song.album.as_ref().is_some_and(|album| match &album.id {
-                    AlbumOrUploadAlbumID::Album(album_id) => album_id == &shared.album_id,
-                    _ => false,
-                })
+                && SongThumbnailID::from(&*song) == thumbnail_shared.song_thumbnail_id
             {
-                song.album_art = AlbumArtState::Downloaded(shared.clone());
+                song.album_art = AlbumArtState::Downloaded(thumbnail_shared.clone());
             }
             tracing::info!("Album art updated");
         }
     }
-    pub fn set_album_art_error(&mut self, album_id: AlbumID<'_>) {
+    pub fn set_song_thumbnail_error(&mut self, thumbnail_id: SongThumbnailID<'_>) {
         for song in &mut self.list {
             if !matches!(song.album_art, AlbumArtState::Downloaded(_))
-                && song.album.as_ref().is_some_and(|album| match &album.id {
-                    AlbumOrUploadAlbumID::Album(a) => a == &album_id,
-                    _ => false,
-                })
+                && SongThumbnailID::from(&*song) == thumbnail_id
             {
                 song.album_art = AlbumArtState::Error;
             }

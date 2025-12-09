@@ -3,6 +3,7 @@ use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use crate::app::server::{
     AutoplaySong, DecodeSong, DownloadSong, GetAlbumArt, IncreaseVolume, Pause, PausePlay,
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
@@ -29,6 +30,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter;
+use std::ops::Deref;
 use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
@@ -473,25 +475,6 @@ impl Playlist {
                 .max_by_key(|thumbs| thumbs.height * thumbs.width)
                 .map(|thumb| thumb.url.clone())
         };
-        #[derive(Hash)]
-        enum ThumbnailID<'a> {
-            Album(AlbumID<'a>),
-            UploadAlbum(UploadAlbumID<'a>),
-            Video(VideoID<'a>),
-        }
-        fn get_thumbnail_id(song: &ListSong) -> ThumbnailID {
-            match song.album {
-                Some(ListSongAlbum {
-                    id: AlbumOrUploadAlbumID::Album(a),
-                    ..
-                }) => todo!(),
-                Some(ListSongAlbum {
-                    id: AlbumOrUploadAlbumID::UploadAlbumID(a),
-                    ..
-                }) => todo!(),
-                None => todo!(),
-            }
-        }
         let albums = song_list
             .iter_mut()
             .filter_map(|song| {
@@ -499,23 +482,24 @@ impl Playlist {
                     song.album_art = AlbumArtState::None;
                     return None;
                 };
-                Some((song.album.as_deref().map(|album| &album.id)?, thumb_url))
+                let song_ref: &ListSong = song;
+                Some((SongThumbnailID::from(song_ref), thumb_url))
             })
-            .collect::<HashMap<&ThumbnailID<'a>, String>>();
+            .collect::<HashMap<SongThumbnailID, String>>();
         let effect = albums
             .into_iter()
-            .map(|(album_id, thumbnail_url)| {
-                let album_id = album_id.clone();
+            .map(|(thumbnail_id, thumbnail_url)| {
+                let thumbnail_id = thumbnail_id.clone();
                 AsyncTask::new_future(
                     GetAlbumArt {
                         thumbnail_url,
-                        album_id: album_id.clone(),
+                        thumbnail_id: thumbnail_id.clone(),
                     },
                     |this: &mut Self, result| match result {
-                        Ok(album_art) => this.list.update_album_art(album_art),
+                        Ok(album_art) => this.list.add_song_thumbnail(album_art),
                         Err(e) => {
                             error!("Error {e} getting album art");
-                            this.list.set_album_art_error(album_id);
+                            this.list.set_song_thumbnail_error(thumbnail_id);
                         }
                     },
                     None,

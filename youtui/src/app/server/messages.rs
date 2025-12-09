@@ -1,10 +1,11 @@
 use super::ArcServer;
-use super::album_art_downloader::AlbumArt;
 use super::api::GetArtistSongsProgressUpdate;
 use super::player::{DecodedInMemSong, Player};
 use super::song_downloader::{DownloadProgressUpdate, InMemSong};
+use super::song_thumbnail_downloader::SongThumbnail;
 use crate::app::server::api::GetPlaylistSongsProgressUpdate;
-use crate::app::structures::ListSongID;
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
+use crate::app::structures::{AlbumOrUploadAlbumID, ListSong, ListSongAlbum, ListSongID};
 use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate,
@@ -15,7 +16,9 @@ use async_callback_manager::{BackendStreamingTask, BackendTask};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, VideoID};
+use ytmapi_rs::common::{
+    AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, UploadAlbumID, VideoID,
+};
 use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong};
 
 #[derive(PartialEq, Debug)]
@@ -116,7 +119,7 @@ pub struct QueueSong {
 #[derive(Debug)]
 pub struct GetAlbumArt {
     pub thumbnail_url: String,
-    pub album_id: AlbumID<'static>,
+    pub thumbnail_id: SongThumbnailID<'static>,
 }
 
 impl BackendTask<ArcServer> for HandleApiError {
@@ -379,7 +382,7 @@ impl BackendStreamingTask<ArcServer> for QueueSong {
     }
 }
 impl BackendTask<ArcServer> for GetAlbumArt {
-    type Output = anyhow::Result<AlbumArt>;
+    type Output = anyhow::Result<SongThumbnail>;
     type MetadataType = TaskMetadata;
     fn into_future(
         self,
@@ -388,8 +391,8 @@ impl BackendTask<ArcServer> for GetAlbumArt {
         let backend = backend.clone();
         async move {
             backend
-                .album_art_downloader
-                .download_album_art(self.album_id, self.thumbnail_url)
+                .song_thumbnail_downloader
+                .download_song_thumbnail(self.thumbnail_id, self.thumbnail_url)
                 .await
         }
     }
