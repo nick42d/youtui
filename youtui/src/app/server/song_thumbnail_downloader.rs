@@ -54,6 +54,24 @@ impl std::fmt::Display for SongThumbnailID<'_> {
         }
     }
 }
+impl<'a> SongThumbnailID<'a> {
+    pub fn into_owned(self) -> SongThumbnailID<'static> {
+        match self {
+            SongThumbnailID::Album(id) => {
+                let id_string = id.get_raw().to_owned();
+                SongThumbnailID::Album(AlbumID::from_raw(id_string))
+            }
+            SongThumbnailID::UploadAlbum(id) => {
+                let id_string = id.get_raw().to_owned();
+                SongThumbnailID::UploadAlbum(UploadAlbumID::from_raw(id_string))
+            }
+            SongThumbnailID::Video(id) => {
+                let id_string = id.get_raw().to_owned();
+                SongThumbnailID::Video(VideoID::from_raw(id_string))
+            }
+        }
+    }
+}
 
 #[derive(PartialEq)]
 pub struct SongThumbnail {

@@ -482,14 +482,13 @@ impl Playlist {
                     song.album_art = AlbumArtState::None;
                     return None;
                 };
-                let song_ref: &ListSong = song;
-                Some((SongThumbnailID::from(song_ref), thumb_url))
+                let thumbnail_id = SongThumbnailID::from(song as &ListSong).into_owned();
+                Some((thumbnail_id, thumb_url))
             })
             .collect::<HashMap<SongThumbnailID, String>>();
         let effect = albums
             .into_iter()
             .map(|(thumbnail_id, thumbnail_url)| {
-                let thumbnail_id = thumbnail_id.clone();
                 AsyncTask::new_future(
                     GetAlbumArt {
                         thumbnail_url,
@@ -499,6 +498,8 @@ impl Playlist {
                         Ok(album_art) => this.list.add_song_thumbnail(album_art),
                         Err(e) => {
                             error!("Error {e} getting album art");
+                            // TODO: if set_song_thumbnail_error sends back it's ID, one less clone
+                            // is required.
                             this.list.set_song_thumbnail_error(thumbnail_id);
                         }
                     },
