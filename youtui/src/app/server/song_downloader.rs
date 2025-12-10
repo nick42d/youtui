@@ -52,14 +52,29 @@ pub enum SongDownloader {
 impl SongDownloader {
     pub fn new(po_token: Option<String>, client: reqwest::Client, config: &Config) -> Self {
         match config.downloader_type {
-            DownloaderType::Native => SongDownloader::Native(NativeYoutubeDownloader::new(
-                DL_CALLBACK_CHUNK_SIZE,
-                AUDIO_QUALITY,
-                po_token,
-                client,
-            )),
+            DownloaderType::Native => {
+                info!("Initiating native downloader");
+                SongDownloader::Native(NativeYoutubeDownloader::new(
+                    DL_CALLBACK_CHUNK_SIZE,
+                    AUDIO_QUALITY,
+                    po_token,
+                    client,
+                ))
+            }
             DownloaderType::YtDlp => {
-                SongDownloader::YtDlp(YtDlpDownloader::new(config.yt_dlp_command.clone()))
+                info!("Initiating yt-dlp downloader");
+                let downloader = YtDlpDownloader::new(config.yt_dlp_command.clone());
+                let downloader_clone = YtDlpDownloader::new(config.yt_dlp_command.clone());
+                tokio::task::spawn(async {
+                    let output = downloader_clone.get_version().await;
+                    match output {
+                        Ok(output) => {
+                            info!("Output of 'yt-dlp --version': {:?}", output);
+                        }
+                        Err(e) => error!("Unable to run 'yt-dlp --version', error: <{e}>"),
+                    }
+                });
+                SongDownloader::YtDlp(downloader)
             }
         }
     }

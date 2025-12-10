@@ -45,6 +45,18 @@ impl YtDlpDownloader {
             yt_dlp_command: Arc::new(yt_dlp_command.into()),
         }
     }
+    pub async fn get_version(self) -> Result<String, YtDlpDownloaderError> {
+        let output = tokio::process::Command::new(self.yt_dlp_command.deref())
+            .arg("--version")
+            .output()
+            .await
+            .map_err(|e| YtDlpDownloaderError::ErrorSpawningYtDlp {
+                message: format!("{e}"),
+            })?;
+        String::from_utf8(output.stdout).map_err(|e| YtDlpDownloaderError::InvalidYtDlpOutput {
+            output: e.to_string(),
+        })
+    }
 }
 
 impl YoutubeMusicDownloader for YtDlpDownloader {
@@ -79,7 +91,6 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                 .args(args)
                 .stderr(Stdio::piped())
                 .stdout(Stdio::piped())
-                .kill_on_drop(true)
                 .spawn()
                 .map_err(|e| YtDlpDownloaderError::ErrorSpawningYtDlp {
                     message: format!("{e}"),
