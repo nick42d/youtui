@@ -53,7 +53,10 @@ impl SongDownloader {
     pub fn new(po_token: Option<String>, client: reqwest::Client, config: &Config) -> Self {
         match config.downloader_type {
             DownloaderType::Native => {
-                info!("Initiating native downloader");
+                info!(
+                    "Initiating native downloader. Has po_token: {}",
+                    po_token.is_some()
+                );
                 SongDownloader::Native(NativeYoutubeDownloader::new(
                     DL_CALLBACK_CHUNK_SIZE,
                     AUDIO_QUALITY,
