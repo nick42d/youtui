@@ -3,7 +3,7 @@ use super::{
 };
 use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
 use crate::app::ui::draw::draw_text_box;
-use crate::app::view::{BasicConstraint, ListView, Loadable};
+use crate::app::view::{BasicConstraint, IsPanel, ListView, Loadable};
 use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
@@ -60,37 +60,36 @@ pub fn get_table_sort_character_array(
     })
 }
 
-// Draw a block, and return the inner rectangle.
-pub fn draw_panel<S: AsRef<str>>(
+// Draw inside a panel.
+pub fn draw_panel_mut<T: IsPanel>(
     f: &mut Frame,
-    title: S,
-    // NOTE: Type is tied to title (same type S - weird quirk!)
-    footer: Option<S>,
+    t: &mut T,
     chunk: Rect,
     is_selected: bool,
-) -> Rect {
+    draw_call: impl FnOnce(&mut T, &mut Frame, Rect),
+) {
     let border_colour = if is_selected {
         SELECTED_BORDER_COLOUR
     } else {
         DESELECTED_BORDER_COLOUR
     };
-    if let Some(s) = footer {
+    if let Some(s) = t.get_footer() {
         let block = Block::new()
-            .title(title.as_ref())
+            .title(t.get_title().as_ref())
             .title_bottom(s.as_ref())
             .borders(Borders::ALL)
             .border_style(Style::new().fg(border_colour));
         let inner_chunk = block.inner(chunk);
         f.render_widget(block, chunk);
-        inner_chunk
+        draw_call(t, f, inner_chunk);
     } else {
         let block = Block::new()
-            .title(title.as_ref())
+            .title(t.get_title().as_ref())
             .borders(Borders::ALL)
             .border_style(Style::new().fg(border_colour));
         let inner_chunk = block.inner(chunk);
         f.render_widget(block, chunk);
-        inner_chunk
+        draw_call(t, f, inner_chunk);
     }
 }
 
@@ -98,13 +97,11 @@ pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected:
     let selected_item = list.get_selected_item();
     list.get_mut_state().select(Some(selected_item));
     // TODO: Scroll bars
-    let list_title = list.get_title();
     let list_widget =
         List::new(list.get_items()).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
-    let inner_chunk = draw_panel(f, list_title, None, chunk, selected);
     // ListState is cheap to clone
     *list.get_mut_state() =
-        move_render_stateful_widget(f, list_widget, inner_chunk, list.get_state().clone());
+        move_render_stateful_widget(f, list_widget, chunk, list.get_state().clone());
 }
 
 pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect, selected: bool)
@@ -124,7 +121,6 @@ where
         len,
         table.get_layout(),
         table.get_headings(),
-        table.get_title(),
     );
 }
 
@@ -139,7 +135,6 @@ pub fn draw_table_impl<'a>(
     len: usize,
     layout: &'a [BasicConstraint],
     headings: impl Iterator<Item = &'static str>,
-    title: Cow<'a, str>,
 ) -> TableState {
     // TableState is cheap to clone
     // Set the state to the currently selected item.
@@ -157,7 +152,7 @@ pub fn draw_table_impl<'a>(
     let table_height = chunk.height.saturating_sub(4) as usize;
     let table_widths =
 
-     // Minus block
+    // Minus block
     basic_constraints_to_table_constraints(layout, chunk.width.saturating_sub(2), 1);
     let table_widget = Table::new(table_items, table_widths)
         .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
@@ -175,9 +170,8 @@ pub fn draw_table_impl<'a>(
         .begin_symbol(None)
         .end_symbol(None);
     let scrollable_lines = len.saturating_sub(table_height);
-    let inner_chunk = draw_panel(f, title, None, chunk, selected);
     let pos = state.offset().min(scrollable_lines);
-    let new_state = move_render_stateful_widget(f, table_widget, inner_chunk, new_state);
+    let new_state = move_render_stateful_widget(f, table_widget, chunk, new_state);
     // Call this after rendering table, as offset is mutated.
     let mut scrollbar_state = ScrollbarState::default()
         .position(pos)

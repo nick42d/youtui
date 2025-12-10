@@ -153,9 +153,7 @@ pub trait TableView {
     fn get_selected_item(&self) -> usize;
     // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a
     // SortableTable), as possible we don't want to sort the Playlist (what happens
-    // to play order, for eg). Could have a "commontitle" trait to prevent the
-    // need for this in both Table and List
-    fn get_title(&self) -> Cow<'_, str>;
+    // to play order, for eg).
     fn get_layout(&self) -> &[BasicConstraint];
     // A row can be highlighted.
     fn get_highlighted_row(&self) -> Option<usize>;
@@ -201,7 +199,6 @@ pub trait ListView {
     fn get_selected_item(&self) -> usize;
     fn get_state(&self) -> &ListState;
     fn get_mut_state(&mut self) -> &mut ListState;
-    fn get_title(&self) -> Cow<'_, str>;
     fn get_items(&self) -> impl ExactSizeIterator<Item = Cow<'_, str>> + '_;
     fn len(&self) -> usize {
         self.get_items().len()
@@ -227,6 +224,11 @@ pub trait DrawableMut {
 // A part of the application that can be in a Loading state.
 pub trait Loadable {
     fn is_loading(&self) -> bool;
+}
+// A part of the application that has a
+pub trait IsPanel {
+    fn get_title(&self) -> Cow<'_, str>;
+    fn get_footer(&self) -> Option<Cow<'_, str>>;
 }
 
 #[cfg(test)]
