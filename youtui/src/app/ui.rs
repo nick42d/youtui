@@ -190,7 +190,7 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Logs => self.logger.is_text_handling(),
         }
     }
-    fn get_text(&self) -> std::cell::Ref<'_, str> {
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
         match self.context {
             WindowContext::Browser => self.browser.get_text(),
             WindowContext::Playlist => self.playlist.get_text(),

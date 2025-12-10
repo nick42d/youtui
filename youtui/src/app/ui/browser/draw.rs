@@ -206,7 +206,7 @@ pub fn draw_text_box(
     };
 }
 fn draw_search_box(f: &mut Frame, title: impl AsRef<str>, search: &mut SearchBlock, chunk: Rect) {
-    draw_text_box(f, title, &mut search.search_contents, chunk);
+    draw_text_box(f, title, search.search_contents.get_mut(), chunk);
 }
 
 fn draw_search_suggestions(f: &mut Frame, search: &SearchBlock, chunk: Rect, max_bounds: Rect) {

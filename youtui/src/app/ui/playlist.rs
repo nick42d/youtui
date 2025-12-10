@@ -118,8 +118,8 @@ impl TextHandler for Playlist {
     fn is_text_handling(&self) -> bool {
         false
     }
-    fn get_text(&self) -> &str {
-        Default::default()
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
+        None
     }
     fn replace_text(&mut self, _text: impl Into<String>) {}
     fn clear_text(&mut self) -> bool {

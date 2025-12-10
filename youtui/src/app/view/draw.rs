@@ -351,9 +351,5 @@ fn draw_filter_popup(f: &mut Frame, table: &mut impl AdvancedTableView, chunk: R
     // Hardocde dimensions of filter input.
     let popup_chunk = crate::drawutils::centered_rect(3, 22, chunk);
     f.render_widget(Clear, popup_chunk);
-    let mut text_state = table
-        .get_filter_state()
-        .try_borrow_mut()
-        .expect("This only place filter text_state is mutably borrowed");
-    draw_text_box(f, title, &mut *text_state, popup_chunk);
+    draw_text_box(f, title, table.get_mut_filter_state(), popup_chunk);
 }

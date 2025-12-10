@@ -124,9 +124,12 @@ impl AlbumSongsPanel {
         })
     }
     pub fn apply_filter(&mut self) {
-        let filter = self.filter.get_text().to_string();
         self.filter.shown = false;
         self.route = AlbumSongsInputRouting::List;
+        let Some(filter) = self.filter.get_text().map(|s| s.to_string()) else {
+            // Do nothing if no filter text
+            return;
+        };
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
             FilterString::CaseInsensitive(filter),
         ));
@@ -214,7 +217,7 @@ impl SongListComponent for AlbumSongsPanel {
     }
 }
 impl TextHandler for AlbumSongsPanel {
-    fn get_text(&self) -> &str {
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
         self.filter.get_text()
     }
     fn replace_text(&mut self, text: impl Into<String>) {
@@ -395,5 +398,8 @@ impl AdvancedTableView for AlbumSongsPanel {
     }
     fn get_filter_state(&self) -> &RefCell<rat_text::text_input::TextInputState> {
         &self.filter.filter_text
+    }
+    fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
+        self.filter.filter_text.get_mut()
     }
 }

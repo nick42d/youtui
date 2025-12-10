@@ -255,7 +255,7 @@ impl TextHandler for Browser {
             BrowserVariant::PlaylistSearch => self.playlist_search_browser.is_text_handling(),
         }
     }
-    fn get_text(&self) -> std::cell::Ref<'_, str> {
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
         match self.variant {
             BrowserVariant::ArtistSearch => self.artist_search_browser.get_text(),
             BrowserVariant::SongSearch => self.song_search_browser.get_text(),

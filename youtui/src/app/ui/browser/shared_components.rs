@@ -7,6 +7,7 @@ use rat_text::text_input::{TextInputState, handle_events};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
+use std::ops::Deref;
 use ytmapi_rs::common::SearchSuggestion;
 
 #[derive(Default)]
@@ -125,8 +126,8 @@ impl TextHandler for FilterManager {
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&self) -> &str {
-        self.filter_text.try_borrow().unwrap().text()
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
+        Some(std::cell::Ref::map(self.filter_text.borrow(), |t| t.text()))
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         self.filter_text.get_mut().set_text(text)
@@ -151,23 +152,25 @@ impl TextHandler for SearchBlock {
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&self) -> std::cell::Ref<'_, str> {
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
         let contents_ref: std::cell::Ref<_> = self.search_contents.borrow();
-        std::cell::Ref::map(contents_ref, |contents| contents.text())
+        Some(std::cell::Ref::map(contents_ref, |contents| {
+            contents.text()
+        }))
     }
     fn replace_text(&mut self, text: impl Into<String>) {
-        self.search_contents.set_text(text);
-        self.search_contents.move_to_line_end(false);
+        self.search_contents.borrow_mut().set_text(text);
+        self.search_contents.borrow_mut().move_to_line_end(false);
     }
     fn clear_text(&mut self) -> bool {
         self.search_suggestions.clear();
-        self.search_contents.clear()
+        self.search_contents.borrow_mut().clear()
     }
     fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
-        match handle_events(&mut self.search_contents, true, event) {
+        match handle_events(self.search_contents.get_mut(), true, event) {
             rat_text::event::TextOutcome::Continue => None,
             rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
             rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
@@ -189,7 +192,7 @@ impl SearchBlock {
     // Ask the UI for search suggestions for the current query
     fn fetch_search_suggestions(&mut self) -> ComponentEffect<Self> {
         // No need to fetch search suggestions if contents is empty.
-        if self.search_contents.is_empty() {
+        if self.search_contents.get_mut().is_empty() {
             self.search_suggestions.clear();
             return AsyncTask::new_no_op();
         }
@@ -210,7 +213,7 @@ impl SearchBlock {
             ),
         };
         AsyncTask::new_future_chained(
-            GetSearchSuggestions(self.get_text().to_string()),
+            GetSearchSuggestions(self.search_contents.get_mut().text().to_owned()),
             handler,
             Some(Constraint::new_kill_same_type()),
         )
@@ -220,7 +223,7 @@ impl SearchBlock {
         search_suggestions: Vec<SearchSuggestion>,
         search: String,
     ) {
-        if self.get_text() == search {
+        if self.get_text().as_deref() == Some(&search) {
             self.search_suggestions = search_suggestions;
             self.suggestions_cur = None;
         }

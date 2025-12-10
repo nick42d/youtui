@@ -119,12 +119,11 @@ impl TextHandler for SongSearchBrowser {
             InputRouting::Filter | InputRouting::Search
         )
     }
-    fn get_text(&self) -> &str {
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
         match self.input_routing {
             InputRouting::Filter => self.filter.get_text(),
             InputRouting::Search => self.search.get_text(),
-            InputRouting::List => "",
-            InputRouting::Sort => "",
+            InputRouting::List | InputRouting::Sort => None,
         }
     }
     fn replace_text(&mut self, text: impl Into<String>) {
@@ -350,6 +349,9 @@ impl AdvancedTableView for SongSearchBrowser {
     fn get_filter_state(&self) -> &std::cell::RefCell<rat_text::text_input::TextInputState> {
         &self.filter.filter_text
     }
+    fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
+        self.filter.filter_text.get_mut()
+    }
 }
 
 impl SongSearchBrowser {
@@ -404,9 +406,12 @@ impl SongSearchBrowser {
         })
     }
     pub fn apply_filter(&mut self) {
-        let filter = self.filter.get_text().to_string();
         self.filter.shown = false;
         self.input_routing = InputRouting::List;
+        let Some(filter) = self.filter.get_text().map(|s| s.to_string()) else {
+            // Do nothing if no filter text
+            return;
+        };
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
             FilterString::CaseInsensitive(filter),
         ));
@@ -511,7 +516,10 @@ impl SongSearchBrowser {
     pub fn search(&mut self) -> ComponentEffect<Self> {
         self.search_popped = false;
         self.input_routing = InputRouting::List;
-        let search_query = self.search.get_text().to_string();
+        let Some(search_query) = self.search.get_text().map(|s| s.to_string()) else {
+            // Do nothing if no text
+            return AsyncTask::new_no_op();
+        };
         self.search.clear_text();
 
         let handler = |this: &mut Self, results| match results {

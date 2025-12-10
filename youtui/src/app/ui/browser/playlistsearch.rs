@@ -80,7 +80,7 @@ impl TextHandler for PlaylistSearchBrowser {
             InputRouting::Song => self.playlist_songs_panel.is_text_handling(),
         }
     }
-    fn get_text(&self) -> &str {
+    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
         match self.input_routing {
             InputRouting::Playlist => self.playlist_search_panel.get_text(),
             InputRouting::Song => self.playlist_songs_panel.get_text(),
@@ -245,7 +245,15 @@ impl PlaylistSearchBrowser {
     }
     pub fn search(&mut self) -> ComponentEffect<Self> {
         self.playlist_search_panel.close_search();
-        let search_query = self.playlist_search_panel.search.get_text().to_string();
+        let Some(search_query) = self
+            .playlist_search_panel
+            .search
+            .get_text()
+            .map(|s| s.to_string())
+        else {
+            // Do nothing if no text
+            return AsyncTask::new_no_op();
+        };
         self.playlist_search_panel.clear_text();
 
         let handler = |this: &mut Self, results| match results {

@@ -175,6 +175,7 @@ pub trait AdvancedTableView: TableView {
     /// Implementor should ensure this is a non-overlapping borrow with all
     /// other trait methods.
     fn get_filter_state(&self) -> &RefCell<TextInputState>;
+    fn get_mut_filter_state(&mut self) -> &mut TextInputState;
     fn sort_popup_shown(&self) -> bool;
     fn get_sortable_columns(&self) -> &[usize];
     fn get_sort_commands(&self) -> &[TableSortCommand];
