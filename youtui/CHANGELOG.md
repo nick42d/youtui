@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.31](https://github.com/nick42d/youtui/compare/youtui/v0.0.30...youtui/v0.0.31) - 2025-12-10
+
+### Added
+- Add tabbed interface ([#297](https://github.com/nick42d/youtui/pull/297))
+
+### Fixed
+- Prevent early kill of yt-dlp process and add additional logging for downloader ([#302](https://github.com/nick42d/youtui/pull/302))
+
+### Other
+- Update edition ([#298](https://github.com/nick42d/youtui/pull/298))
+
+
+
+
 ## [0.0.30](https://github.com/nick42d/youtui/compare/youtui/v0.0.29...youtui/v0.0.30) - 2025-11-23
 
 ### Other
