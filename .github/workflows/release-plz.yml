@@ -78,7 +78,7 @@ jobs:
             -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
             --workdir /workspace \
             archlinux/archlinux:base-devel \
-            /bin/bash -c "pacman -Sy --noconfirm git openssh just pacman-contrib"
+            /bin/bash -c "pacman -Syu --noconfirm --needed git openssh just pacman-contrib"
 
           echo "Storing setup docker image"
           docker commit setup-container arch-loaded
