@@ -181,7 +181,7 @@ pub fn get_global_keybinds_as_readable_iter<'a, A: Action + 'static>(
 /// to wrap rat_text::TextInputState.
 pub trait TextHandler: Component {
     /// Get a reference to the text.
-    fn get_text(&self) -> &str;
+    fn get_text(&self) -> std::cell::Ref<'_, str>;
     /// Clear text, returning false if it was already clear.
     fn clear_text(&mut self) -> bool;
     /// Replace all text

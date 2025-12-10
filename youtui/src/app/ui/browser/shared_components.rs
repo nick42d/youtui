@@ -11,7 +11,7 @@ use ytmapi_rs::common::SearchSuggestion;
 
 #[derive(Default)]
 pub struct SearchBlock {
-    pub search_contents: TextInputState,
+    pub search_contents: RefCell<TextInputState>,
     pub search_suggestions: Vec<SearchSuggestion>,
     pub suggestions_cur: Option<usize>,
 }
@@ -151,8 +151,9 @@ impl TextHandler for SearchBlock {
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&self) -> &str {
-        self.search_contents.text()
+    fn get_text(&self) -> std::cell::Ref<'_, str> {
+        let contents_ref: std::cell::Ref<_> = self.search_contents.borrow();
+        std::cell::Ref::map(contents_ref, |contents| contents.text())
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         self.search_contents.set_text(text);
