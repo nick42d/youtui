@@ -139,7 +139,7 @@ impl TextHandler for FilterManager {
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
-        match handle_events(&mut self.filter_text.get_mut(), true, event) {
+        match handle_events(self.filter_text.get_mut(), true, event) {
             rat_text::event::TextOutcome::Continue => None,
             rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
             rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
@@ -159,12 +159,12 @@ impl TextHandler for SearchBlock {
         }))
     }
     fn replace_text(&mut self, text: impl Into<String>) {
-        self.search_contents.borrow_mut().set_text(text);
-        self.search_contents.borrow_mut().move_to_line_end(false);
+        self.search_contents.get_mut().set_text(text);
+        self.search_contents.get_mut().move_to_line_end(false);
     }
     fn clear_text(&mut self) -> bool {
         self.search_suggestions.clear();
-        self.search_contents.borrow_mut().clear()
+        self.search_contents.get_mut().clear()
     }
     fn handle_text_event_impl(
         &mut self,
