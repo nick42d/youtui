@@ -60,7 +60,7 @@ pub fn get_table_sort_character_array(
     })
 }
 
-// Draw inside a panel.
+/// Draw inside a panel.
 pub fn draw_panel_mut<T: IsPanel>(
     f: &mut Frame,
     t: &mut T,
@@ -75,7 +75,7 @@ pub fn draw_panel_mut<T: IsPanel>(
     };
     if let Some(s) = t.get_footer() {
         let block = Block::new()
-            .title(t.get_title().as_ref())
+            .title(t.get_title())
             .title_bottom(s.as_ref())
             .borders(Borders::ALL)
             .border_style(Style::new().fg(border_colour));
@@ -84,13 +84,53 @@ pub fn draw_panel_mut<T: IsPanel>(
         draw_call(t, f, inner_chunk);
     } else {
         let block = Block::new()
-            .title(t.get_title().as_ref())
+            .title(t.get_title())
             .borders(Borders::ALL)
             .border_style(Style::new().fg(border_colour));
         let inner_chunk = block.inner(chunk);
         f.render_widget(block, chunk);
         draw_call(t, f, inner_chunk);
     }
+}
+
+/// Draw inside a panel, where the draw call provides scrolling.
+pub fn draw_scrollable_panel_mut<T: IsPanel>(
+    f: &mut Frame,
+    t: &mut T,
+    chunk: Rect,
+    is_selected: bool,
+    scrollable_draw_call: impl FnOnce(&mut T, &mut Frame, Rect) -> ScrollbarState,
+) {
+    let border_colour = if is_selected {
+        SELECTED_BORDER_COLOUR
+    } else {
+        DESELECTED_BORDER_COLOUR
+    };
+    let block = Block::new()
+        .title(t.get_title())
+        .borders(Borders::ALL)
+        .border_style(Style::new().fg(border_colour));
+    let inner_chunk = block.inner(chunk);
+    if let Some(s) = t.get_footer() {
+        let block = block.title_bottom(s.as_ref());
+        f.render_widget(block, chunk);
+    } else {
+        f.render_widget(block, chunk);
+    }
+    let mut scrollbar_state = scrollable_draw_call(t, f, inner_chunk);
+    let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
+        .thumb_symbol(block::FULL)
+        .track_symbol(Some(line::VERTICAL))
+        .begin_symbol(None)
+        .end_symbol(None);
+    f.render_stateful_widget(
+        scrollbar,
+        chunk.inner(Margin {
+            vertical: 1,
+            horizontal: 0,
+        }),
+        &mut scrollbar_state,
+    );
 }
 
 pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected: bool) {
@@ -104,16 +144,17 @@ pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected:
         move_render_stateful_widget(f, list_widget, chunk, list.get_state().clone());
 }
 
-pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect, selected: bool)
+/// Returns a scrollbar_state that can be used if rendered in a scrollable
+/// panel.
+pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect) -> ScrollbarState
 where
     T: TableView,
 {
     let items = table.get_items();
     let len = items.len();
-    *table.get_mut_state() = draw_table_impl(
+    let (new_table_state, scrollbar_state) = draw_table_impl(
         f,
         chunk,
-        selected,
         table.get_selected_item(),
         table.get_highlighted_row(),
         table.get_state(),
@@ -122,20 +163,22 @@ where
         table.get_layout(),
         table.get_headings(),
     );
+
+    *table.get_mut_state() = new_table_state;
+    scrollbar_state
 }
 
 pub fn draw_table_impl<'a>(
     f: &mut Frame,
     chunk: Rect,
-    selected: bool,
     cur: usize,
     highlighted: Option<usize>,
     state: &TableState,
     items: impl Iterator<Item = impl Iterator<Item = Cow<'a, str>> + 'a> + 'a,
     len: usize,
     layout: &'a [BasicConstraint],
-    headings: impl Iterator<Item = &'static str>,
-) -> TableState {
+    headings: impl Iterator<Item = impl Into<Cell<'static>>>,
+) -> (TableState, ScrollbarState) {
     // TableState is cheap to clone
     // Set the state to the currently selected item.
     let mut new_state = state.clone();
@@ -148,12 +191,8 @@ pub fn draw_table_impl<'a>(
         }
         .style(Style::new().fg(TEXT_COLOUR))
     });
-    // Minus for height of block and heading.
-    let table_height = chunk.height.saturating_sub(4) as usize;
-    let table_widths =
-
-    // Minus block
-    basic_constraints_to_table_constraints(layout, chunk.width.saturating_sub(2), 1);
+    let table_height = chunk.height as usize;
+    let table_widths = basic_constraints_to_table_constraints(layout, chunk.width, 1);
     let table_widget = Table::new(table_items, table_widths)
         .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .header(
@@ -164,49 +203,30 @@ pub fn draw_table_impl<'a>(
             ),
         )
         .column_spacing(1);
-    let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
-        .thumb_symbol(block::FULL)
-        .track_symbol(Some(line::VERTICAL))
-        .begin_symbol(None)
-        .end_symbol(None);
     let scrollable_lines = len.saturating_sub(table_height);
     let pos = state.offset().min(scrollable_lines);
     let new_state = move_render_stateful_widget(f, table_widget, chunk, new_state);
     // Call this after rendering table, as offset is mutated.
-    let mut scrollbar_state = ScrollbarState::default()
+    let scrollbar_state = ScrollbarState::default()
         .position(pos)
         .content_length(scrollable_lines);
-    f.render_stateful_widget(
-        scrollbar,
-        chunk.inner(Margin {
-            vertical: 1,
-            horizontal: 0,
-        }),
-        &mut scrollbar_state,
-    );
-    new_state
+    (new_state, scrollbar_state)
 }
 
+/// Returns a ScrollbarState that can be used if rendered in a scrollable
+/// panel.
 pub fn draw_sortable_table(
     f: &mut Frame,
     table: &mut impl AdvancedTableView,
     chunk: Rect,
     selected: bool,
-) {
+) -> ScrollbarState {
     // Set the state to the currently selected item.
     let selected_item = table.get_selected_item();
     table.get_mut_state().select(Some(selected_item));
-    // TODO: theming
-    let table_items = table.get_filtered_items().map(Row::new);
     // Likely expensive, and could be optimised.
     let number_items = table.get_filtered_items().count();
     // Minus for height of block and heading.
-    let table_height = chunk.height.saturating_sub(4) as usize;
-    let table_widths = basic_constraints_to_table_constraints(
-        table.get_layout(),
-        chunk.width.saturating_sub(2),
-        1,
-    ); // Minus block
     let heading_names = table.get_headings();
     let sort_headings = get_table_sort_character_array(table.get_sort_commands())
         .into_iter()
@@ -237,45 +257,20 @@ pub fn draw_sortable_table(
     } else {
         filter_str
     };
-    let table_widget = Table::new(table_items, table_widths)
-        .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
-        .header(
-            Row::new(combined_headings).style(
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(TABLE_HEADINGS_COLOUR),
-            ),
-        )
-        .column_spacing(1);
-    let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
-        .thumb_symbol(block::FULL)
-        .track_symbol(Some(line::VERTICAL))
-        .begin_symbol(None)
-        .end_symbol(None);
-    let scrollable_lines = number_items.saturating_sub(table_height);
-    let inner_chunk = draw_panel(
-        f,
-        table.get_title(),
-        Some(filter_str.into()),
-        chunk,
-        selected,
-    );
     // Clone of TableState is cheap
-    let mut new_table_state = table.get_state().clone();
-    f.render_stateful_widget(table_widget, inner_chunk, &mut new_table_state);
-    *table.get_mut_state() = new_table_state;
-    // Call this after rendering table, as offset is mutated.
-    let mut scrollbar_state = ScrollbarState::default()
-        .position(table.get_state().offset().min(scrollable_lines))
-        .content_length(scrollable_lines);
-    f.render_stateful_widget(
-        scrollbar,
-        chunk.inner(Margin {
-            vertical: 1,
-            horizontal: 0,
-        }),
-        &mut scrollbar_state,
+    let new_table_state = table.get_state().clone();
+    let (new_table_state, scrollbar_state) = draw_table_impl(
+        f,
+        chunk,
+        table.get_selected_item(),
+        table.get_highlighted_row(),
+        &new_table_state,
+        table.get_filtered_items(),
+        number_items,
+        table.get_layout(),
+        combined_headings,
     );
+    *table.get_mut_state() = new_table_state;
 
     if table.sort_popup_shown() {
         draw_sort_popup(f, table, chunk);
@@ -284,6 +279,7 @@ pub fn draw_sortable_table(
     if table.filter_popup_shown() {
         draw_filter_popup(f, table, chunk);
     }
+    scrollbar_state
 }
 
 pub fn draw_loadable_mut<T: Loadable>(
