@@ -66,20 +66,22 @@ pub fn draw_panel_mut<T: IsPanel>(
     t: &mut T,
     chunk: Rect,
     is_selected: bool,
-    draw_call: impl FnOnce(&mut T, &mut Frame, Rect),
+    draw_call: impl for<'a> FnOnce(&'a mut T, &mut Frame, Rect) -> PanelEffect<'a>,
 ) {
     let border_colour = if is_selected {
         SELECTED_BORDER_COLOUR
     } else {
         DESELECTED_BORDER_COLOUR
     };
-    if let Some(s) = t.get_footer() {
-        let block = Block::new()
-            .title(t.get_title())
-            .title_bottom(s.as_ref())
-            .borders(Borders::ALL)
-            .border_style(Style::new().fg(border_colour));
-        let inner_chunk = block.inner(chunk);
+    let block = Block::new();
+    let inner_chunk = block.inner(chunk);
+    let effect = draw_call(t, f, inner_chunk);
+    let block = block
+        .title(t.get_title())
+        .borders(Borders::ALL)
+        .border_style(Style::new().fg(border_colour));
+
+    if let Some(footer) = effect.footer {
         f.render_widget(block, chunk);
         draw_call(t, f, inner_chunk);
     } else {
@@ -213,14 +215,18 @@ pub fn draw_table_impl<'a>(
     (new_state, scrollbar_state)
 }
 
+pub struct PanelEffect<'a> {
+    footer: Option<Cow<'a, str>>,
+    scrollbar: Option<ScrollbarState>,
+}
+
 /// Returns a ScrollbarState that can be used if rendered in a scrollable
 /// panel.
-pub fn draw_sortable_table(
+pub fn draw_advanced_table<'a>(
     f: &mut Frame,
-    table: &mut impl AdvancedTableView,
+    table: &'a mut impl AdvancedTableView,
     chunk: Rect,
-    selected: bool,
-) -> ScrollbarState {
+) -> PanelEffect<'static> {
     // Set the state to the currently selected item.
     let selected_item = table.get_selected_item();
     table.get_mut_state().select(Some(selected_item));
@@ -279,20 +285,27 @@ pub fn draw_sortable_table(
     if table.filter_popup_shown() {
         draw_filter_popup(f, table, chunk);
     }
-    scrollbar_state
+    PanelEffect {
+        footer: Some(filter_str.into()),
+        scrollbar: scrollbar_state,
+    }
 }
 
-pub fn draw_loadable_mut<T: Loadable>(
+pub fn draw_loadable_advanced_table_in_panel<T>(
     f: &mut Frame,
     t: &mut T,
     chunk: Rect,
-    draw_call: impl FnOnce(&mut T, &mut Frame, Rect),
-) {
-    if t.is_loading() {
-        let loading = Paragraph::new("Loading");
-        return f.render_widget(loading, chunk);
-    };
-    draw_call(t, f, chunk);
+    is_selected: bool,
+) where
+    T: AdvancedTableView + Loadable + IsPanel,
+{
+    draw_panel_mut(f, t, chunk, is_selected, |t, f, chunk| {
+        if t.is_loading() {
+            let loading = Paragraph::new("Loading");
+            return f.render_widget(loading, chunk);
+        };
+        let effect = draw_advanced_table(f, t, chunk);
+    });
 }
 
 /// Returns a new ListState for the sort popup.

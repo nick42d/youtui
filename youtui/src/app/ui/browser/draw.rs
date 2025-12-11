@@ -9,7 +9,7 @@ use crate::app::ui::browser::playlistsearch::search_panel::PlaylistInputRouting;
 use crate::app::ui::browser::playlistsearch::songs_panel::PlaylistSongsInputRouting;
 use crate::app::ui::browser::playlistsearch::{self, PlaylistSearchBrowser};
 use crate::app::view::AdvancedTableView;
-use crate::app::view::draw::{draw_list, draw_loadable_mut, draw_sortable_table};
+use crate::app::view::draw::{draw_list, draw_loadable_mut, draw_advanced_table};
 use crate::drawutils::{
     ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR, below_left_rect, bottom_of_rect,
 };
@@ -81,7 +81,7 @@ pub fn draw_artist_search_browser(
         }
     }
     draw_loadable_mut(f, &mut browser.album_songs_panel, layout[1], |t, f, c| {
-        draw_sortable_table(f, t, c, albumsongsselected)
+        draw_advanced_table(f, t, c, albumsongsselected)
     });
 }
 pub fn draw_playlist_search_browser(
@@ -148,7 +148,7 @@ pub fn draw_playlist_search_browser(
         f,
         &mut browser.playlist_songs_panel,
         songs_chunk,
-        |t, f, c| draw_sortable_table(f, t, c, albumsongsselected),
+        |t, f, c| draw_advanced_table(f, t, c, albumsongsselected),
     );
 }
 pub fn draw_song_search_browser(
@@ -159,7 +159,7 @@ pub fn draw_song_search_browser(
 ) {
     if !browser.search_popped {
         draw_loadable_mut(f, browser, chunk, |t, f, c| {
-            draw_sortable_table(f, t, c, selected)
+            draw_advanced_table(f, t, c, selected)
         });
     } else {
         let s = Layout::default()
@@ -168,7 +168,7 @@ pub fn draw_song_search_browser(
             .constraints([Constraint::Length(3), Constraint::Min(0)])
             .split(chunk);
         draw_loadable_mut(f, browser, s[1], |t, f, c| {
-            draw_sortable_table(f, t, c, false)
+            draw_advanced_table(f, t, c, false)
         });
         draw_search_box(f, "Search Songs", &mut browser.search, s[0]);
         // Should this be part of draw_search_box
