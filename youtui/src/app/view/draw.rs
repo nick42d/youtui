@@ -3,7 +3,7 @@ use super::{
 };
 use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
 use crate::app::ui::draw::draw_text_box;
-use crate::app::view::{BasicConstraint, IsPanel, ListView, Loadable};
+use crate::app::view::{BasicConstraint, HasTitle, ListView, Loadable};
 use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
@@ -61,12 +61,24 @@ pub fn get_table_sort_character_array(
 }
 
 /// Draw inside a panel.
-pub fn draw_panel_mut<T: IsPanel>(
+pub fn draw_panel_mut<T: HasTitle>(
     f: &mut Frame,
     t: &mut T,
     chunk: Rect,
     is_selected: bool,
-    draw_call: impl for<'a> FnOnce(&'a mut T, &mut Frame, Rect) -> PanelEffect<'a>,
+    draw_call: impl for<'a> FnOnce(&'a mut T, &mut Frame, Rect) -> Option<PanelEffect<'static>>,
+) {
+    draw_panel_mut_impl(f, t.get_title(), t, chunk, is_selected, draw_call);
+}
+
+/// Draw inside a panel.
+pub fn draw_panel_mut_impl<T>(
+    f: &mut Frame,
+    title: Cow<str>,
+    t: &mut T,
+    chunk: Rect,
+    is_selected: bool,
+    draw_call: impl for<'a> FnOnce(&'a mut T, &mut Frame, Rect) -> Option<PanelEffect<'static>>,
 ) {
     let border_colour = if is_selected {
         SELECTED_BORDER_COLOUR
@@ -77,65 +89,33 @@ pub fn draw_panel_mut<T: IsPanel>(
     let inner_chunk = block.inner(chunk);
     let effect = draw_call(t, f, inner_chunk);
     let block = block
-        .title(t.get_title())
+        .title(title)
         .borders(Borders::ALL)
         .border_style(Style::new().fg(border_colour));
-
-    if let Some(footer) = effect.footer {
-        f.render_widget(block, chunk);
-        draw_call(t, f, inner_chunk);
-    } else {
-        let block = Block::new()
-            .title(t.get_title())
-            .borders(Borders::ALL)
-            .border_style(Style::new().fg(border_colour));
-        let inner_chunk = block.inner(chunk);
-        f.render_widget(block, chunk);
-        draw_call(t, f, inner_chunk);
+    if let Some(effect) = effect {
+        effect.apply_and_render(block, f, chunk);
     }
 }
 
-/// Draw inside a panel, where the draw call provides scrolling.
-pub fn draw_scrollable_panel_mut<T: IsPanel>(
+pub fn draw_loadable_advanced_table_in_panel<T>(
     f: &mut Frame,
     t: &mut T,
     chunk: Rect,
     is_selected: bool,
-    scrollable_draw_call: impl FnOnce(&mut T, &mut Frame, Rect) -> ScrollbarState,
-) {
-    let border_colour = if is_selected {
-        SELECTED_BORDER_COLOUR
-    } else {
-        DESELECTED_BORDER_COLOUR
-    };
-    let block = Block::new()
-        .title(t.get_title())
-        .borders(Borders::ALL)
-        .border_style(Style::new().fg(border_colour));
-    let inner_chunk = block.inner(chunk);
-    if let Some(s) = t.get_footer() {
-        let block = block.title_bottom(s.as_ref());
-        f.render_widget(block, chunk);
-    } else {
-        f.render_widget(block, chunk);
-    }
-    let mut scrollbar_state = scrollable_draw_call(t, f, inner_chunk);
-    let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
-        .thumb_symbol(block::FULL)
-        .track_symbol(Some(line::VERTICAL))
-        .begin_symbol(None)
-        .end_symbol(None);
-    f.render_stateful_widget(
-        scrollbar,
-        chunk.inner(Margin {
-            vertical: 1,
-            horizontal: 0,
-        }),
-        &mut scrollbar_state,
-    );
+) where
+    T: AdvancedTableView + Loadable + HasTitle,
+{
+    draw_panel_mut(f, t, chunk, is_selected, |t, f, chunk| {
+        if t.is_loading() {
+            let loading = Paragraph::new("Loading");
+            f.render_widget(loading, chunk);
+            return None;
+        };
+        Some(draw_advanced_table(f, t, chunk))
+    });
 }
 
-pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected: bool) {
+pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect) {
     let selected_item = list.get_selected_item();
     list.get_mut_state().select(Some(selected_item));
     // TODO: Scroll bars
@@ -146,28 +126,44 @@ pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, selected:
         move_render_stateful_widget(f, list_widget, chunk, list.get_state().clone());
 }
 
-/// Returns a scrollbar_state that can be used if rendered in a scrollable
-/// panel.
-pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect) -> ScrollbarState
+#[must_use = "PanelEffect does nothing if it is not used"]
+pub struct PanelEffect<'a> {
+    footer: Option<Cow<'a, str>>,
+    scrollbar: Option<ScrollbarState>,
+}
+impl<'a> WidgetEffect<Block<'_>> for PanelEffect<'a> {
+    fn apply_and_render(self, panel: Block<'_>, f: &mut Frame, chunk: Rect) {
+        if let Some(footer) = self.footer {
+            let panel = panel.title_bottom(footer);
+            f.render_widget(panel, chunk);
+        } else {
+            f.render_widget(panel, chunk);
+        }
+        if let Some(mut scrollbar_state) = self.scrollbar {
+            let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
+                .thumb_symbol(block::FULL)
+                .track_symbol(Some(line::VERTICAL))
+                .begin_symbol(None)
+                .end_symbol(None);
+            f.render_stateful_widget(
+                scrollbar,
+                chunk.inner(Margin {
+                    vertical: 1,
+                    horizontal: 0,
+                }),
+                &mut scrollbar_state,
+            );
+        }
+    }
+}
+/// WidgetEffect represents an effect to be applied to a widget.
+/// This allows Child widgets to apply effects to their parents in a controlled,
+/// testable manner.
+trait WidgetEffect<T>
 where
-    T: TableView,
+    T: Widget,
 {
-    let items = table.get_items();
-    let len = items.len();
-    let (new_table_state, scrollbar_state) = draw_table_impl(
-        f,
-        chunk,
-        table.get_selected_item(),
-        table.get_highlighted_row(),
-        table.get_state(),
-        items,
-        len,
-        table.get_layout(),
-        table.get_headings(),
-    );
-
-    *table.get_mut_state() = new_table_state;
-    scrollbar_state
+    fn apply_and_render(self, widget: T, f: &mut Frame, chunk: Rect);
 }
 
 pub fn draw_table_impl<'a>(
@@ -180,7 +176,8 @@ pub fn draw_table_impl<'a>(
     len: usize,
     layout: &'a [BasicConstraint],
     headings: impl Iterator<Item = impl Into<Cell<'static>>>,
-) -> (TableState, ScrollbarState) {
+    footer: Option<String>,
+) -> (TableState, PanelEffect<'static>) {
     // TableState is cheap to clone
     // Set the state to the currently selected item.
     let mut new_state = state.clone();
@@ -212,15 +209,41 @@ pub fn draw_table_impl<'a>(
     let scrollbar_state = ScrollbarState::default()
         .position(pos)
         .content_length(scrollable_lines);
-    (new_state, scrollbar_state)
+    (
+        new_state,
+        PanelEffect {
+            footer: footer.map(Into::into),
+            scrollbar: Some(scrollbar_state),
+        },
+    )
 }
 
-pub struct PanelEffect<'a> {
-    footer: Option<Cow<'a, str>>,
-    scrollbar: Option<ScrollbarState>,
+/// Returns a PanelEffect that can be used if rendered in a scrollable
+/// panel.
+pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect) -> PanelEffect<'static>
+where
+    T: TableView,
+{
+    let items = table.get_items();
+    let len = items.len();
+    let (new_table_state, effect) = draw_table_impl(
+        f,
+        chunk,
+        table.get_selected_item(),
+        table.get_highlighted_row(),
+        table.get_state(),
+        items,
+        len,
+        table.get_layout(),
+        table.get_headings(),
+        None,
+    );
+
+    *table.get_mut_state() = new_table_state;
+    effect
 }
 
-/// Returns a ScrollbarState that can be used if rendered in a scrollable
+/// Returns a PanelEffect that can be used if rendered in a scrollable
 /// panel.
 pub fn draw_advanced_table<'a>(
     f: &mut Frame,
@@ -258,14 +281,14 @@ pub fn draw_advanced_table<'a>(
     )
     .collect();
     // Naive implementation
-    let filter_str = if filter_str.len() > 1 {
+    let filter_string = if filter_str.len() > 1 {
         ": ".to_string() + &filter_str
     } else {
         filter_str
     };
     // Clone of TableState is cheap
     let new_table_state = table.get_state().clone();
-    let (new_table_state, scrollbar_state) = draw_table_impl(
+    let (new_table_state, effect) = draw_table_impl(
         f,
         chunk,
         table.get_selected_item(),
@@ -275,6 +298,7 @@ pub fn draw_advanced_table<'a>(
         number_items,
         table.get_layout(),
         combined_headings,
+        Some(filter_string),
     );
     *table.get_mut_state() = new_table_state;
 
@@ -285,27 +309,7 @@ pub fn draw_advanced_table<'a>(
     if table.filter_popup_shown() {
         draw_filter_popup(f, table, chunk);
     }
-    PanelEffect {
-        footer: Some(filter_str.into()),
-        scrollbar: scrollbar_state,
-    }
-}
-
-pub fn draw_loadable_advanced_table_in_panel<T>(
-    f: &mut Frame,
-    t: &mut T,
-    chunk: Rect,
-    is_selected: bool,
-) where
-    T: AdvancedTableView + Loadable + IsPanel,
-{
-    draw_panel_mut(f, t, chunk, is_selected, |t, f, chunk| {
-        if t.is_loading() {
-            let loading = Paragraph::new("Loading");
-            return f.render_widget(loading, chunk);
-        };
-        let effect = draw_advanced_table(f, t, chunk);
-    });
+    effect
 }
 
 /// Returns a new ListState for the sort popup.

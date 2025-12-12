@@ -225,10 +225,9 @@ pub trait DrawableMut {
 pub trait Loadable {
     fn is_loading(&self) -> bool;
 }
-// A part of the application that has a
-pub trait IsPanel {
+// A part of the application that has a title
+pub trait HasTitle {
     fn get_title(&self) -> Cow<'_, str>;
-    fn get_footer(&self) -> Option<Cow<'_, str>>;
 }
 
 #[cfg(test)]

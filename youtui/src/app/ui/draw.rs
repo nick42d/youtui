@@ -1,5 +1,5 @@
 use super::{WindowContext, YoutuiWindow, footer, header};
-use crate::app::view::draw::{draw_panel, draw_table_impl};
+use crate::app::view::draw::{draw_panel_mut, draw_table_impl};
 use crate::app::view::{BasicConstraint, Drawable, DrawableMut};
 use crate::drawutils::{
     SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR, TEXT_COLOUR, highlight_style,
@@ -156,19 +156,22 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
         chunk,
     );
     f.render_widget(Clear, area);
-    w.help.widget_state = draw_table_impl(
-        f,
-        area,
-        true,
-        w.help.cur,
-        None,
-        &w.help.widget_state,
-        commands_table,
-        items,
-        &table_constraints,
-        headings,
-        "Help".into(),
-    );
+    draw_panel_mut(f, w, area, true, |t, f, chunk| {
+        let (new_state, effect) = draw_table_impl(
+            f,
+            area,
+            w.help.cur,
+            None,
+            &w.help.widget_state,
+            commands_table,
+            items,
+            &table_constraints,
+            headings,
+            None,
+        );
+        w.help.widget_state = new_state;
+        Some(effect)
+    });
 }
 
 /// Draw a text input box

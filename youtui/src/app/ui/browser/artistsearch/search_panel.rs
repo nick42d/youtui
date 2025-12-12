@@ -4,7 +4,7 @@ use crate::app::component::actionhandler::{
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::SearchBlock;
-use crate::app::view::{ListView, Loadable};
+use crate::app::view::{HasTitle, ListView, Loadable};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use ratatui::widgets::ListState;
@@ -148,9 +148,6 @@ impl ListView for ArtistSearchPanel {
     fn get_state(&self) -> &ratatui::widgets::ListState {
         &self.widget_state
     }
-    fn get_title(&self) -> Cow<'_, str> {
-        "Artists".into()
-    }
     fn get_mut_state(&mut self) -> &mut ListState {
         &mut self.widget_state
     }
@@ -158,5 +155,10 @@ impl ListView for ArtistSearchPanel {
         self.list
             .iter()
             .map(|search_result| (&search_result.artist).into())
+    }
+}
+impl HasTitle for ArtistSearchPanel {
+    fn get_title(&self) -> Cow<'_, str> {
+        "Artists".into()
     }
 }
