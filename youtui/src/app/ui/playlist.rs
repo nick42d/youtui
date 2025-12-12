@@ -214,9 +214,8 @@ impl TableView for Playlist {
     fn get_highlighted_row(&self) -> Option<usize> {
         self.get_cur_playing_index()
     }
-
     fn get_mut_state(&mut self) -> &mut TableState {
-        todo!()
+        &mut self.widget_state
     }
 }
 impl HasTitle for Playlist {

@@ -85,15 +85,16 @@ pub fn draw_panel_mut_impl<T>(
     } else {
         DESELECTED_BORDER_COLOUR
     };
-    let block = Block::new();
-    let inner_chunk = block.inner(chunk);
-    let effect = draw_call(t, f, inner_chunk);
-    let block = block
-        .title(get_title(t))
+    let block = Block::new()
         .borders(Borders::ALL)
         .border_style(Style::new().fg(border_colour));
+    let inner_chunk = block.inner(chunk);
+    let effect = draw_call(t, f, inner_chunk);
+    let block = block.title(get_title(t));
     if let Some(effect) = effect {
         effect.apply_and_render(block, f, chunk);
+    } else {
+        f.render_widget(block, chunk);
     }
 }
 
@@ -160,7 +161,7 @@ impl<'a> WidgetEffect<Block<'_>> for PanelEffect<'a> {
 /// WidgetEffect represents an effect to be applied to a widget.
 /// This allows Child widgets to apply effects to their parents in a controlled,
 /// testable manner.
-trait WidgetEffect<T>
+pub trait WidgetEffect<T>
 where
     T: Widget,
 {
