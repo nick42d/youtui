@@ -9,10 +9,7 @@ use crate::app::ui::browser::playlistsearch::search_panel::PlaylistInputRouting;
 use crate::app::ui::browser::playlistsearch::songs_panel::PlaylistSongsInputRouting;
 use crate::app::ui::browser::playlistsearch::{self, PlaylistSearchBrowser};
 use crate::app::view::AdvancedTableView;
-use crate::app::view::draw::{
-    draw_advanced_table, draw_list, draw_loadable, draw_loadable_advanced_table_in_panel,
-    draw_loadable_mut, draw_panel_mut,
-};
+use crate::app::view::draw::{draw_advanced_table, draw_list, draw_loadable, draw_panel_mut};
 use crate::drawutils::{
     ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR, below_left_rect, bottom_of_rect,
 };
@@ -23,6 +20,7 @@ use ratatui::prelude::{Constraint, Direction, Layout, Rect};
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
+use std::ops::Deref;
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
@@ -44,11 +42,11 @@ pub fn draw_artist_search_browser(
     chunk: Rect,
     selected: bool,
 ) {
-    let layout = Layout::new(
+    let [artists_chunk, songs_chunk] = Layout::new(
         ratatui::prelude::Direction::Horizontal,
         [Constraint::Max(30), Constraint::Min(0)],
     )
-    .split(chunk);
+    .areas(chunk);
     // Potentially could handle this better.
     let albumsongsselected = selected
         && browser.input_routing == artistsearch::InputRouting::Song
@@ -59,34 +57,52 @@ pub fn draw_artist_search_browser(
         && browser.artist_search_panel.route == ArtistInputRouting::List;
 
     if !browser.artist_search_panel.search_popped {
-        draw_list(
+        draw_panel_mut(
             f,
             &mut browser.artist_search_panel,
-            layout[0],
+            artists_chunk,
             artistselected,
+            |t, f, chunk| {
+                draw_list(f, t, chunk);
+                None
+            },
         );
     } else {
-        let s = Layout::default()
+        let [search_box_chunk, shrunk_artists_chunk] = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
-            .split(layout[0]);
-        draw_list(f, &mut browser.artist_search_panel, s[1], artistselected);
+            .areas(artists_chunk);
+        draw_panel_mut(
+            f,
+            &mut browser.artist_search_panel,
+            shrunk_artists_chunk,
+            artistselected,
+            |t, f, chunk| {
+                draw_list(f, t, chunk);
+                None
+            },
+        );
         draw_search_box(
             f,
             "Search Artists",
             &mut browser.artist_search_panel.search,
-            s[0],
+            search_box_chunk,
         );
         // Should this be part of draw_search_box
         if browser.artist_search_panel.has_search_suggestions() {
-            draw_search_suggestions(f, &browser.artist_search_panel.search, s[0], layout[0])
+            draw_search_suggestions(
+                f,
+                &browser.artist_search_panel.search,
+                search_box_chunk,
+                artists_chunk,
+            )
         }
     }
     draw_panel_mut(
         f,
         &mut browser.album_songs_panel,
-        layout[1],
+        songs_chunk,
         albumsongsselected,
         |t, f, chunk| {
             draw_loadable(f, t, chunk, |t, f, chunk| {
@@ -101,43 +117,46 @@ pub fn draw_playlist_search_browser(
     chunk: Rect,
     selected: bool,
 ) {
-    let [artists_chunk, songs_chunk] = *Layout::new(
+    let [playlists_chunk, songs_chunk] = Layout::new(
         ratatui::prelude::Direction::Horizontal,
         [Constraint::Max(30), Constraint::Min(0)],
     )
-    .split(chunk) else {
-        unreachable!("Defined 2 constraints");
-    };
+    .areas(chunk);
     // Potentially could handle this better.
-    let albumsongsselected = selected
+    let songs_selected = selected
         && browser.input_routing == playlistsearch::InputRouting::Song
         && browser.playlist_songs_panel.route == PlaylistSongsInputRouting::List;
-    let playlistselected = !albumsongsselected
+    let playlists_selected = !songs_selected
         && selected
         && browser.input_routing == playlistsearch::InputRouting::Playlist
         && browser.playlist_search_panel.route == PlaylistInputRouting::List;
 
     if !browser.playlist_search_panel.search_popped {
-        draw_list(
+        draw_panel_mut(
             f,
             &mut browser.playlist_search_panel,
-            artists_chunk,
-            playlistselected,
+            playlists_chunk,
+            playlists_selected,
+            |t, f, chunk| {
+                draw_list(f, t, chunk);
+                None
+            },
         );
     } else {
-        let [search_box_chunk, search_panel_chunk] = *Layout::default()
+        let [search_box_chunk, shrunk_playlists_chunk] = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
-            .split(artists_chunk)
-        else {
-            unreachable!("Defined 2 constraints")
-        };
-        draw_list(
+            .areas(playlists_chunk);
+        draw_panel_mut(
             f,
             &mut browser.playlist_search_panel,
-            search_panel_chunk,
-            playlistselected,
+            shrunk_playlists_chunk,
+            playlists_selected,
+            |t, f, chunk| {
+                draw_list(f, t, chunk);
+                None
+            },
         );
         draw_search_box(
             f,
@@ -151,7 +170,7 @@ pub fn draw_playlist_search_browser(
                 f,
                 &browser.playlist_search_panel.search,
                 search_box_chunk,
-                artists_chunk,
+                playlists_chunk,
             )
         }
     }
@@ -159,7 +178,7 @@ pub fn draw_playlist_search_browser(
         f,
         &mut browser.playlist_songs_panel,
         songs_chunk,
-        albumsongsselected,
+        songs_selected,
         |t, f, chunk| {
             draw_loadable(f, t, chunk, |t, f, chunk| {
                 Some(draw_advanced_table(f, t, chunk))
@@ -174,22 +193,26 @@ pub fn draw_song_search_browser(
     selected: bool,
 ) {
     if !browser.search_popped {
-        draw_loadable_mut(f, browser, chunk, |t, f, c| {
-            draw_advanced_table(f, t, c, selected)
+        draw_panel_mut(f, browser, chunk, selected, |t, f, chunk| {
+            draw_loadable(f, t, chunk, |t, f, chunk| {
+                Some(draw_advanced_table(f, t, chunk))
+            })
         });
     } else {
-        let s = Layout::default()
+        let [search_box_chunk, new_chunk] = Layout::default()
             .direction(Direction::Vertical)
             .margin(0)
             .constraints([Constraint::Length(3), Constraint::Min(0)])
-            .split(chunk);
-        draw_loadable_mut(f, browser, s[1], |t, f, c| {
-            draw_advanced_table(f, t, c, false)
+            .areas(chunk);
+        draw_panel_mut(f, browser, new_chunk, false, |t, f, chunk| {
+            draw_loadable(f, t, chunk, |t, f, chunk| {
+                Some(draw_advanced_table(f, t, chunk))
+            })
         });
-        draw_search_box(f, "Search Songs", &mut browser.search, s[0]);
+        draw_search_box(f, "Search Songs", &mut browser.search, search_box_chunk);
         // Should this be part of draw_search_box
         if browser.has_search_suggestions() {
-            draw_search_suggestions(f, &browser.search, s[0], chunk)
+            draw_search_suggestions(f, &browser.search, search_box_chunk, chunk)
         }
     }
 }

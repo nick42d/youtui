@@ -116,16 +116,6 @@ where
     draw_call(t, f, chunk)
 }
 
-pub fn draw_loadable_advanced_table_in_panel<T>(
-    f: &mut Frame,
-    t: &mut T,
-    chunk: Rect,
-    is_selected: bool,
-) where
-    T: AdvancedTableView + Loadable + HasTitle,
-{
-}
-
 pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect) {
     let selected_item = list.get_selected_item();
     list.get_mut_state().select(Some(selected_item));

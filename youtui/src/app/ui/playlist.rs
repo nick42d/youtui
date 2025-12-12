@@ -13,9 +13,7 @@ use crate::app::structures::{
     ListSongDisplayableField, ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
-use crate::app::view::draw::{
-    draw_loadable, draw_loadable_advanced_table_in_panel, draw_panel_mut, draw_table,
-};
+use crate::app::view::draw::{draw_loadable, draw_panel_mut, draw_table};
 use crate::app::view::{BasicConstraint, DrawableMut, HasTitle, Loadable, TableView};
 use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
