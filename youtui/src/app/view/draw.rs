@@ -68,16 +68,16 @@ pub fn draw_panel_mut<T: HasTitle>(
     is_selected: bool,
     draw_call: impl for<'a> FnOnce(&'a mut T, &mut Frame, Rect) -> Option<PanelEffect<'static>>,
 ) {
-    draw_panel_mut_impl(f, t.get_title(), t, chunk, is_selected, draw_call);
+    draw_panel_mut_impl(f, t, chunk, is_selected, |t| t.get_title(), draw_call);
 }
 
 /// Draw inside a panel.
 pub fn draw_panel_mut_impl<T>(
     f: &mut Frame,
-    title: Cow<str>,
     t: &mut T,
     chunk: Rect,
     is_selected: bool,
+    get_title: impl for<'a> FnOnce(&'a mut T) -> Cow<'a, str>,
     draw_call: impl for<'a> FnOnce(&'a mut T, &mut Frame, Rect) -> Option<PanelEffect<'static>>,
 ) {
     let border_colour = if is_selected {
@@ -89,12 +89,31 @@ pub fn draw_panel_mut_impl<T>(
     let inner_chunk = block.inner(chunk);
     let effect = draw_call(t, f, inner_chunk);
     let block = block
-        .title(title)
+        .title(get_title(t))
         .borders(Borders::ALL)
         .border_style(Style::new().fg(border_colour));
     if let Some(effect) = effect {
         effect.apply_and_render(block, f, chunk);
     }
+}
+
+pub fn draw_loadable<T, E, W>(
+    f: &mut Frame,
+    t: &mut T,
+    chunk: Rect,
+    draw_call: impl for<'a> FnOnce(&'a mut T, &mut Frame, Rect) -> Option<E>,
+) -> Option<E>
+where
+    T: Loadable,
+    E: WidgetEffect<W>,
+    W: Widget,
+{
+    if t.is_loading() {
+        let loading = Paragraph::new("Loading");
+        f.render_widget(loading, chunk);
+        return None;
+    };
+    draw_call(t, f, chunk)
 }
 
 pub fn draw_loadable_advanced_table_in_panel<T>(
@@ -105,14 +124,6 @@ pub fn draw_loadable_advanced_table_in_panel<T>(
 ) where
     T: AdvancedTableView + Loadable + HasTitle,
 {
-    draw_panel_mut(f, t, chunk, is_selected, |t, f, chunk| {
-        if t.is_loading() {
-            let loading = Paragraph::new("Loading");
-            f.render_widget(loading, chunk);
-            return None;
-        };
-        Some(draw_advanced_table(f, t, chunk))
-    });
 }
 
 pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect) {

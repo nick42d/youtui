@@ -9,7 +9,10 @@ use crate::app::ui::browser::playlistsearch::search_panel::PlaylistInputRouting;
 use crate::app::ui::browser::playlistsearch::songs_panel::PlaylistSongsInputRouting;
 use crate::app::ui::browser::playlistsearch::{self, PlaylistSearchBrowser};
 use crate::app::view::AdvancedTableView;
-use crate::app::view::draw::{draw_advanced_table, draw_list, draw_loadable_mut, draw_panel_mut};
+use crate::app::view::draw::{
+    draw_advanced_table, draw_list, draw_loadable, draw_loadable_advanced_table_in_panel,
+    draw_loadable_mut, draw_panel_mut,
+};
 use crate::drawutils::{
     ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TEXT_COLOUR, below_left_rect, bottom_of_rect,
 };
@@ -80,9 +83,17 @@ pub fn draw_artist_search_browser(
             draw_search_suggestions(f, &browser.artist_search_panel.search, s[0], layout[0])
         }
     }
-    draw_loadable_mut(f, &mut browser.album_songs_panel, layout[1], |t, f, c| {
-        draw_advanced_table(f, t, c, albumsongsselected)
-    });
+    draw_panel_mut(
+        f,
+        &mut browser.album_songs_panel,
+        layout[1],
+        albumsongsselected,
+        |t, f, chunk| {
+            draw_loadable(f, t, chunk, |t, f, chunk| {
+                Some(draw_advanced_table(f, t, chunk))
+            })
+        },
+    );
 }
 pub fn draw_playlist_search_browser(
     f: &mut Frame,
@@ -144,11 +155,16 @@ pub fn draw_playlist_search_browser(
             )
         }
     }
-    draw_loadable_mut(
+    draw_panel_mut(
         f,
         &mut browser.playlist_songs_panel,
         songs_chunk,
-        |t, f, c| draw_advanced_table(f, t, c, albumsongsselected),
+        albumsongsselected,
+        |t, f, chunk| {
+            draw_loadable(f, t, chunk, |t, f, chunk| {
+                Some(draw_advanced_table(f, t, chunk))
+            })
+        },
     );
 }
 pub fn draw_song_search_browser(

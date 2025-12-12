@@ -14,8 +14,8 @@ use crate::app::structures::{
 };
 use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::view::{
-    AdvancedTableView, BasicConstraint, FilterString, Loadable, SortDirection, TableFilterCommand,
-    TableSortCommand, TableView,
+    AdvancedTableView, BasicConstraint, FilterString, HasTitle, Loadable, SortDirection,
+    TableFilterCommand, TableSortCommand, TableView,
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
@@ -246,21 +246,6 @@ impl TableView for SongSearchBrowser {
     fn get_state(&self) -> &TableState {
         &self.widget_state
     }
-    fn get_title(&self) -> std::borrow::Cow<'_, str> {
-        match self.song_list.state {
-            ListStatus::New => "Songs".into(),
-            ListStatus::Loading => "Songs - loading".into(),
-            ListStatus::InProgress => format!(
-                "Songs - {} results - loading",
-                self.song_list.get_list_iter().len()
-            )
-            .into(),
-            ListStatus::Loaded => {
-                format!("Songs - {} results", self.song_list.get_list_iter().len()).into()
-            }
-            ListStatus::Error => "Songs - Error receieved".into(),
-        }
-    }
     fn get_layout(&self) -> &[crate::app::view::BasicConstraint] {
         &[
             BasicConstraint::Percentage(Percentage(40)),
@@ -353,7 +338,23 @@ impl AdvancedTableView for SongSearchBrowser {
         self.filter.filter_text.get_mut()
     }
 }
-
+impl HasTitle for SongSearchBrowser {
+    fn get_title(&self) -> std::borrow::Cow<'_, str> {
+        match self.song_list.state {
+            ListStatus::New => "Songs".into(),
+            ListStatus::Loading => "Songs - loading".into(),
+            ListStatus::InProgress => format!(
+                "Songs - {} results - loading",
+                self.song_list.get_list_iter().len()
+            )
+            .into(),
+            ListStatus::Loaded => {
+                format!("Songs - {} results", self.song_list.get_list_iter().len()).into()
+            }
+            ListStatus::Error => "Songs - Error receieved".into(),
+        }
+    }
+}
 impl SongSearchBrowser {
     pub fn new() -> Self {
         Self {

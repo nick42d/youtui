@@ -4,7 +4,7 @@ use crate::app::component::actionhandler::{
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::SearchBlock;
-use crate::app::view::{ListView, Loadable};
+use crate::app::view::{HasTitle, ListView, Loadable};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use ratatui::widgets::ListState;
@@ -176,9 +176,6 @@ impl ListView for PlaylistSearchPanel {
     fn get_selected_item(&self) -> usize {
         self.selected
     }
-    fn get_title(&self) -> Cow<'_, str> {
-        "Playlists".into()
-    }
     fn get_state(&self) -> &ratatui::widgets::ListState {
         &self.widget_state
     }
@@ -189,5 +186,10 @@ impl ListView for PlaylistSearchPanel {
         self.list
             .iter()
             .map(|search_result| (&search_result.title).into())
+    }
+}
+impl HasTitle for PlaylistSearchPanel {
+    fn get_title(&self) -> Cow<'_, str> {
+        "Playlists".into()
     }
 }

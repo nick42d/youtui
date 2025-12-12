@@ -13,8 +13,10 @@ use crate::app::structures::{
     ListSongDisplayableField, ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
-use crate::app::view::draw::{draw_loadable_mut, draw_table};
-use crate::app::view::{BasicConstraint, DrawableMut, Loadable, TableView};
+use crate::app::view::draw::{
+    draw_loadable, draw_loadable_advanced_table_in_panel, draw_panel_mut, draw_table,
+};
+use crate::app::view::{BasicConstraint, DrawableMut, HasTitle, Loadable, TableView};
 use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
@@ -135,7 +137,9 @@ impl TextHandler for Playlist {
 
 impl DrawableMut for Playlist {
     fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
-        draw_loadable_mut(f, self, chunk, |t, f, c| draw_table(f, t, c, selected));
+        draw_panel_mut(f, self, chunk, selected, |t, f, chunk| {
+            draw_loadable(f, t, chunk, |t, f, chunk| Some(draw_table(f, t, chunk)))
+        });
     }
 }
 
@@ -163,9 +167,6 @@ impl TableView for Playlist {
     }
     fn get_state(&self) -> &TableState {
         &self.widget_state
-    }
-    fn get_title(&self) -> Cow<'_, str> {
-        format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
     }
     fn get_layout(&self) -> &[BasicConstraint] {
         // Not perfect as this method doesn't know the size of the parent.
@@ -220,7 +221,11 @@ impl TableView for Playlist {
         todo!()
     }
 }
-
+impl HasTitle for Playlist {
+    fn get_title(&self) -> Cow<'_, str> {
+        format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
+    }
+}
 impl SongListComponent for Playlist {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong> {
         self.list.get_list_iter().nth(idx)

@@ -10,8 +10,8 @@ use crate::app::ui::browser::shared_components::{
     FilterManager, SortManager, get_adjusted_list_column,
 };
 use crate::app::view::{
-    AdvancedTableView, BasicConstraint, FilterString, Loadable, SortDirection, TableFilterCommand,
-    TableSortCommand, TableView,
+    AdvancedTableView, BasicConstraint, FilterString, HasTitle, Loadable, SortDirection,
+    TableFilterCommand, TableSortCommand, TableView,
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
@@ -292,21 +292,6 @@ impl TableView for PlaylistSongsPanel {
     fn get_state(&self) -> &ratatui::widgets::TableState {
         &self.widget_state
     }
-    fn get_title(&self) -> Cow<'_, str> {
-        match self.list.state {
-            ListStatus::New => "Songs".into(),
-            ListStatus::Loading => "Songs - loading".into(),
-            ListStatus::InProgress => format!(
-                "Songs - {} results - loading",
-                self.list.get_list_iter().len()
-            )
-            .into(),
-            ListStatus::Loaded => {
-                format!("Songs - {} results", self.list.get_list_iter().len()).into()
-            }
-            ListStatus::Error => "Songs - Error receieved".into(),
-        }
-    }
     fn get_layout(&self) -> &[BasicConstraint] {
         &[
             BasicConstraint::Length(4),
@@ -400,5 +385,23 @@ impl AdvancedTableView for PlaylistSongsPanel {
     }
     fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
         self.filter.filter_text.get_mut()
+    }
+}
+
+impl HasTitle for PlaylistSongsPanel {
+    fn get_title(&self) -> Cow<'_, str> {
+        match self.list.state {
+            ListStatus::New => "Songs".into(),
+            ListStatus::Loading => "Songs - loading".into(),
+            ListStatus::InProgress => format!(
+                "Songs - {} results - loading",
+                self.list.get_list_iter().len()
+            )
+            .into(),
+            ListStatus::Loaded => {
+                format!("Songs - {} results", self.list.get_list_iter().len()).into()
+            }
+            ListStatus::Error => "Songs - Error receieved".into(),
+        }
     }
 }

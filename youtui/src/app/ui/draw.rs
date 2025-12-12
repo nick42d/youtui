@@ -1,5 +1,5 @@
 use super::{WindowContext, YoutuiWindow, footer, header};
-use crate::app::view::draw::{draw_panel_mut, draw_table_impl};
+use crate::app::view::draw::{draw_panel_mut, draw_panel_mut_impl, draw_table_impl};
 use crate::app::view::{BasicConstraint, Drawable, DrawableMut};
 use crate::drawutils::{
     SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR, TEXT_COLOUR, highlight_style,
@@ -137,13 +137,6 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // Naive implementation
     // XXX: We're running get_help_list_items a second time here.
     // Better to move to the fold above.
-    let commands_table = w.get_help_list_items().map(
-        |DisplayableKeyAction {
-             keybinds,
-             context,
-             description,
-         }| { [keybinds, context, description].into_iter() },
-    );
     let table_constraints = [
         BasicConstraint::Length(s_len.try_into().unwrap_or(u16::MAX)),
         BasicConstraint::Length(c_len.try_into().unwrap_or(u16::MAX)),
@@ -156,22 +149,36 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
         chunk,
     );
     f.render_widget(Clear, area);
-    draw_panel_mut(f, w, area, true, |t, f, chunk| {
-        let (new_state, effect) = draw_table_impl(
-            f,
-            area,
-            w.help.cur,
-            None,
-            &w.help.widget_state,
-            commands_table,
-            items,
-            &table_constraints,
-            headings,
-            None,
-        );
-        w.help.widget_state = new_state;
-        Some(effect)
-    });
+    draw_panel_mut_impl(
+        f,
+        w,
+        area,
+        true,
+        |_| "Help".into(),
+        |t, f, chunk| {
+            let commands_table = t.get_help_list_items().map(
+                |DisplayableKeyAction {
+                     keybinds,
+                     context,
+                     description,
+                 }| { [keybinds, context, description].into_iter() },
+            );
+            let (new_state, effect) = draw_table_impl(
+                f,
+                chunk,
+                t.help.cur,
+                None,
+                &t.help.widget_state,
+                commands_table,
+                items,
+                &table_constraints,
+                headings,
+                None,
+            );
+            t.help.widget_state = new_state;
+            Some(effect)
+        },
+    );
 }
 
 /// Draw a text input box
