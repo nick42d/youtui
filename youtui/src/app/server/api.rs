@@ -1,5 +1,5 @@
 use crate::api::{DynamicApiError, DynamicYtMusic};
-use crate::app::{CALLBACK_CHANNEL_SIZE, EVENT_CHANNEL_SIZE};
+use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::async_rodio_sink::send_or_error;
 use crate::config::ApiKey;
 use crate::{OAUTH_FILENAME, get_config_dir};
@@ -17,8 +17,7 @@ use tracing::{error, info};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail};
 use ytmapi_rs::parse::{
-    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, PlaylistItem,
-    PlaylistSong, SearchResultArtist, SearchResultPlaylist, SearchResultSong,
+    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, PlaylistItem, SearchResultArtist, SearchResultPlaylist, SearchResultSong,
 };
 use ytmapi_rs::query::{GetAlbumQuery, GetArtistAlbumsQuery};
 

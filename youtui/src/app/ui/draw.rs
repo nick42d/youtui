@@ -1,25 +1,21 @@
 use super::{WindowContext, YoutuiWindow, footer, header};
-use crate::app::view::draw::{draw_panel_mut, draw_panel_mut_impl, draw_table_impl};
+use crate::app::view::draw::{draw_panel_mut_impl, draw_table_impl};
 use crate::app::view::{BasicConstraint, Drawable, DrawableMut};
 use crate::drawutils::{
-    SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR, TEXT_COLOUR, highlight_style,
+    SELECTED_BORDER_COLOUR, TEXT_COLOUR,
     left_bottom_corner_rect,
 };
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use rat_text::HasScreenCursor;
 use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::Frame;
-use ratatui::buffer::Buffer;
 use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::prelude::{Margin, Rect};
-use ratatui::style::{Modifier, Style};
-use ratatui::symbols::{block, line};
+use ratatui::prelude::Rect;
+use ratatui::style::Style;
 use ratatui::widgets::{
-    Block, Borders, Clear, ListState, Row, Scrollbar, ScrollbarOrientation, ScrollbarState,
-    StatefulWidget, Table, TableState,
+    Block, Borders, Clear, Row, Table,
 };
 use ratatui_image::picker::Picker;
-use std::borrow::Cow;
 
 // Add tests to try and draw app with oddly sized windows.
 pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities: &Picker) {

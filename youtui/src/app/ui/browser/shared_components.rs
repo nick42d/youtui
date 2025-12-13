@@ -6,8 +6,6 @@ use async_callback_manager::{AsyncTask, Constraint};
 use rat_text::text_input::{TextInputState, handle_events};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::ops::Deref;
 use ytmapi_rs::common::SearchSuggestion;
 
 #[derive(Default)]

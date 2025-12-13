@@ -5,8 +5,6 @@ use ratatui::Frame;
 use ratatui::prelude::{Constraint, Rect};
 use ratatui::widgets::{ListState, TableState};
 use std::borrow::Cow;
-use std::cell::RefCell;
-use std::fmt::Display;
 
 pub mod draw;
 

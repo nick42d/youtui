@@ -1,23 +1,19 @@
 use super::{
     AdvancedTableView, TableSortCommand, TableView, basic_constraints_to_table_constraints,
 };
-use crate::app::ui::browser::shared_components::{FilterManager, SortManager};
 use crate::app::ui::draw::draw_text_box;
 use crate::app::view::{BasicConstraint, HasTitle, ListView, Loadable};
 use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
-use itertools::Either;
-use rat_text::HasScreenCursor;
-use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::symbols::{block, line};
 use ratatui::text::Line;
 use ratatui::widgets::{
-    Block, Borders, Cell, Clear, List, ListItem, ListState, Paragraph, Row, Scrollbar,
+    Block, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Scrollbar,
     ScrollbarOrientation, ScrollbarState, StatefulWidget, Table, TableState, Widget,
 };
 use std::borrow::Cow;

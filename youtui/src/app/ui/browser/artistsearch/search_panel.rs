@@ -4,7 +4,7 @@ use crate::app::component::actionhandler::{
 use crate::app::server::{ArcServer, TaskMetadata};
 use crate::app::ui::action::AppAction;
 use crate::app::ui::browser::shared_components::SearchBlock;
-use crate::app::view::{HasTitle, ListView, Loadable};
+use crate::app::view::{HasTitle, ListView};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use ratatui::widgets::ListState;

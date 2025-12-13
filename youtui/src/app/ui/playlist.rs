@@ -9,7 +9,7 @@ use crate::app::server::{
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
-    AlbumArtState, AlbumOrUploadAlbumID, BrowserSongsList, DownloadStatus, ListSong, ListSongAlbum,
+    AlbumArtState, BrowserSongsList, DownloadStatus, ListSong,
     ListSongDisplayableField, ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
@@ -30,12 +30,11 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::iter;
-use std::ops::Deref;
 use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info, warn};
-use ytmapi_rs::common::{AlbumID, Thumbnail, UploadAlbumID, VideoID};
+use ytmapi_rs::common::Thumbnail;
 
 #[cfg(test)]
 mod tests;

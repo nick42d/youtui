@@ -5,7 +5,7 @@ use super::song_downloader::{DownloadProgressUpdate, InMemSong};
 use super::song_thumbnail_downloader::SongThumbnail;
 use crate::app::server::api::GetPlaylistSongsProgressUpdate;
 use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
-use crate::app::structures::{AlbumOrUploadAlbumID, ListSong, ListSongAlbum, ListSongID};
+use crate::app::structures::ListSongID;
 use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate,
@@ -17,7 +17,7 @@ use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
 use ytmapi_rs::common::{
-    AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, UploadAlbumID, VideoID,
+    ArtistChannelID, PlaylistID, SearchSuggestion, VideoID,
 };
 use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong};
 

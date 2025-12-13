@@ -20,7 +20,6 @@ use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use std::cell::RefCell;
 use std::iter::Iterator;
 use tracing::warn;
 

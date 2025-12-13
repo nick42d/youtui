@@ -3,9 +3,9 @@ use crate::app::AppCallback;
 use crate::app::component::actionhandler::{
     ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use crate::app::server::api::{GetArtistSongsProgressUpdate, GetPlaylistSongsProgressUpdate};
+use crate::app::server::api::GetPlaylistSongsProgressUpdate;
 use crate::app::server::{
-    GetArtistSongs, GetPlaylistSongs, HandleApiError, SearchArtists, SearchPlaylists,
+    GetPlaylistSongs, HandleApiError, SearchPlaylists,
 };
 use crate::app::structures::SongListComponent;
 use crate::app::ui::ListStatus;
@@ -22,10 +22,10 @@ use crate::config::keymap::Keymap;
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
 use std::mem;
-use tracing::{error, warn};
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, Thumbnail, YoutubeID};
+use tracing::error;
+use ytmapi_rs::common::PlaylistID;
 use ytmapi_rs::parse::{
-    AlbumSong, ParsedSongAlbum, ParsedSongArtist, PlaylistItem, SearchResultArtist,
+    PlaylistItem,
     SearchResultPlaylist,
 };
 
