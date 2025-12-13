@@ -81,7 +81,7 @@ impl TextHandler for PlaylistSearchBrowser {
             InputRouting::Song => self.playlist_songs_panel.is_text_handling(),
         }
     }
-    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
+    fn get_text(&self) -> std::option::Option<&str> {
         match self.input_routing {
             InputRouting::Playlist => self.playlist_search_panel.get_text(),
             InputRouting::Song => self.playlist_songs_panel.get_text(),

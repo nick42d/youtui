@@ -163,9 +163,7 @@ pub trait TableView {
 }
 /// TableView with built in filtering and sorting.
 pub trait AdvancedTableView: TableView {
-    /// Implementor should ensure this is a non-overlapping borrow with all
-    /// other trait methods.
-    fn get_filter_state(&self) -> &RefCell<TextInputState>;
+    fn get_filter_state(&self) -> &TextInputState;
     fn get_mut_filter_state(&mut self) -> &mut TextInputState;
     fn filter_popup_shown(&self) -> bool;
     fn get_filterable_columns(&self) -> &[usize];

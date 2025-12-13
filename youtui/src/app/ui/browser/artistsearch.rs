@@ -75,7 +75,7 @@ impl TextHandler for ArtistSearchBrowser {
             InputRouting::Song => self.album_songs_panel.is_text_handling(),
         }
     }
-    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
+    fn get_text(&self) -> std::option::Option<&str> {
         match self.input_routing {
             InputRouting::Artist => self.artist_search_panel.get_text(),
             InputRouting::Song => self.album_songs_panel.get_text(),

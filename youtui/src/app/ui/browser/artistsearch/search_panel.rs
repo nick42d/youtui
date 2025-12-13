@@ -79,7 +79,7 @@ impl TextHandler for ArtistSearchPanel {
     fn is_text_handling(&self) -> bool {
         self.route == ArtistInputRouting::Search
     }
-    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
+    fn get_text(&self) -> std::option::Option<&str> {
         self.search.get_text()
     }
     fn replace_text(&mut self, text: impl Into<String>) {

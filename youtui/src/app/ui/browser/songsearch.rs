@@ -119,7 +119,7 @@ impl TextHandler for SongSearchBrowser {
             InputRouting::Filter | InputRouting::Search
         )
     }
-    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
+    fn get_text(&self) -> std::option::Option<&str> {
         match self.input_routing {
             InputRouting::Filter => self.filter.get_text(),
             InputRouting::Search => self.search.get_text(),
@@ -331,11 +331,11 @@ impl AdvancedTableView for SongSearchBrowser {
     fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
         &mut self.sort.state
     }
-    fn get_filter_state(&self) -> &std::cell::RefCell<rat_text::text_input::TextInputState> {
+    fn get_filter_state(&self) -> &rat_text::text_input::TextInputState {
         &self.filter.filter_text
     }
     fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
-        self.filter.filter_text.get_mut()
+        &mut self.filter.filter_text
     }
 }
 impl HasTitle for SongSearchBrowser {
@@ -437,7 +437,7 @@ impl SongSearchBrowser {
         if !shown {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
-            self.filter.filter_text.get_mut().clear();
+            self.filter.filter_text.clear();
             self.input_routing = InputRouting::Filter;
         } else {
             self.input_routing = InputRouting::List;

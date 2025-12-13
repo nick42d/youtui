@@ -149,7 +149,7 @@ impl PlaylistSongsPanel {
         if !shown {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
-            self.filter.filter_text.get_mut().clear();
+            self.filter.filter_text.clear();
             self.route = PlaylistSongsInputRouting::Filter;
         } else {
             self.route = PlaylistSongsInputRouting::List;
@@ -212,7 +212,7 @@ impl SongListComponent for PlaylistSongsPanel {
     }
 }
 impl TextHandler for PlaylistSongsPanel {
-    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
+    fn get_text(&self) -> std::option::Option<&str> {
         self.filter.get_text()
     }
     fn replace_text(&mut self, text: impl Into<String>) {
@@ -380,11 +380,11 @@ impl AdvancedTableView for PlaylistSongsPanel {
     fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
         &mut self.sort.state
     }
-    fn get_filter_state(&self) -> &std::cell::RefCell<rat_text::text_input::TextInputState> {
+    fn get_filter_state(&self) -> &rat_text::text_input::TextInputState {
         &self.filter.filter_text
     }
     fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
-        self.filter.filter_text.get_mut()
+        &mut self.filter.filter_text
     }
 }
 

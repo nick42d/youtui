@@ -12,7 +12,7 @@ use ytmapi_rs::common::SearchSuggestion;
 
 #[derive(Default)]
 pub struct SearchBlock {
-    pub search_contents: RefCell<TextInputState>,
+    pub search_contents: TextInputState,
     pub search_suggestions: Vec<SearchSuggestion>,
     pub suggestions_cur: Option<usize>,
 }
@@ -22,7 +22,7 @@ impl_youtui_component!(SearchBlock);
 #[derive(Clone, Default)]
 pub struct FilterManager {
     pub filter_commands: Vec<TableFilterCommand>,
-    pub filter_text: RefCell<TextInputState>,
+    pub filter_text: TextInputState,
     pub shown: bool,
 }
 impl_youtui_component!(FilterManager);
@@ -126,20 +126,20 @@ impl TextHandler for FilterManager {
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
-        Some(std::cell::Ref::map(self.filter_text.borrow(), |t| t.text()))
+    fn get_text(&self) -> std::option::Option<&str> {
+        Some(self.filter_text.text())
     }
     fn replace_text(&mut self, text: impl Into<String>) {
-        self.filter_text.get_mut().set_text(text)
+        self.filter_text.set_text(text)
     }
     fn clear_text(&mut self) -> bool {
-        self.filter_text.get_mut().clear()
+        self.filter_text.clear()
     }
     fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
-        match handle_events(self.filter_text.get_mut(), true, event) {
+        match handle_events(&mut self.filter_text, true, event) {
             rat_text::event::TextOutcome::Continue => None,
             rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
             rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
@@ -152,25 +152,22 @@ impl TextHandler for SearchBlock {
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&self) -> std::option::Option<std::cell::Ref<'_, str>> {
-        let contents_ref: std::cell::Ref<_> = self.search_contents.borrow();
-        Some(std::cell::Ref::map(contents_ref, |contents| {
-            contents.text()
-        }))
+    fn get_text(&self) -> std::option::Option<&str> {
+        Some(self.search_contents.text())
     }
     fn replace_text(&mut self, text: impl Into<String>) {
-        self.search_contents.get_mut().set_text(text);
-        self.search_contents.get_mut().move_to_line_end(false);
+        self.search_contents.set_text(text);
+        self.search_contents.move_to_line_end(false);
     }
     fn clear_text(&mut self) -> bool {
         self.search_suggestions.clear();
-        self.search_contents.get_mut().clear()
+        self.search_contents.clear()
     }
     fn handle_text_event_impl(
         &mut self,
         event: &crossterm::event::Event,
     ) -> Option<ComponentEffect<Self>> {
-        match handle_events(self.search_contents.get_mut(), true, event) {
+        match handle_events(&mut self.search_contents, true, event) {
             rat_text::event::TextOutcome::Continue => None,
             rat_text::event::TextOutcome::Unchanged => Some(AsyncTask::new_no_op()),
             rat_text::event::TextOutcome::Changed => Some(AsyncTask::new_no_op()),
@@ -192,7 +189,7 @@ impl SearchBlock {
     // Ask the UI for search suggestions for the current query
     fn fetch_search_suggestions(&mut self) -> ComponentEffect<Self> {
         // No need to fetch search suggestions if contents is empty.
-        if self.search_contents.get_mut().is_empty() {
+        if self.search_contents.is_empty() {
             self.search_suggestions.clear();
             return AsyncTask::new_no_op();
         }
@@ -213,7 +210,7 @@ impl SearchBlock {
             ),
         };
         AsyncTask::new_future_chained(
-            GetSearchSuggestions(self.search_contents.get_mut().text().to_owned()),
+            GetSearchSuggestions(self.search_contents.text().to_owned()),
             handler,
             Some(Constraint::new_kill_same_type()),
         )
