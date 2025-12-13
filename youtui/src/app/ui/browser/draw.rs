@@ -117,7 +117,7 @@ pub fn draw_playlist_search_browser(
 ) {
     let [playlists_chunk, songs_chunk] = Layout::new(
         ratatui::prelude::Direction::Horizontal,
-        [Constraint::Max(30), Constraint::Min(0)],
+        [Constraint::Percentage(30), Constraint::Percentage(70)],
     )
     .areas(chunk);
     // Potentially could handle this better.
