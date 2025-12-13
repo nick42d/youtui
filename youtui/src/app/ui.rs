@@ -258,6 +258,9 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::Playlist(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.playlist);
             }
+            AppAction::Help(a) => {
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.help);
+            }
             AppAction::Browser(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
@@ -266,9 +269,6 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             }
             AppAction::Sort(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
-            }
-            AppAction::Help(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.help);
             }
             AppAction::BrowserArtists(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);

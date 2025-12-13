@@ -400,8 +400,9 @@ impl DominantKeyRouter<AppAction> for Browser {
                 }
             }
             BrowserVariant::SongSearch => match self.song_search_browser.input_routing {
-                songsearch::InputRouting::List => Either::Left(std::iter::empty()),
-                songsearch::InputRouting::Search => Either::Left(std::iter::empty()),
+                songsearch::InputRouting::List | songsearch::InputRouting::Search => {
+                    Either::Left(std::iter::empty())
+                }
                 songsearch::InputRouting::Filter => {
                     Either::Right(std::iter::once(&config.keybinds.filter))
                 }
