@@ -74,7 +74,7 @@ pub struct ListSong {
     pub track_no: Option<usize>,
     pub plays: String,
     pub title: String,
-    pub explicit: Explicit,
+    pub explicit: Option<Explicit>,
     pub download_status: DownloadStatus,
     pub id: ListSongID,
     pub duration_string: String,
@@ -310,8 +310,6 @@ impl BrowserSongsList {
         self.state = ListStatus::New;
         self.list.clear();
     }
-    // Naive implementation because it stores the APIs fields directly.
-    // Should implement our own types.
     pub fn append_raw_album_songs(
         &mut self,
         raw_list: Vec<AlbumSong>,
@@ -376,7 +374,7 @@ impl BrowserSongsList {
             track_no: Some(track_no),
             plays,
             title,
-            explicit,
+            explicit: Some(explicit),
             duration_string: duration,
             thumbnails: MaybeRc::Rc(thumbnails),
             album_art: Default::default(),
@@ -410,7 +408,7 @@ impl BrowserSongsList {
             track_no: None,
             plays,
             title,
-            explicit,
+            explicit: Some(explicit),
             duration_string: duration,
             thumbnails: MaybeRc::Owned(thumbnails),
             album_art: Default::default(),
@@ -419,8 +417,7 @@ impl BrowserSongsList {
     }
     fn add_raw_playlist_item(&mut self, item: PlaylistItem) -> ListSongID {
         let id = self.create_next_id();
-        // TODO: Tidy impl
-        let (track_no, title, video_id, duration, artists, album, thumbnails) = match item {
+        let (track_no, title, video_id, duration, artists, album, thumbnails, explicit) = match item {
             PlaylistItem::Song(PlaylistSong {
                 video_id,
                 album,
@@ -429,7 +426,6 @@ impl BrowserSongsList {
                 artists,
                 thumbnails,
                 track_no,
-                // TODO: this field currently unused.
                 explicit,
                 ..
             }) => (
@@ -437,9 +433,10 @@ impl BrowserSongsList {
                 title,
                 video_id,
                 duration,
-                Some(artists),
-                Some(album),
+                artists.into_iter().map(Into::into).collect(),
+                Some(album.into()),
                 thumbnails,
+                Some(explicit)
             ),
             PlaylistItem::Video(PlaylistVideo {
                 video_id,
@@ -448,7 +445,7 @@ impl BrowserSongsList {
                 thumbnails,
                 track_no,
                 ..
-            }) => (track_no, title, video_id, duration, None, None, thumbnails),
+            }) => (track_no, title, video_id, duration, vec![], None, thumbnails,None),
             // Episode has no video id...
             PlaylistItem::Episode(PlaylistEpisode { episode_id, track_no, date, duration, title, podcast_name, podcast_id, like_status, thumbnails, is_available,.. }) => todo!(),
             PlaylistItem::UploadSong(PlaylistUploadSong {
@@ -462,27 +459,20 @@ impl BrowserSongsList {
                 ..
                 // Album and Artist type (eg ParsedUploadAlbum) returned from API is different to album type returned from PlaylistSong.
                 // TODO: Still bring through album details.
-            }) => (track_no, title, video_id, duration, None, None, thumbnails),
+            }) => (track_no, title, video_id, duration, artists.into_iter().map(Into::into).collect(), Some(album.into()), thumbnails,None),
         };
         self.list.push(ListSong {
             download_status: DownloadStatus::None,
             id,
             year: None,
-            artists: MaybeRc::Owned(
-                artists
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(Into::into)
-                    .collect(),
-            ),
-            album: album.map(Into::into).map(MaybeRc::Owned),
+            artists: MaybeRc::Owned(artists),
+            album: album.map(MaybeRc::Owned),
             actual_duration: None,
             video_id,
             track_no: Some(track_no),
             plays: String::new(),
             title,
-            // TODO: Allow a value when unknown or improve API.
-            explicit: Explicit::IsExplicit,
+            explicit,
             duration_string: duration,
             thumbnails: MaybeRc::Owned(thumbnails),
             album_art: Default::default(),
@@ -517,7 +507,7 @@ impl BrowserSongsList {
         id
     }
     pub fn add_song_thumbnail(&mut self, song_thumbnail: SongThumbnail) {
-        // Thumbanil is refcounted since it could be shared by multiple songs on the
+        // Thumbnail is refcounted since it could be shared by multiple songs on the
         // playlist (even if its a video thumbnail).
         let thumbnail_shared = Rc::new(song_thumbnail);
         for song in &mut self.list {

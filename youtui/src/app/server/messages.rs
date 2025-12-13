@@ -117,7 +117,7 @@ pub struct QueueSong {
     pub id: ListSongID,
 }
 #[derive(Debug)]
-pub struct GetAlbumArt {
+pub struct GetSongThumbnail {
     pub thumbnail_url: String,
     pub thumbnail_id: SongThumbnailID<'static>,
 }
@@ -381,7 +381,7 @@ impl BackendStreamingTask<ArcServer> for QueueSong {
         vec![TaskMetadata::PlayingSong]
     }
 }
-impl BackendTask<ArcServer> for GetAlbumArt {
+impl BackendTask<ArcServer> for GetSongThumbnail {
     type Output = anyhow::Result<SongThumbnail>;
     type MetadataType = TaskMetadata;
     fn into_future(

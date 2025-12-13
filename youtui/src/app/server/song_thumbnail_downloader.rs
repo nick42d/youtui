@@ -24,6 +24,7 @@ fn get_album_art_dir() -> anyhow::Result<PathBuf> {
     get_data_dir().map(|dir| dir.join(ALBUM_ART_DIR_PATH))
 }
 
+/// Unique identifier for the thumbnail - dependent on the type of song.
 #[derive(Clone, Hash, PartialEq, Eq, Debug)]
 pub enum SongThumbnailID<'a> {
     Album(AlbumID<'a>),
@@ -55,6 +56,8 @@ impl std::fmt::Display for SongThumbnailID<'_> {
     }
 }
 impl<'a> SongThumbnailID<'a> {
+    /// Convert the SongThumbnailID to static lifetime (by cloning the
+    /// underlying data).
     pub fn into_owned(self) -> SongThumbnailID<'static> {
         match self {
             SongThumbnailID::Album(id) => {
@@ -80,13 +83,14 @@ pub struct SongThumbnail {
     pub song_thumbnail_id: SongThumbnailID<'static>,
 }
 
-// Custom derive - otherwise in_mem_image will be displaying array of bytes...
+// Custom debug format - otherwise in_mem_image will be displaying array of
+// bytes...
 impl std::fmt::Debug for SongThumbnail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AlbumArt")
             .field("in_mem_image", &"image::DynamicImage")
             .field("on_disk_path", &self.on_disk_path)
-            .field("album_id", &self.song_thumbnail_id)
+            .field("song_thumbnail_id", &self.song_thumbnail_id)
             .finish()
     }
 }

@@ -217,19 +217,6 @@ pub enum GetArtistSongsProgressUpdate {
     NoSongsFound,
 }
 
-pub enum GetPlaylistSongsProgressUpdate {
-    Loading,
-    Songs(Vec<PlaylistItem>),
-    // Caller should know the PlaylistID already, as they provided it.
-    // May occur before or after sending some songs, ie api could fail straight away or stream
-    // some songs then fail. Stream closes here.
-    GetPlaylistSongsError(Error),
-    // Stream closes here.
-    AllSongsSent,
-    // Stream closes here.
-    NoSongsFound,
-}
-
 fn get_artist_songs(
     api: Arc<AsyncCell<Result<ConcurrentApi, DynamicApiError>>>,
     browse_id: ArtistChannelID<'static>,
@@ -363,10 +350,24 @@ fn get_artist_songs(
     ReceiverStream::new(rx)
 }
 
+pub enum GetPlaylistSongsProgressUpdate {
+    Loading,
+    Songs(Vec<PlaylistItem>),
+    // PlaylistID is returned to allow caller to reuse allocation if required.
+    // May occur before or after sending some songs, ie api could fail straight away or stream
+    // some songs then fail. Stream closes here.
+    GetPlaylistSongsError {
+        playlist_id: PlaylistID<'static>,
+        error: Error,
+    },
+    // Stream closes here.
+    AllSongsSent,
+}
+
 fn get_playlist_songs(
     api: Arc<AsyncCell<Result<ConcurrentApi, DynamicApiError>>>,
     playlist_id: PlaylistID<'static>,
-    max_results: usize,
+    _max_results: usize,
 ) -> impl Stream<Item = GetPlaylistSongsProgressUpdate> + 'static {
     let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
     tokio::spawn(async move {
@@ -377,7 +378,10 @@ fn get_playlist_songs(
                 error!("Error getting API");
                 send_or_error(
                     tx,
-                    GetPlaylistSongsProgressUpdate::GetPlaylistSongsError(e.into()),
+                    GetPlaylistSongsProgressUpdate::GetPlaylistSongsError {
+                        playlist_id,
+                        error: e.into(),
+                    },
                 )
                 .await;
                 return;
@@ -392,11 +396,11 @@ fn get_playlist_songs(
                 info!("Sending caller tracks for {:?}", playlist_id);
                 send_or_error(&tx, GetPlaylistSongsProgressUpdate::Songs(t)).await;
             }
-            Err(e) => {
+            Err(error) => {
                 error!("Error with GetPlaylistTracksQuery");
                 send_or_error(
                     &tx,
-                    GetPlaylistSongsProgressUpdate::GetPlaylistSongsError(e),
+                    GetPlaylistSongsProgressUpdate::GetPlaylistSongsError { playlist_id, error },
                 )
                 .await;
                 return;

@@ -5,7 +5,7 @@ use crate::app::component::actionhandler::{
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, GetAlbumArt, IncreaseVolume, Pause, PausePlay,
+    AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause, PausePlay,
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
@@ -492,7 +492,7 @@ impl Playlist {
             .into_iter()
             .map(|(thumbnail_id, thumbnail_url)| {
                 AsyncTask::new_future(
-                    GetAlbumArt {
+                    GetSongThumbnail {
                         thumbnail_url,
                         thumbnail_id: thumbnail_id.clone(),
                     },
