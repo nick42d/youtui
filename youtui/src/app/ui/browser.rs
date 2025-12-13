@@ -322,6 +322,7 @@ impl KeyRouter<AppAction> for Browser {
         .into_iter()
         .chain(self.artist_search_browser.get_all_keybinds(config))
         .chain(self.song_search_browser.get_all_keybinds(config))
+        .chain(self.playlist_search_browser.get_all_keybinds(config))
     }
     fn get_active_keybinds<'a>(
         &self,
