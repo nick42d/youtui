@@ -80,13 +80,12 @@ impl PlaylistSongsPanel {
             widget_state: Default::default(),
         }
     }
-    pub fn subcolumns_of_vec() -> [ListSongDisplayableField; 5] {
+    pub fn subcolumns_of_vec() -> [ListSongDisplayableField; 4] {
         [
             ListSongDisplayableField::TrackNo,
             ListSongDisplayableField::Album,
             ListSongDisplayableField::Song,
             ListSongDisplayableField::Duration,
-            ListSongDisplayableField::Year,
         ]
     }
     /// Re-apply all sort commands in the stack in the order they were stored.
@@ -290,7 +289,6 @@ impl TableView for PlaylistSongsPanel {
             BasicConstraint::Percentage(Percentage(50)),
             BasicConstraint::Percentage(Percentage(50)),
             BasicConstraint::Length(10),
-            BasicConstraint::Length(5),
         ]
     }
     fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
@@ -299,19 +297,19 @@ impl TableView for PlaylistSongsPanel {
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
     fn get_headings(&self) -> impl Iterator<Item = &'static str> {
-        ["#", "Album", "Song", "Duration", "Year"].into_iter()
+        ["#", "Album", "Song", "Duration"].into_iter()
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         None
     }
-
     fn get_mut_state(&mut self) -> &mut TableState {
         &mut self.widget_state
     }
 }
 impl AdvancedTableView for PlaylistSongsPanel {
+    // TODO: Consider if perhaps this table should not be sortable or filterable!
     fn get_sortable_columns(&self) -> &[usize] {
-        &[1, 4]
+        &[1]
     }
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
         // TODO: Maintain a view only struct, for easier rendering of this.
@@ -344,7 +342,7 @@ impl AdvancedTableView for PlaylistSongsPanel {
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
     fn get_filterable_columns(&self) -> &[usize] {
-        &[1, 2, 4]
+        &[1, 2]
     }
     fn get_filter_commands(&self) -> &[TableFilterCommand] {
         &self.filter.filter_commands
