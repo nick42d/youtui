@@ -151,15 +151,10 @@ pub trait TableView {
     fn get_mut_state(&mut self) -> &mut TableState;
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
-    // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a
-    // SortableTable), as possible we don't want to sort the Playlist (what happens
-    // to play order, for eg).
     fn get_layout(&self) -> &[BasicConstraint];
     // A row can be highlighted.
     fn get_highlighted_row(&self) -> Option<usize>;
-    // TODO: Consider if generics <T: Iterator> can be used instead of dyn Iterator.
     fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_>;
-    // XXX: This doesn't need to be so fancy - could return a static slice.
     fn get_headings(&self) -> impl Iterator<Item = &'static str>;
     // Not a particularly useful function for a sortabletableview
     fn len(&self) -> usize {
@@ -168,22 +163,11 @@ pub trait TableView {
 }
 /// TableView with built in filtering and sorting.
 pub trait AdvancedTableView: TableView {
-    fn get_sort_state(&self) -> &ListState;
-    fn get_mut_sort_state(&mut self) -> &mut ListState;
     /// Implementor should ensure this is a non-overlapping borrow with all
     /// other trait methods.
     fn get_filter_state(&self) -> &RefCell<TextInputState>;
     fn get_mut_filter_state(&mut self) -> &mut TextInputState;
-    fn sort_popup_shown(&self) -> bool;
-    fn get_sortable_columns(&self) -> &[usize];
-    fn get_sort_commands(&self) -> &[TableSortCommand];
-    /// Add a new TableSortCommand and sort the table.
-    /// This can fail if the TableSortCommand is not within the range of
-    /// sortable columns.
-    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;
-    fn clear_sort_commands(&mut self);
     fn filter_popup_shown(&self) -> bool;
-    // Assuming a SortableTable is also Filterable.
     fn get_filterable_columns(&self) -> &[usize];
     // This can't be ExactSized as return type may be Filter<T>
     fn get_filtered_items(&self) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_>;
@@ -192,6 +176,16 @@ pub trait AdvancedTableView: TableView {
     fn clear_filter_commands(&mut self);
     // SortableTableView should maintain it's own popup state.
     fn get_sort_popup_cur(&self) -> usize;
+    fn sort_popup_shown(&self) -> bool;
+    fn get_sort_state(&self) -> &ListState;
+    fn get_mut_sort_state(&mut self) -> &mut ListState;
+    /// Add a new TableSortCommand and sort the table.
+    /// This can fail if the TableSortCommand is not within the range of
+    /// sortable columns.
+    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;
+    fn clear_sort_commands(&mut self);
+    fn get_sortable_columns(&self) -> &[usize];
+    fn get_sort_commands(&self) -> &[TableSortCommand];
 }
 // A struct that we are able to draw a list from using the underlying data.
 pub trait ListView {

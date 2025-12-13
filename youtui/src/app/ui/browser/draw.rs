@@ -258,34 +258,27 @@ fn draw_search_suggestions(f: &mut Frame, search: &SearchBlock, chunk: Rect, max
         chunk,
         max_bounds,
     );
-    let suggestion_chunk_layout = Layout::default()
+    let [suggestion_side_borders_chunk, suggestion_list_chunk] = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(1), Constraint::Min(0)])
-        .split(suggestion_chunk);
+        .areas(suggestion_chunk);
     let mut list_state = ListState::default().with_selected(search.suggestions_cur);
-    let list: Vec<_> = suggestions
-        .iter()
-        .map(|s| {
-            ListItem::new(Line::from(
-                std::iter::once(s.suggestion_type)
-                    .map(|ty| match ty {
-                        SuggestionType::History => Span::raw(" "),
-                        SuggestionType::Prediction => Span::raw(" "),
-                    })
-                    .chain(s.runs.iter().map(|s| match s {
-                        TextRun::Bold(str) => {
-                            Span::styled(str, Style::new().add_modifier(Modifier::BOLD))
-                        }
-                        TextRun::Normal(str) => Span::raw(str),
-                    }))
-                    // XXX: Ratatui upgrades may allow this to be passed lazily instead of
-                    // collecting.
-                    .collect::<Vec<Span>>(),
-            ))
-        })
-        // XXX: Ratatui upgrades may allow this to be passed lazily instead of collecting.
-        .collect();
-    let block = List::new(list)
+    let list_items = suggestions.iter().map(|s| {
+        ListItem::new(Line::from_iter(
+            std::iter::once(s.suggestion_type)
+                .map(|ty| match ty {
+                    SuggestionType::History => Span::raw(" "),
+                    SuggestionType::Prediction => Span::raw(" "),
+                })
+                .chain(s.runs.iter().map(|s| match s {
+                    TextRun::Bold(str) => {
+                        Span::styled(str, Style::new().add_modifier(Modifier::BOLD))
+                    }
+                    TextRun::Normal(str) => Span::raw(str),
+                })),
+        ))
+    });
+    let block = List::new(list_items)
         .style(Style::new().fg(TEXT_COLOUR))
         .highlight_style(Style::new().bg(ROW_HIGHLIGHT_COLOUR))
         .block(
@@ -298,8 +291,8 @@ fn draw_search_suggestions(f: &mut Frame, search: &SearchBlock, chunk: Rect, max
         .style(Style::new().fg(SELECTED_BORDER_COLOUR));
     let divider = Block::default().borders(Borders::TOP);
     f.render_widget(Clear, suggestion_chunk);
-    f.render_widget(side_borders, suggestion_chunk_layout[0]);
+    f.render_widget(side_borders, suggestion_side_borders_chunk);
     f.render_widget(Clear, divider_chunk);
     f.render_widget(divider, divider_chunk);
-    f.render_stateful_widget(block, suggestion_chunk_layout[1], &mut list_state);
+    f.render_stateful_widget(block, suggestion_list_chunk, &mut list_state);
 }

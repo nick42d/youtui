@@ -29,6 +29,7 @@ use ytmapi_rs::parse::{
     SearchResultPlaylist,
 };
 
+/// Maximum number of playlist songs to download / stream in a single viewing.
 const MAX_PLAYLIST_SONGS: usize = 1000;
 
 pub mod search_panel;
@@ -294,18 +295,16 @@ impl PlaylistSearchBrowser {
             return AsyncTask::new_no_op();
         };
 
-        let cur_playlist_id_clone = cur_playlist_id.clone();
         let handler = |this: &mut Self, item| {
             match item {
                 GetPlaylistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
                 GetPlaylistSongsProgressUpdate::Songs(playlist_items) => {
                     this.handle_append_song_list(playlist_items)
                 }
-                GetPlaylistSongsProgressUpdate::GetPlaylistSongsError(e) => {
-                    return this.handle_search_playlist_error(cur_playlist_id_clone, e);
+                GetPlaylistSongsProgressUpdate::GetPlaylistSongsError { playlist_id, error } => {
+                    return this.handle_search_playlist_error(playlist_id, error);
                 }
                 GetPlaylistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
-                GetPlaylistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
             }
             AsyncTask::new_no_op()
         };
@@ -403,9 +402,6 @@ impl PlaylistSearchBrowser {
         // XXX: What to do if position in list was greater than new list length?
         // Handled by this function?
         self.increment_cur_list(0);
-    }
-    pub fn handle_no_songs_found(&mut self) {
-        self.playlist_songs_panel.list.state = ListStatus::Loaded;
     }
     pub fn handle_append_song_list(&mut self, song_list: Vec<PlaylistItem>) {
         self.playlist_songs_panel
