@@ -23,13 +23,13 @@ use ytmapi_rs::common::{SuggestionType, TextRun};
 
 pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
     match browser.variant {
-        super::BrowserVariant::ArtistSearch => {
+        super::BrowserVariant::Artist => {
             draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected)
         }
-        super::BrowserVariant::SongSearch => {
+        super::BrowserVariant::Song => {
             draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected)
         }
-        super::BrowserVariant::PlaylistSearch => {
+        super::BrowserVariant::Playlist => {
             draw_playlist_search_browser(f, &mut browser.playlist_search_browser, chunk, selected)
         }
     }

@@ -139,7 +139,7 @@ impl From<ParsedUploadSongAlbum> for ListSongAlbum {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-enum ArtistOrUploadArtistID {
+pub enum ArtistOrUploadArtistID {
     Artist(ArtistChannelID<'static>),
     UploadArtist(UploadArtistID<'static>),
 }
@@ -417,7 +417,8 @@ impl BrowserSongsList {
     }
     fn add_raw_playlist_item(&mut self, item: PlaylistItem) -> ListSongID {
         let id = self.create_next_id();
-        let (track_no, title, video_id, duration, artists, album, thumbnails, explicit) = match item {
+        let (track_no, title, video_id, duration, artists, album, thumbnails, explicit) = match item
+        {
             PlaylistItem::Song(PlaylistSong {
                 video_id,
                 album,
@@ -436,7 +437,7 @@ impl BrowserSongsList {
                 artists.into_iter().map(Into::into).collect(),
                 Some(album.into()),
                 thumbnails,
-                Some(explicit)
+                Some(explicit),
             ),
             PlaylistItem::Video(PlaylistVideo {
                 video_id,
@@ -445,9 +446,20 @@ impl BrowserSongsList {
                 thumbnails,
                 track_no,
                 ..
-            }) => (track_no, title, video_id, duration, vec![], None, thumbnails,None),
-            // Episode has no video id...
-            PlaylistItem::Episode(PlaylistEpisode { episode_id, track_no, date, duration, title, podcast_name, podcast_id, like_status, thumbnails, is_available,.. }) => todo!(),
+            }) => (
+                track_no,
+                title,
+                video_id,
+                duration,
+                vec![],
+                None,
+                thumbnails,
+                None,
+            ),
+            // Episode has no video id, so we can't currently handle it as a ListSong...
+            PlaylistItem::Episode(PlaylistEpisode { .. }) => unimplemented!(
+                "One of the playlist items is a podcast episode, handling these is not currently implemented"
+            ),
             PlaylistItem::UploadSong(PlaylistUploadSong {
                 video_id,
                 duration,
@@ -457,9 +469,16 @@ impl BrowserSongsList {
                 thumbnails,
                 track_no,
                 ..
-                // Album and Artist type (eg ParsedUploadAlbum) returned from API is different to album type returned from PlaylistSong.
-                // TODO: Still bring through album details.
-            }) => (track_no, title, video_id, duration, artists.into_iter().map(Into::into).collect(), Some(album.into()), thumbnails,None),
+            }) => (
+                track_no,
+                title,
+                video_id,
+                duration,
+                artists.into_iter().map(Into::into).collect(),
+                Some(album.into()),
+                thumbnails,
+                None,
+            ),
         };
         self.list.push(ListSong {
             download_status: DownloadStatus::None,

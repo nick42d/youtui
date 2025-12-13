@@ -13,8 +13,8 @@ use ratatui::style::{Modifier, Style, Stylize};
 use ratatui::symbols::{block, line};
 use ratatui::text::Line;
 use ratatui::widgets::{
-    Block, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Scrollbar,
-    ScrollbarOrientation, ScrollbarState, StatefulWidget, Table, TableState, Widget,
+    Block, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Scrollbar, ScrollbarOrientation,
+    ScrollbarState, StatefulWidget, Table, TableState, Widget,
 };
 use std::borrow::Cow;
 
@@ -164,6 +164,7 @@ where
     fn apply_and_render(self, widget: T, f: &mut Frame, chunk: Rect);
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn draw_table_impl<'a>(
     f: &mut Frame,
     chunk: Rect,
@@ -243,9 +244,9 @@ where
 
 /// Returns a PanelEffect that can be used if rendered in a scrollable
 /// panel.
-pub fn draw_advanced_table<'a>(
+pub fn draw_advanced_table(
     f: &mut Frame,
-    table: &'a mut impl AdvancedTableView,
+    table: &mut impl AdvancedTableView,
     chunk: Rect,
 ) -> PanelEffect<'static> {
     // Set the state to the currently selected item.

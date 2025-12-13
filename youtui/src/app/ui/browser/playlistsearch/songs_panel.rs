@@ -197,14 +197,6 @@ impl PlaylistSongsPanel {
         };
         self.close_sort();
     }
-    pub fn handle_songs_found(&mut self) {
-        self.list.clear();
-        // XXX: Consider clearing sort params here, so that we don't need to sort all
-        // the incoming songs. Performance seems OK for now. XXX: Consider also
-        // clearing filter params here.
-        self.cur_selected = 0;
-        self.list.state = ListStatus::InProgress;
-    }
 }
 impl SongListComponent for PlaylistSongsPanel {
     fn get_song_from_idx(&self, idx: usize) -> Option<&crate::app::structures::ListSong> {
@@ -301,9 +293,7 @@ impl TableView for PlaylistSongsPanel {
             BasicConstraint::Length(5),
         ]
     }
-    fn get_items(
-        &self,
-    ) -> impl ExactSizeIterator + Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
+    fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
         self.list
             .get_list_iter()
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
@@ -379,9 +369,6 @@ impl AdvancedTableView for PlaylistSongsPanel {
     }
     fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
         &mut self.sort.state
-    }
-    fn get_filter_state(&self) -> &rat_text::text_input::TextInputState {
-        &self.filter.filter_text
     }
     fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
         &mut self.filter.filter_text

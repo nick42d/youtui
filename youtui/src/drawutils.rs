@@ -1,5 +1,5 @@
 use ratatui::prelude::Rect;
-use ratatui::style::{Color, Style};
+use ratatui::style::Color;
 
 // Standard app colour scheme
 pub const SELECTED_BORDER_COLOUR: Color = Color::Cyan;
@@ -67,11 +67,6 @@ pub fn middle_of_rect(r: Rect) -> Rect {
         width: r.width,
         height: 1,
     }
-}
-
-/// Return the standard list / table highlight style
-pub fn highlight_style() -> Style {
-    Style::new().bg(ROW_HIGHLIGHT_COLOUR)
 }
 
 #[cfg(test)]

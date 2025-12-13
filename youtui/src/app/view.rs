@@ -154,14 +154,9 @@ pub trait TableView {
     fn get_highlighted_row(&self) -> Option<usize>;
     fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_>;
     fn get_headings(&self) -> impl Iterator<Item = &'static str>;
-    // Not a particularly useful function for a sortabletableview
-    fn len(&self) -> usize {
-        self.get_items().len()
-    }
 }
 /// TableView with built in filtering and sorting.
 pub trait AdvancedTableView: TableView {
-    fn get_filter_state(&self) -> &TextInputState;
     fn get_mut_filter_state(&mut self) -> &mut TextInputState;
     fn filter_popup_shown(&self) -> bool;
     fn get_filterable_columns(&self) -> &[usize];
@@ -198,18 +193,12 @@ pub trait ListView {
 pub trait Drawable {
     // Helper function to draw.
     fn draw_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool);
-    fn draw(&self, f: &mut Frame, selected: bool) {
-        self.draw_chunk(f, f.area(), selected);
-    }
 }
 // A drawable part of the application that mutates its state on draw.
 pub trait DrawableMut {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
     fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool);
-    fn draw_mut(&mut self, f: &mut Frame, selected: bool) {
-        self.draw_mut_chunk(f, f.area(), selected)
-    }
 }
 // A part of the application that can be in a Loading state.
 pub trait Loadable {

@@ -331,9 +331,6 @@ impl AdvancedTableView for SongSearchBrowser {
     fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
         &mut self.sort.state
     }
-    fn get_filter_state(&self) -> &rat_text::text_input::TextInputState {
-        &self.filter.filter_text
-    }
     fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
         &mut self.filter.filter_text
     }

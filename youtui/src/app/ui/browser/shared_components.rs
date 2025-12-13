@@ -218,7 +218,7 @@ impl SearchBlock {
         search_suggestions: Vec<SearchSuggestion>,
         search: String,
     ) {
-        if self.get_text().as_deref() == Some(&search) {
+        if self.get_text() == Some(&search) {
             self.search_suggestions = search_suggestions;
             self.suggestions_cur = None;
         }
