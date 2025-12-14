@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.32](https://github.com/nick42d/youtui/compare/youtui/v0.0.31...youtui/v0.0.32) - 2025-12-14
+
+### Added
+- Add playlist search ([#300](https://github.com/nick42d/youtui/pull/300))ord_xor_partial_ord
+
+
+
+
 ## [0.0.31](https://github.com/nick42d/youtui/compare/youtui/v0.0.30...youtui/v0.0.31) - 2025-12-10
 
 ### Added
