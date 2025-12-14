@@ -281,8 +281,10 @@ impl Playlist {
             {
                 // This task has the metadata of both DecodeSong and PlaySong and returns
                 // Result<PlayUpdate>.
-                let task =
-                    DecodeSong(pointer.clone()).map_stream(move |song| PlaySong { song, id });
+                let task = DecodeSong(pointer.clone()).map_stream(move |song| {
+                    tracing::info!("Song decoded succesfully. {:?}", id);
+                    PlaySong { song, id }
+                });
                 let constraint = Some(Constraint::new_block_matching_metadata(
                     TaskMetadata::PlayingSong,
                 ));
@@ -416,7 +418,7 @@ impl Playlist {
     pub fn handle_song_downloaded(&mut self, id: ListSongID) -> ComponentEffect<Self> {
         if let PlayState::Buffering(target_id) = self.play_status {
             if target_id == id {
-                info!("Playing");
+                info!("Received downloaded song {id:?}, now trying to play it.");
                 return self.play_song_id(id);
             }
         }
