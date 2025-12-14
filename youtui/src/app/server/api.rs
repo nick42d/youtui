@@ -17,7 +17,8 @@ use tracing::{error, info};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail};
 use ytmapi_rs::parse::{
-    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, PlaylistItem, SearchResultArtist, SearchResultPlaylist, SearchResultSong,
+    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, PlaylistItem,
+    SearchResultArtist, SearchResultPlaylist, SearchResultSong,
 };
 use ytmapi_rs::query::{GetAlbumQuery, GetArtistAlbumsQuery};
 

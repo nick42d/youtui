@@ -9,8 +9,8 @@ use crate::app::server::{
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
-    AlbumArtState, BrowserSongsList, DownloadStatus, ListSong,
-    ListSongDisplayableField, ListSongID, Percentage, PlayState, SongListComponent,
+    AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
+    ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::{draw_loadable, draw_panel_mut, draw_table};

@@ -4,9 +4,7 @@ use crate::app::component::actionhandler::{
     ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use crate::app::server::api::GetPlaylistSongsProgressUpdate;
-use crate::app::server::{
-    GetPlaylistSongs, HandleApiError, SearchPlaylists,
-};
+use crate::app::server::{GetPlaylistSongs, HandleApiError, SearchPlaylists};
 use crate::app::structures::SongListComponent;
 use crate::app::ui::ListStatus;
 use crate::app::ui::action::{AppAction, TextEntryAction};
@@ -24,10 +22,7 @@ use itertools::Either;
 use std::mem;
 use tracing::error;
 use ytmapi_rs::common::PlaylistID;
-use ytmapi_rs::parse::{
-    PlaylistItem,
-    SearchResultPlaylist,
-};
+use ytmapi_rs::parse::{PlaylistItem, SearchResultPlaylist};
 
 /// Maximum number of playlist songs to download / stream in a single viewing.
 const MAX_PLAYLIST_SONGS: usize = 1000;

@@ -1,10 +1,7 @@
 use super::{WindowContext, YoutuiWindow, footer, header};
 use crate::app::view::draw::{draw_panel_mut_impl, draw_table_impl};
 use crate::app::view::{BasicConstraint, Drawable, DrawableMut};
-use crate::drawutils::{
-    SELECTED_BORDER_COLOUR, TEXT_COLOUR,
-    left_bottom_corner_rect,
-};
+use crate::drawutils::{SELECTED_BORDER_COLOUR, TEXT_COLOUR, left_bottom_corner_rect};
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
 use rat_text::HasScreenCursor;
 use rat_text::text_input::{TextInput, TextInputState};
@@ -12,9 +9,7 @@ use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::prelude::Rect;
 use ratatui::style::Style;
-use ratatui::widgets::{
-    Block, Borders, Clear, Row, Table,
-};
+use ratatui::widgets::{Block, Borders, Clear, Row, Table};
 use ratatui_image::picker::Picker;
 
 // Add tests to try and draw app with oddly sized windows.
