@@ -238,6 +238,9 @@ where
                             next_song_id
                         );
                         cur_song_duration = song.total_duration();
+                        tracing::debug!(
+                            "Received request to autoplay {song_id:?} of duration {cur_song_duration:?}"
+                        );
                         if !sink.empty() {
                             sink.stop()
                         }
@@ -273,6 +276,9 @@ where
                             );
                         }
                         next_song_duration = song.total_duration();
+                        tracing::debug!(
+                            "Received request to queue {song_id:?} of duration {next_song_duration:?}"
+                        );
                         blocking_send_or_error(
                             &tx.0,
                             AsyncRodioResponse::Queued(next_song_duration),
@@ -291,6 +297,9 @@ where
                     }
                     AsyncRodioRequest::PlaySong(song, song_id, tx) => {
                         cur_song_duration = song.total_duration();
+                        tracing::debug!(
+                            "Received request to play {song_id:?} of duration {cur_song_duration:?}"
+                        );
                         if !sink.empty() {
                             sink.stop()
                         }
