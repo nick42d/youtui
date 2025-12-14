@@ -1,14 +1,21 @@
-use super::server::album_art_downloader::AlbumArt;
 use super::server::song_downloader::InMemSong;
+use super::server::song_thumbnail_downloader::SongThumbnail;
 use super::view::SortDirection;
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use itertools::Itertools;
 use std::borrow::Cow;
 use std::ops::Deref;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::{AlbumID, Explicit, Thumbnail, VideoID};
-use ytmapi_rs::parse::{AlbumSong, ParsedSongAlbum, ParsedSongArtist, SearchResultSong};
+use ytmapi_rs::common::{
+    AlbumID, ArtistChannelID, Explicit, Thumbnail, UploadAlbumID, UploadArtistID, VideoID,
+};
+use ytmapi_rs::parse::{
+    AlbumSong, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist, ParsedUploadSongAlbum,
+    PlaylistEpisode, PlaylistItem, PlaylistSong, PlaylistUploadSong, PlaylistVideo,
+    SearchResultSong,
+};
 
 pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
@@ -38,7 +45,7 @@ impl<T> AsRef<T> for MaybeRc<T> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct AlbumSongsList {
+pub struct BrowserSongsList {
     pub state: ListStatus,
     list: Vec<ListSong>,
     pub next_id: ListSongID,
@@ -56,7 +63,7 @@ pub struct Percentage(pub u8);
 pub enum AlbumArtState {
     #[default]
     Init,
-    Downloaded(Rc<AlbumArt>),
+    Downloaded(Rc<SongThumbnail>),
     None,
     Error,
 }
@@ -67,16 +74,80 @@ pub struct ListSong {
     pub track_no: Option<usize>,
     pub plays: String,
     pub title: String,
-    pub explicit: Explicit,
+    pub explicit: Option<Explicit>,
     pub download_status: DownloadStatus,
     pub id: ListSongID,
     pub duration_string: String,
     pub actual_duration: Option<Duration>,
     pub year: Option<Rc<String>>,
     pub album_art: AlbumArtState,
-    pub artists: MaybeRc<Vec<ParsedSongArtist>>,
+    pub artists: MaybeRc<Vec<ListSongArtist>>,
     pub thumbnails: MaybeRc<Vec<Thumbnail>>,
-    pub album: Option<MaybeRc<ParsedSongAlbum>>,
+    pub album: Option<MaybeRc<ListSongAlbum>>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ListSongArtist {
+    pub name: String,
+    pub id: Option<ArtistOrUploadArtistID>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ListSongAlbum {
+    pub name: String,
+    pub id: AlbumOrUploadAlbumID,
+}
+
+impl From<ParsedSongArtist> for ListSongArtist {
+    fn from(value: ParsedSongArtist) -> Self {
+        let ParsedSongArtist { name, id } = value;
+        Self {
+            name,
+            id: id.map(ArtistOrUploadArtistID::Artist),
+        }
+    }
+}
+
+impl From<ParsedUploadArtist> for ListSongArtist {
+    fn from(value: ParsedUploadArtist) -> Self {
+        let ParsedUploadArtist { name, id } = value;
+        Self {
+            name,
+            id: id.map(ArtistOrUploadArtistID::UploadArtist),
+        }
+    }
+}
+
+impl From<ParsedSongAlbum> for ListSongAlbum {
+    fn from(value: ParsedSongAlbum) -> Self {
+        let ParsedSongAlbum { name, id } = value;
+        Self {
+            name,
+            id: AlbumOrUploadAlbumID::Album(id),
+        }
+    }
+}
+
+impl From<ParsedUploadSongAlbum> for ListSongAlbum {
+    fn from(value: ParsedUploadSongAlbum) -> Self {
+        let ParsedUploadSongAlbum { name, id } = value;
+        Self {
+            name,
+            id: AlbumOrUploadAlbumID::UploadAlbum(id),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ArtistOrUploadArtistID {
+    Artist(ArtistChannelID<'static>),
+    UploadArtist(UploadArtistID<'static>),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum AlbumOrUploadAlbumID {
+    Album(AlbumID<'static>),
+    UploadAlbum(UploadAlbumID<'static>),
 }
 
 #[derive(Copy, Clone, PartialEq, Eq)]
@@ -205,9 +276,9 @@ impl ListSong {
     }
 }
 
-impl Default for AlbumSongsList {
+impl Default for BrowserSongsList {
     fn default() -> Self {
-        AlbumSongsList {
+        BrowserSongsList {
             state: ListStatus::New,
             list: Vec::new(),
             next_id: ListSongID(0),
@@ -215,7 +286,7 @@ impl Default for AlbumSongsList {
     }
 }
 
-impl AlbumSongsList {
+impl BrowserSongsList {
     pub fn get_list_iter(&self) -> std::slice::Iter<'_, ListSong> {
         self.list.iter()
     }
@@ -239,7 +310,6 @@ impl AlbumSongsList {
         self.state = ListStatus::New;
         self.list.clear();
     }
-    // Naive implementation
     pub fn append_raw_album_songs(
         &mut self,
         raw_list: Vec<AlbumSong>,
@@ -248,12 +318,12 @@ impl AlbumSongsList {
         artists: Vec<ParsedSongArtist>,
         thumbnails: Vec<Thumbnail>,
     ) {
-        // The album is shared by all the songs.
+        // The album data is shared by all the songs.
         // So no need to clone/allocate for eache one.
         // Instead we'll share ownership via Rc.
-        let album = Rc::new(album);
         let year = Rc::new(year);
-        let artists = Rc::new(artists);
+        let album = Rc::new(ListSongAlbum::from(album));
+        let artists = Rc::new(artists.into_iter().map(Into::into).collect::<Vec<_>>());
         let thumbnails = Rc::new(thumbnails);
         for song in raw_list {
             self.add_raw_album_song(
@@ -265,7 +335,11 @@ impl AlbumSongsList {
             );
         }
     }
-    // Naive implementation
+    pub fn append_raw_playlist_items(&mut self, raw_list: Vec<PlaylistItem>) {
+        for song in raw_list {
+            self.add_raw_playlist_item(song);
+        }
+    }
     pub fn append_raw_search_result_songs(&mut self, raw_list: Vec<SearchResultSong>) {
         for song in raw_list {
             self.add_raw_search_result_song(song);
@@ -274,9 +348,9 @@ impl AlbumSongsList {
     pub fn add_raw_album_song(
         &mut self,
         song: AlbumSong,
-        album: Rc<ParsedSongAlbum>,
+        album: Rc<ListSongAlbum>,
         year: Rc<String>,
-        artists: Rc<Vec<ParsedSongArtist>>,
+        artists: Rc<Vec<ListSongArtist>>,
         thumbnails: Rc<Vec<Thumbnail>>,
     ) -> ListSongID {
         let id = self.create_next_id();
@@ -300,7 +374,7 @@ impl AlbumSongsList {
             track_no: Some(track_no),
             plays,
             title,
-            explicit,
+            explicit: Some(explicit),
             duration_string: duration,
             thumbnails: MaybeRc::Rc(thumbnails),
             album_art: Default::default(),
@@ -324,15 +398,98 @@ impl AlbumSongsList {
             download_status: DownloadStatus::None,
             id,
             year: None,
-            artists: MaybeRc::Owned(vec![ParsedSongArtist {
+            artists: MaybeRc::Owned(vec![ListSongArtist {
                 name: artist,
                 id: None,
             }]),
-            album: album.map(MaybeRc::Owned),
+            album: album.map(Into::into).map(MaybeRc::Owned),
             actual_duration: None,
             video_id,
             track_no: None,
             plays,
+            title,
+            explicit: Some(explicit),
+            duration_string: duration,
+            thumbnails: MaybeRc::Owned(thumbnails),
+            album_art: Default::default(),
+        });
+        id
+    }
+    fn add_raw_playlist_item(&mut self, item: PlaylistItem) -> ListSongID {
+        let id = self.create_next_id();
+        let (track_no, title, video_id, duration, artists, album, thumbnails, explicit) = match item
+        {
+            PlaylistItem::Song(PlaylistSong {
+                video_id,
+                album,
+                duration,
+                title,
+                artists,
+                thumbnails,
+                track_no,
+                explicit,
+                ..
+            }) => (
+                track_no,
+                title,
+                video_id,
+                duration,
+                artists.into_iter().map(Into::into).collect(),
+                Some(album.into()),
+                thumbnails,
+                Some(explicit),
+            ),
+            PlaylistItem::Video(PlaylistVideo {
+                video_id,
+                duration,
+                title,
+                thumbnails,
+                track_no,
+                ..
+            }) => (
+                track_no,
+                title,
+                video_id,
+                duration,
+                vec![],
+                None,
+                thumbnails,
+                None,
+            ),
+            // Episode has no video id, so we can't currently handle it as a ListSong...
+            PlaylistItem::Episode(PlaylistEpisode { .. }) => unimplemented!(
+                "One of the playlist items is a podcast episode, handling these is not currently implemented"
+            ),
+            PlaylistItem::UploadSong(PlaylistUploadSong {
+                video_id,
+                duration,
+                title,
+                artists,
+                album,
+                thumbnails,
+                track_no,
+                ..
+            }) => (
+                track_no,
+                title,
+                video_id,
+                duration,
+                artists.into_iter().map(Into::into).collect(),
+                Some(album.into()),
+                thumbnails,
+                None,
+            ),
+        };
+        self.list.push(ListSong {
+            download_status: DownloadStatus::None,
+            id,
+            year: None,
+            artists: MaybeRc::Owned(artists),
+            album: album.map(MaybeRc::Owned),
+            actual_duration: None,
+            video_id,
+            track_no: Some(track_no),
+            plays: String::new(),
             title,
             explicit,
             duration_string: duration,
@@ -368,27 +525,23 @@ impl AlbumSongsList {
         self.next_id.0 += 1;
         id
     }
-    pub fn update_album_art(&mut self, album_art: AlbumArt) {
-        let shared = Rc::new(album_art);
+    pub fn add_song_thumbnail(&mut self, song_thumbnail: SongThumbnail) {
+        // Thumbnail is refcounted since it could be shared by multiple songs on the
+        // playlist (even if its a video thumbnail).
+        let thumbnail_shared = Rc::new(song_thumbnail);
         for song in &mut self.list {
             if !matches!(song.album_art, AlbumArtState::Downloaded(_))
-                && song
-                    .album
-                    .as_ref()
-                    .is_some_and(|album| album.id == shared.album_id)
+                && SongThumbnailID::from(&*song) == thumbnail_shared.song_thumbnail_id
             {
-                song.album_art = AlbumArtState::Downloaded(shared.clone());
+                song.album_art = AlbumArtState::Downloaded(thumbnail_shared.clone());
             }
             tracing::info!("Album art updated");
         }
     }
-    pub fn set_album_art_error(&mut self, album_id: AlbumID<'_>) {
+    pub fn set_song_thumbnail_error(&mut self, thumbnail_id: SongThumbnailID<'_>) {
         for song in &mut self.list {
             if !matches!(song.album_art, AlbumArtState::Downloaded(_))
-                && song
-                    .album
-                    .as_ref()
-                    .is_some_and(|album| album.id == album_id)
+                && SongThumbnailID::from(&*song) == thumbnail_id
             {
                 song.album_art = AlbumArtState::Error;
             }

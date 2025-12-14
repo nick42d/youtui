@@ -1,10 +1,10 @@
 /// Traits related to viewable application components.
 use super::structures::{ListSong, ListSongDisplayableField, Percentage};
+use rat_text::text_input::TextInputState;
 use ratatui::Frame;
 use ratatui::prelude::{Constraint, Rect};
 use ratatui::widgets::{ListState, TableState};
 use std::borrow::Cow;
-use std::fmt::Display;
 
 pub mod draw;
 
@@ -144,87 +144,69 @@ pub fn basic_constraints_to_table_constraints(
 }
 
 /// A struct that we are able to draw a table from using the underlying data.
-pub trait TableView: Loadable {
+pub trait TableView {
+    fn get_state(&self) -> &TableState;
+    fn get_mut_state(&mut self) -> &mut TableState;
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
-    /// Get an owned version of the widget state, e.g scroll offset position.
-    /// In practice this will clone, and this is acceptable due to the low cost.
-    fn get_state(&self) -> TableState;
-    // NOTE: Consider if the Playlist is a NonSortableTable (or Browser a
-    // SortableTable), as possible we don't want to sort the Playlist (what happens
-    // to play order, for eg). Could have a "commontitle" trait to prevent the
-    // need for this in both Table and List
-    fn get_title(&self) -> Cow<'_, str>;
     fn get_layout(&self) -> &[BasicConstraint];
     // A row can be highlighted.
     fn get_highlighted_row(&self) -> Option<usize>;
-    // TODO: Consider if generics <T: Iterator> can be used instead of dyn Iterator.
-    fn get_items(
-        &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_>;
-    // XXX: This doesn't need to be so fancy - could return a static slice.
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>>;
-    // Not a particularly useful function for a sortabletableview
-    fn len(&self) -> usize {
-        self.get_items().len()
-    }
+    fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_>;
+    fn get_headings(&self) -> impl Iterator<Item = &'static str>;
 }
-pub trait SortableTableView: TableView {
-    fn get_sortable_columns(&self) -> &[usize];
-    fn get_sort_commands(&self) -> &[TableSortCommand];
-    /// Add a new TableSortCommand and sort the table.
-    /// This can fail if the TableSortCommand is not within the range of
-    /// sortable columns.
-    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;
-    fn clear_sort_commands(&mut self);
-    // Assuming a SortableTable is also Filterable.
+/// TableView with built in filtering and sorting.
+pub trait AdvancedTableView: TableView {
+    fn get_mut_filter_state(&mut self) -> &mut TextInputState;
+    fn filter_popup_shown(&self) -> bool;
     fn get_filterable_columns(&self) -> &[usize];
     // This can't be ExactSized as return type may be Filter<T>
-    fn get_filtered_items(
-        &self,
-    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_>;
+    fn get_filtered_items(&self) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_>;
     fn get_filter_commands(&self) -> &[TableFilterCommand];
     fn push_filter_command(&mut self, filter_command: TableFilterCommand);
     fn clear_filter_commands(&mut self);
     // SortableTableView should maintain it's own popup state.
     fn get_sort_popup_cur(&self) -> usize;
-    // SortableTableView should maintain it's own popup state.
-    fn get_sort_popup_state(&self) -> ListState;
+    fn sort_popup_shown(&self) -> bool;
+    fn get_sort_state(&self) -> &ListState;
+    fn get_mut_sort_state(&mut self) -> &mut ListState;
+    /// Add a new TableSortCommand and sort the table.
+    /// This can fail if the TableSortCommand is not within the range of
+    /// sortable columns.
+    fn push_sort_command(&mut self, sort_command: TableSortCommand) -> anyhow::Result<()>;
+    fn clear_sort_commands(&mut self);
+    fn get_sortable_columns(&self) -> &[usize];
+    fn get_sort_commands(&self) -> &[TableSortCommand];
 }
 // A struct that we are able to draw a list from using the underlying data.
-pub trait ListView: Loadable {
-    type DisplayItem: Display;
+pub trait ListView {
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
-    /// Get an owned version of the widget state, e.g scroll offset position.
-    /// In practice this will clone, and this is acceptable due to the low cost.
-    fn get_state(&self) -> ListState;
-    fn get_title(&self) -> Cow<'_, str>;
-    fn get_items_display(&self) -> Vec<&Self::DisplayItem>;
+    fn get_state(&self) -> &ListState;
+    fn get_mut_state(&mut self) -> &mut ListState;
+    fn get_items(&self) -> impl ExactSizeIterator<Item = Cow<'_, str>> + '_;
     fn len(&self) -> usize {
-        self.get_items_display().len()
+        self.get_items().len()
     }
 }
 // A drawable part of the application.
 pub trait Drawable {
     // Helper function to draw.
     fn draw_chunk(&self, f: &mut Frame, chunk: Rect, selected: bool);
-    fn draw(&self, f: &mut Frame, selected: bool) {
-        self.draw_chunk(f, f.area(), selected);
-    }
 }
 // A drawable part of the application that mutates its state on draw.
 pub trait DrawableMut {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
     fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool);
-    fn draw_mut(&mut self, f: &mut Frame, selected: bool) {
-        self.draw_mut_chunk(f, f.area(), selected)
-    }
 }
 // A part of the application that can be in a Loading state.
 pub trait Loadable {
     fn is_loading(&self) -> bool;
+}
+// A part of the application that has a title
+pub trait HasTitle {
+    fn get_title(&self) -> Cow<'_, str>;
 }
 
 #[cfg(test)]

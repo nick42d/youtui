@@ -1,8 +1,10 @@
 use super::ArcServer;
-use super::album_art_downloader::AlbumArt;
 use super::api::GetArtistSongsProgressUpdate;
 use super::player::{DecodedInMemSong, Player};
 use super::song_downloader::{DownloadProgressUpdate, InMemSong};
+use super::song_thumbnail_downloader::SongThumbnail;
+use crate::app::server::api::GetPlaylistSongsProgressUpdate;
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use crate::app::structures::ListSongID;
 use crate::async_rodio_sink::rodio::decoder::DecoderError;
 use crate::async_rodio_sink::{
@@ -14,8 +16,8 @@ use async_callback_manager::{BackendStreamingTask, BackendTask};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, SearchSuggestion, VideoID};
-use ytmapi_rs::parse::{SearchResultArtist, SearchResultSong};
+use ytmapi_rs::common::{ArtistChannelID, PlaylistID, SearchSuggestion, VideoID};
+use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong};
 
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -36,7 +38,14 @@ pub struct SearchArtists(pub String);
 #[derive(Debug)]
 pub struct SearchSongs(pub String);
 #[derive(Debug)]
+pub struct SearchPlaylists(pub String);
+#[derive(Debug)]
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
+#[derive(Debug)]
+pub struct GetPlaylistSongs {
+    pub playlist_id: PlaylistID<'static>,
+    pub max_songs: usize,
+}
 
 #[derive(Debug)]
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
@@ -106,9 +115,9 @@ pub struct QueueSong {
     pub id: ListSongID,
 }
 #[derive(Debug)]
-pub struct GetAlbumArt {
+pub struct GetSongThumbnail {
     pub thumbnail_url: String,
-    pub album_id: AlbumID<'static>,
+    pub thumbnail_id: SongThumbnailID<'static>,
 }
 
 impl BackendTask<ArcServer> for HandleApiError {
@@ -162,6 +171,17 @@ impl BackendTask<ArcServer> for SearchSongs {
         async move { backend.api.search_songs(self.0).await }
     }
 }
+impl BackendTask<ArcServer> for SearchPlaylists {
+    type Output = Result<Vec<SearchResultPlaylist>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.api.search_playlists(self.0).await }
+    }
+}
 impl BackendStreamingTask<ArcServer> for GetArtistSongs {
     type Output = GetArtistSongsProgressUpdate;
     type MetadataType = TaskMetadata;
@@ -171,6 +191,19 @@ impl BackendStreamingTask<ArcServer> for GetArtistSongs {
     ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
         let backend = backend.clone();
         backend.api.get_artist_songs(self.0)
+    }
+}
+impl BackendStreamingTask<ArcServer> for GetPlaylistSongs {
+    type Output = GetPlaylistSongsProgressUpdate;
+    type MetadataType = TaskMetadata;
+    fn into_stream(
+        self,
+        backend: &ArcServer,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        let backend = backend.clone();
+        backend
+            .api
+            .get_playlist_songs(self.playlist_id, self.max_songs)
     }
 }
 
@@ -346,8 +379,8 @@ impl BackendStreamingTask<ArcServer> for QueueSong {
         vec![TaskMetadata::PlayingSong]
     }
 }
-impl BackendTask<ArcServer> for GetAlbumArt {
-    type Output = anyhow::Result<AlbumArt>;
+impl BackendTask<ArcServer> for GetSongThumbnail {
+    type Output = anyhow::Result<SongThumbnail>;
     type MetadataType = TaskMetadata;
     fn into_future(
         self,
@@ -356,8 +389,8 @@ impl BackendTask<ArcServer> for GetAlbumArt {
         let backend = backend.clone();
         async move {
             backend
-                .album_art_downloader
-                .download_album_art(self.album_id, self.thumbnail_url)
+                .song_thumbnail_downloader
+                .download_song_thumbnail(self.thumbnail_id, self.thumbnail_url)
                 .await
         }
     }

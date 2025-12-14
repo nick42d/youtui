@@ -3,17 +3,18 @@ use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, GetAlbumArt, IncreaseVolume, Pause, PausePlay,
+    AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause, PausePlay,
     PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
-    AlbumArtState, AlbumSongsList, DownloadStatus, ListSong, ListSongDisplayableField, ListSongID,
-    Percentage, PlayState, SongListComponent,
+    AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
+    ListSongID, Percentage, PlayState, SongListComponent,
 };
 use crate::app::ui::{AppCallback, WindowContext};
-use crate::app::view::draw::draw_table;
-use crate::app::view::{BasicConstraint, DrawableMut, Loadable, TableView};
+use crate::app::view::draw::{draw_loadable, draw_panel_mut, draw_table};
+use crate::app::view::{BasicConstraint, DrawableMut, HasTitle, Loadable, TableView};
 use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
     VolumeUpdate,
@@ -33,7 +34,7 @@ use std::option::Option;
 use std::sync::Arc;
 use std::time::Duration;
 use tracing::{error, info, warn};
-use ytmapi_rs::common::{AlbumID, Thumbnail};
+use ytmapi_rs::common::Thumbnail;
 
 #[cfg(test)]
 mod tests;
@@ -46,7 +47,7 @@ pub const DEFAULT_UI_VOLUME: Percentage = Percentage(50);
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Playlist {
-    pub list: AlbumSongsList,
+    pub list: BrowserSongsList,
     pub cur_played_dur: Option<Duration>,
     pub play_status: PlayState,
     pub queue_status: QueueState,
@@ -116,8 +117,8 @@ impl TextHandler for Playlist {
     fn is_text_handling(&self) -> bool {
         false
     }
-    fn get_text(&self) -> &str {
-        Default::default()
+    fn get_text(&self) -> std::option::Option<&str> {
+        None
     }
     fn replace_text(&mut self, _text: impl Into<String>) {}
     fn clear_text(&mut self) -> bool {
@@ -133,7 +134,9 @@ impl TextHandler for Playlist {
 
 impl DrawableMut for Playlist {
     fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
-        self.widget_state = draw_table(f, self, chunk, selected);
+        draw_panel_mut(f, self, chunk, selected, |t, f, chunk| {
+            draw_loadable(f, t, chunk, |t, f, chunk| Some(draw_table(f, t, chunk)))
+        });
     }
 }
 
@@ -159,11 +162,8 @@ impl TableView for Playlist {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> TableState {
-        self.widget_state.clone()
-    }
-    fn get_title(&self) -> Cow<'_, str> {
-        format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
+    fn get_state(&self) -> &TableState {
+        &self.widget_state
     }
     fn get_layout(&self) -> &[BasicConstraint] {
         // Not perfect as this method doesn't know the size of the parent.
@@ -179,10 +179,8 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
-    fn get_items(
-        &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
-        Box::new(self.list.get_list_iter().enumerate().map(|(i, ls)| {
+    fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
+        self.list.get_list_iter().enumerate().map(|(i, ls)| {
             let first_field = if Some(i) == self.get_cur_playing_index() {
                 match self.play_status {
                     PlayState::NotPlaying => ">>>".to_string(),
@@ -195,32 +193,35 @@ impl TableView for Playlist {
             } else {
                 (i + 1).to_string()
             };
-            Box::new(
-                iter::once(first_field.to_string().into()).chain(ls.get_fields([
-                    ListSongDisplayableField::DownloadStatus,
-                    ListSongDisplayableField::TrackNo,
-                    ListSongDisplayableField::Artists,
-                    ListSongDisplayableField::Album,
-                    ListSongDisplayableField::Song,
-                    ListSongDisplayableField::Duration,
-                    ListSongDisplayableField::Year,
-                ])),
-            ) as Box<dyn Iterator<Item = Cow<str>>>
-        }))
+            iter::once(first_field.to_string().into()).chain(ls.get_fields([
+                ListSongDisplayableField::DownloadStatus,
+                ListSongDisplayableField::TrackNo,
+                ListSongDisplayableField::Artists,
+                ListSongDisplayableField::Album,
+                ListSongDisplayableField::Song,
+                ListSongDisplayableField::Duration,
+                ListSongDisplayableField::Year,
+            ]))
+        })
     }
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str> + 'static> {
-        Box::new(
-            [
-                "p#", "", "t#", "Artist", "Album", "Song", "Duration", "Year",
-            ]
-            .into_iter(),
-        )
+    fn get_headings(&self) -> impl Iterator<Item = &'static str> {
+        [
+            "p#", "", "t#", "Artist", "Album", "Song", "Duration", "Year",
+        ]
+        .into_iter()
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         self.get_cur_playing_index()
     }
+    fn get_mut_state(&mut self) -> &mut TableState {
+        &mut self.widget_state
+    }
 }
-
+impl HasTitle for Playlist {
+    fn get_title(&self) -> Cow<'_, str> {
+        format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
+    }
+}
 impl SongListComponent for Playlist {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong> {
         self.list.get_list_iter().nth(idx)
@@ -482,23 +483,25 @@ impl Playlist {
                     song.album_art = AlbumArtState::None;
                     return None;
                 };
-                Some((song.album.as_deref().map(|album| &album.id)?, thumb_url))
+                let thumbnail_id = SongThumbnailID::from(song as &ListSong).into_owned();
+                Some((thumbnail_id, thumb_url))
             })
-            .collect::<HashMap<&AlbumID, String>>();
+            .collect::<HashMap<SongThumbnailID, String>>();
         let effect = albums
             .into_iter()
-            .map(|(album_id, thumbnail_url)| {
-                let album_id = album_id.clone();
+            .map(|(thumbnail_id, thumbnail_url)| {
                 AsyncTask::new_future(
-                    GetAlbumArt {
+                    GetSongThumbnail {
                         thumbnail_url,
-                        album_id: album_id.clone(),
+                        thumbnail_id: thumbnail_id.clone(),
                     },
                     |this: &mut Self, result| match result {
-                        Ok(album_art) => this.list.update_album_art(album_art),
+                        Ok(album_art) => this.list.add_song_thumbnail(album_art),
                         Err(e) => {
                             error!("Error {e} getting album art");
-                            this.list.set_album_art_error(album_id);
+                            // TODO: if set_song_thumbnail_error sends back it's ID, one less clone
+                            // is required.
+                            this.list.set_song_thumbnail_error(thumbnail_id);
                         }
                     },
                     None,

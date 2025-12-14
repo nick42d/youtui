@@ -1,21 +1,16 @@
 use super::{WindowContext, YoutuiWindow, footer, header};
-use crate::app::view::draw::draw_panel;
-use crate::app::view::{Drawable, DrawableMut};
-use crate::drawutils::{
-    SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR, TEXT_COLOUR, highlight_style,
-    left_bottom_corner_rect,
-};
+use crate::app::view::draw::{draw_panel_mut_impl, draw_table_impl};
+use crate::app::view::{BasicConstraint, Drawable, DrawableMut};
+use crate::drawutils::{SELECTED_BORDER_COLOUR, TEXT_COLOUR, left_bottom_corner_rect};
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
+use rat_text::HasScreenCursor;
+use rat_text::text_input::{TextInput, TextInputState};
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::prelude::{Margin, Rect};
-use ratatui::style::{Modifier, Style};
-use ratatui::symbols::{block, line};
-use ratatui::widgets::{
-    Block, Borders, Clear, Row, Scrollbar, ScrollbarOrientation, ScrollbarState, Table, TableState,
-};
+use ratatui::prelude::Rect;
+use ratatui::style::Style;
+use ratatui::widgets::{Block, Borders, Clear, Row, Table};
 use ratatui_image::picker::Picker;
-use std::borrow::Cow;
 
 // Add tests to try and draw app with oddly sized windows.
 pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities: &Picker) {
@@ -133,98 +128,73 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
     // Naive implementation
     // XXX: We're running get_help_list_items a second time here.
     // Better to move to the fold above.
-    let commands_table = w.get_help_list_items().map(
-        |DisplayableKeyAction {
-             keybinds,
-             context,
-             description,
-         }| {
-            // TODO: Remove vec allocation?
-            Row::new(vec![
-                keybinds.to_string(),
-                context.to_string(),
-                description.to_string(),
-            ])
-            .style(Style::new().fg(TEXT_COLOUR))
-        },
-    );
     let table_constraints = [
-        Constraint::Min(s_len.try_into().unwrap_or(u16::MAX)),
-        Constraint::Min(c_len.try_into().unwrap_or(u16::MAX)),
-        Constraint::Min(d_len.try_into().unwrap_or(u16::MAX)),
+        BasicConstraint::Length(s_len.try_into().unwrap_or(u16::MAX)),
+        BasicConstraint::Length(c_len.try_into().unwrap_or(u16::MAX)),
+        BasicConstraint::Length(d_len.try_into().unwrap_or(u16::MAX)),
     ];
-    let headings = ["Key", "Context", "Command"];
+    let headings = ["Key", "Context", "Command"].into_iter();
     let area = left_bottom_corner_rect(
         height.try_into().unwrap_or(u16::MAX),
         width.try_into().unwrap_or(u16::MAX),
         chunk,
     );
     f.render_widget(Clear, area);
-    let mut state = w.help.widget_state.clone();
-    draw_generic_scrollable_table(
+    draw_panel_mut_impl(
         f,
-        commands_table,
-        "Help".into(),
-        w.help.cur,
-        items,
-        &table_constraints,
-        &headings,
+        w,
         area,
-        &mut state,
         true,
+        |_| "Help".into(),
+        |t, f, chunk| {
+            let commands_table = t.get_help_list_items().map(
+                |DisplayableKeyAction {
+                     keybinds,
+                     context,
+                     description,
+                 }| { [keybinds, context, description].into_iter() },
+            );
+            let (new_state, effect) = draw_table_impl(
+                f,
+                chunk,
+                t.help.cur,
+                None,
+                &t.help.widget_state,
+                commands_table,
+                items,
+                &table_constraints,
+                headings,
+                None,
+            );
+            t.help.widget_state = new_state;
+            Some(effect)
+        },
     );
-    w.help.widget_state = state;
 }
 
-// At this stage, this is the most efficient way to call this function.
-#[allow(clippy::too_many_arguments)]
-fn draw_generic_scrollable_table<'a, T: IntoIterator<Item = Row<'a>>>(
+/// Draw a text input box
+pub fn draw_text_box(
     f: &mut Frame,
-    table_items: T,
-    title: Cow<str>,
-    cur: usize,
-    len: usize,
-    layout: &[Constraint], // Can this be done better?
-    headings: &[&'static str],
+    title: impl AsRef<str>,
+    contents: &mut TextInputState,
     chunk: Rect,
-    state: &mut TableState,
-    selected: bool,
 ) {
-    // TODO: theming
-    // Set the state to the currently selected item.
-    state.select(Some(cur));
-    // Minus for height of block and heading.
-    let table_height = chunk.height.saturating_sub(4) as usize;
-    let headings_iter = headings.iter().copied();
-    let table_widget = Table::new(table_items, layout)
-        .row_highlight_style(highlight_style())
-        .header(
-            Row::new(headings_iter).style(
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(TABLE_HEADINGS_COLOUR),
-            ),
-        )
-        .column_spacing(1);
-    // TODO: Don't display scrollbar if all items fit on the screen.
-    let scrollbar = Scrollbar::new(ScrollbarOrientation::VerticalRight)
-        .thumb_symbol(block::FULL)
-        .track_symbol(Some(line::VERTICAL))
-        .begin_symbol(None)
-        .end_symbol(None);
-    let scrollable_lines = len.saturating_sub(table_height);
-    let inner_chunk = draw_panel(f, title, None, chunk, selected);
-    f.render_stateful_widget(table_widget, inner_chunk, state);
-    // Call this after rendering table, as offset is mutated.
-    let mut scrollbar_state = ScrollbarState::default()
-        .position(state.offset().min(scrollable_lines))
-        .content_length(scrollable_lines);
-    f.render_stateful_widget(
-        scrollbar,
-        chunk.inner(Margin {
-            vertical: 1,
-            horizontal: 0,
-        }),
-        &mut scrollbar_state,
-    )
+    let block_widget = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(SELECTED_BORDER_COLOUR))
+        .title(title.as_ref());
+    let text_chunk = block_widget.inner(chunk);
+    let text_chunk = Rect {
+        x: text_chunk.x,
+        y: text_chunk.y,
+        width: text_chunk.width.saturating_sub(1),
+        height: text_chunk.height,
+    };
+    // TODO: Scrolling, if input larger than box.
+    let text_widget = TextInput::new();
+    f.render_widget(block_widget, chunk);
+    f.render_stateful_widget(text_widget, text_chunk, contents);
+    if let Some(cursor_pos) = contents.screen_cursor() {
+        f.set_cursor_position(cursor_pos)
+    };
 }

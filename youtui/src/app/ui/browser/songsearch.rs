@@ -10,12 +10,12 @@ use crate::app::component::actionhandler::{
 };
 use crate::app::server::{HandleApiError, SearchSongs};
 use crate::app::structures::{
-    AlbumSongsList, ListSong, ListSongDisplayableField, ListStatus, Percentage, SongListComponent,
+    BrowserSongsList, ListSong, ListSongDisplayableField, ListStatus, Percentage, SongListComponent,
 };
 use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::view::{
-    BasicConstraint, FilterString, Loadable, SortDirection, SortableTableView, TableFilterCommand,
-    TableSortCommand, TableView,
+    AdvancedTableView, BasicConstraint, FilterString, HasTitle, Loadable, SortDirection,
+    TableFilterCommand, TableSortCommand, TableView,
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
@@ -31,7 +31,7 @@ use ytmapi_rs::parse::SearchResultSong;
 
 pub struct SongSearchBrowser {
     pub input_routing: InputRouting,
-    song_list: AlbumSongsList,
+    song_list: BrowserSongsList,
     cur_selected: usize,
     pub search_popped: bool,
     pub search: SearchBlock,
@@ -119,12 +119,11 @@ impl TextHandler for SongSearchBrowser {
             InputRouting::Filter | InputRouting::Search
         )
     }
-    fn get_text(&self) -> &str {
+    fn get_text(&self) -> std::option::Option<&str> {
         match self.input_routing {
             InputRouting::Filter => self.filter.get_text(),
             InputRouting::Search => self.search.get_text(),
-            InputRouting::List => "",
-            InputRouting::Sort => "",
+            InputRouting::List | InputRouting::Sort => None,
         }
     }
     fn replace_text(&mut self, text: impl Into<String>) {
@@ -244,23 +243,8 @@ impl TableView for SongSearchBrowser {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> TableState {
-        self.widget_state.clone()
-    }
-    fn get_title(&self) -> std::borrow::Cow<'_, str> {
-        match self.song_list.state {
-            ListStatus::New => "Songs".into(),
-            ListStatus::Loading => "Songs - loading".into(),
-            ListStatus::InProgress => format!(
-                "Songs - {} results - loading",
-                self.song_list.get_list_iter().len()
-            )
-            .into(),
-            ListStatus::Loaded => {
-                format!("Songs - {} results", self.song_list.get_list_iter().len()).into()
-            }
-            ListStatus::Error => "Songs - Error receieved".into(),
-        }
+    fn get_state(&self) -> &TableState {
+        &self.widget_state
     }
     fn get_layout(&self) -> &[crate::app::view::BasicConstraint] {
         &[
@@ -274,20 +258,19 @@ impl TableView for SongSearchBrowser {
     fn get_highlighted_row(&self) -> Option<usize> {
         None
     }
-    fn get_items(
-        &self,
-    ) -> Box<dyn ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
-        let b = self
-            .song_list
+    fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
+        self.song_list
             .get_list_iter()
-            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter());
-        Box::new(b)
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
-    fn get_headings(&self) -> Box<dyn Iterator<Item = &'static str>> {
-        Box::new(["Song", "Artist", "Album", "Duration", "Plays"].into_iter())
+    fn get_headings(&self) -> impl Iterator<Item = &'static str> {
+        ["Song", "Artist", "Album", "Duration", "Plays"].into_iter()
+    }
+    fn get_mut_state(&mut self) -> &mut TableState {
+        &mut self.widget_state
     }
 }
-impl SortableTableView for SongSearchBrowser {
+impl AdvancedTableView for SongSearchBrowser {
     fn get_sortable_columns(&self) -> &[usize] {
         &[0, 1, 2]
     }
@@ -331,20 +314,44 @@ impl SortableTableView for SongSearchBrowser {
     fn get_sort_popup_cur(&self) -> usize {
         self.sort.cur
     }
-    fn get_sort_popup_state(&self) -> ratatui::widgets::ListState {
-        self.sort.state.clone()
-    }
-    fn get_filtered_items(
-        &self,
-    ) -> Box<dyn Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> + '_> {
+    fn get_filtered_items(&self) -> impl Iterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
         // We are doing a lot here every draw cycle!
-        Box::new(
-            self.get_filtered_list_iter()
-                .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter()),
-        )
+        self.get_filtered_list_iter()
+            .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
+    }
+    fn sort_popup_shown(&self) -> bool {
+        self.sort.shown
+    }
+    fn filter_popup_shown(&self) -> bool {
+        self.filter.shown
+    }
+    fn get_sort_state(&self) -> &ratatui::widgets::ListState {
+        &self.sort.state
+    }
+    fn get_mut_sort_state(&mut self) -> &mut ratatui::widgets::ListState {
+        &mut self.sort.state
+    }
+    fn get_mut_filter_state(&mut self) -> &mut rat_text::text_input::TextInputState {
+        &mut self.filter.filter_text
     }
 }
-
+impl HasTitle for SongSearchBrowser {
+    fn get_title(&self) -> std::borrow::Cow<'_, str> {
+        match self.song_list.state {
+            ListStatus::New => "Songs".into(),
+            ListStatus::Loading => "Songs - loading".into(),
+            ListStatus::InProgress => format!(
+                "Songs - {} results - loading",
+                self.song_list.get_list_iter().len()
+            )
+            .into(),
+            ListStatus::Loaded => {
+                format!("Songs - {} results", self.song_list.get_list_iter().len()).into()
+            }
+            ListStatus::Error => "Songs - Error receieved".into(),
+        }
+    }
+}
 impl SongSearchBrowser {
     pub fn new() -> Self {
         Self {
@@ -380,8 +387,8 @@ impl SongSearchBrowser {
         }
         Ok(())
     }
-    pub fn get_filtered_list_iter(&self) -> Box<dyn Iterator<Item = &ListSong> + '_> {
-        Box::new(self.song_list.get_list_iter().filter(move |ls| {
+    pub fn get_filtered_list_iter(&self) -> impl Iterator<Item = &ListSong> + '_ {
+        self.song_list.get_list_iter().filter(move |ls| {
             // Naive implementation.
             // TODO: Do this in a single pass and optimise.
             self.get_filter_commands()
@@ -394,12 +401,15 @@ impl SongSearchBrowser {
                     ); // If we find a match for each filter, can display the row.
                     acc && match_found
                 })
-        }))
+        })
     }
     pub fn apply_filter(&mut self) {
-        let filter = self.filter.get_text().to_string();
         self.filter.shown = false;
         self.input_routing = InputRouting::List;
+        let Some(filter) = self.filter.get_text().map(|s| s.to_string()) else {
+            // Do nothing if no filter text
+            return;
+        };
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
             FilterString::CaseInsensitive(filter),
         ));
@@ -504,7 +514,10 @@ impl SongSearchBrowser {
     pub fn search(&mut self) -> ComponentEffect<Self> {
         self.search_popped = false;
         self.input_routing = InputRouting::List;
-        let search_query = self.search.get_text().to_string();
+        let Some(search_query) = self.search.get_text().map(|s| s.to_string()) else {
+            // Do nothing if no text
+            return AsyncTask::new_no_op();
+        };
         self.search.clear_text();
 
         let handler = |this: &mut Self, results| match results {

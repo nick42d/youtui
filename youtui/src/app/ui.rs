@@ -190,7 +190,7 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Logs => self.logger.is_text_handling(),
         }
     }
-    fn get_text(&self) -> &str {
+    fn get_text(&self) -> std::option::Option<&str> {
         match self.context {
             WindowContext::Browser => self.browser.get_text(),
             WindowContext::Playlist => self.playlist.get_text(),
@@ -258,6 +258,9 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::Playlist(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.playlist);
             }
+            AppAction::Help(a) => {
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.help);
+            }
             AppAction::Browser(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
@@ -266,9 +269,6 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             }
             AppAction::Sort(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
-            }
-            AppAction::Help(a) => {
-                return apply_action_mapped(self, a, |this: &mut Self| &mut this.help);
             }
             AppAction::BrowserArtists(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
@@ -280,6 +280,12 @@ impl ActionHandler<AppAction> for YoutuiWindow {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::BrowserSongs(a) => {
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
+            }
+            AppAction::BrowserPlaylists(a) => {
+                return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
+            }
+            AppAction::BrowserPlaylistSongs(a) => {
                 return apply_action_mapped(self, a, |this: &mut Self| &mut this.browser);
             }
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a).into(),

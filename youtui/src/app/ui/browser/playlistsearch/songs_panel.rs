@@ -20,11 +20,11 @@ use itertools::Either;
 use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-use std::iter::Iterator;
+use std::iter::{ExactSizeIterator, Iterator};
 use tracing::warn;
 
 #[derive(Clone, Debug, Default, PartialEq)]
-pub enum AlbumSongsInputRouting {
+pub enum PlaylistSongsInputRouting {
     #[default]
     List,
     Sort,
@@ -32,50 +32,46 @@ pub enum AlbumSongsInputRouting {
 }
 
 #[derive(Clone)]
-pub struct AlbumSongsPanel {
+pub struct PlaylistSongsPanel {
     pub list: BrowserSongsList,
-    pub route: AlbumSongsInputRouting,
+    pub route: PlaylistSongsInputRouting,
     pub sort: SortManager,
     pub filter: FilterManager,
     cur_selected: usize,
     pub widget_state: TableState,
 }
-impl_youtui_component!(AlbumSongsPanel);
+impl_youtui_component!(PlaylistSongsPanel);
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum BrowserArtistSongsAction {
+pub enum BrowserPlaylistSongsAction {
     Filter,
     Sort,
     PlaySong,
     PlaySongs,
-    PlayAlbum,
     AddSongToPlaylist,
     AddSongsToPlaylist,
-    AddAlbumToPlaylist,
 }
 
-impl Action for BrowserArtistSongsAction {
-    fn context(&self) -> std::borrow::Cow<'_, str> {
+impl Action for BrowserPlaylistSongsAction {
+    fn context(&self) -> Cow<'_, str> {
         "Artist Songs Panel".into()
     }
-    fn describe(&self) -> std::borrow::Cow<'_, str> {
+    fn describe(&self) -> Cow<'_, str> {
         match &self {
-            BrowserArtistSongsAction::PlaySong => "Play song",
-            BrowserArtistSongsAction::PlaySongs => "Play songs",
-            BrowserArtistSongsAction::PlayAlbum => "Play album",
-            BrowserArtistSongsAction::AddSongToPlaylist => "Add song to playlist",
-            BrowserArtistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
-            BrowserArtistSongsAction::AddAlbumToPlaylist => "Add album to playlist",
-            BrowserArtistSongsAction::Sort => "Sort",
-            BrowserArtistSongsAction::Filter => "Filter",
+            BrowserPlaylistSongsAction::PlaySong => "Play song",
+            BrowserPlaylistSongsAction::PlaySongs => "Play songs",
+            BrowserPlaylistSongsAction::AddSongToPlaylist => "Add song to playlist",
+            BrowserPlaylistSongsAction::AddSongsToPlaylist => "Add songs to playlist",
+            BrowserPlaylistSongsAction::Sort => "Sort",
+            BrowserPlaylistSongsAction::Filter => "Filter",
         }
         .into()
     }
 }
-impl AlbumSongsPanel {
-    pub fn new() -> AlbumSongsPanel {
-        AlbumSongsPanel {
+impl PlaylistSongsPanel {
+    pub fn new() -> PlaylistSongsPanel {
+        PlaylistSongsPanel {
             cur_selected: Default::default(),
             list: Default::default(),
             route: Default::default(),
@@ -84,13 +80,12 @@ impl AlbumSongsPanel {
             widget_state: Default::default(),
         }
     }
-    pub fn subcolumns_of_vec() -> [ListSongDisplayableField; 5] {
+    pub fn subcolumns_of_vec() -> [ListSongDisplayableField; 4] {
         [
             ListSongDisplayableField::TrackNo,
             ListSongDisplayableField::Album,
             ListSongDisplayableField::Song,
             ListSongDisplayableField::Duration,
-            ListSongDisplayableField::Year,
         ]
     }
     /// Re-apply all sort commands in the stack in the order they were stored.
@@ -124,7 +119,7 @@ impl AlbumSongsPanel {
     }
     pub fn apply_filter(&mut self) {
         self.filter.shown = false;
-        self.route = AlbumSongsInputRouting::List;
+        self.route = PlaylistSongsInputRouting::List;
         let Some(filter) = self.filter.get_text().map(|s| s.to_string()) else {
             // Do nothing if no filter text
             return;
@@ -141,12 +136,12 @@ impl AlbumSongsPanel {
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
-        self.route = AlbumSongsInputRouting::List;
+        self.route = PlaylistSongsInputRouting::List;
         self.filter.filter_commands.clear();
     }
     fn open_sort(&mut self) {
         self.sort.shown = true;
-        self.route = AlbumSongsInputRouting::Sort;
+        self.route = PlaylistSongsInputRouting::Sort;
     }
     pub fn toggle_filter(&mut self) {
         let shown = self.filter.shown;
@@ -154,15 +149,15 @@ impl AlbumSongsPanel {
             // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
             // it at the time of showing, so it cannot be missed.
             self.filter.filter_text.clear();
-            self.route = AlbumSongsInputRouting::Filter;
+            self.route = PlaylistSongsInputRouting::Filter;
         } else {
-            self.route = AlbumSongsInputRouting::List;
+            self.route = PlaylistSongsInputRouting::List;
         }
         self.filter.shown = !shown;
     }
     pub fn close_sort(&mut self) {
         self.sort.shown = false;
-        self.route = AlbumSongsInputRouting::List;
+        self.route = PlaylistSongsInputRouting::List;
     }
     pub fn handle_pop_sort(&mut self) {
         // If no sortable columns, should we not handle this command?
@@ -201,21 +196,13 @@ impl AlbumSongsPanel {
         };
         self.close_sort();
     }
-    pub fn handle_songs_found(&mut self) {
-        self.list.clear();
-        // XXX: Consider clearing sort params here, so that we don't need to sort all
-        // the incoming songs. Performance seems OK for now. XXX: Consider also
-        // clearing filter params here.
-        self.cur_selected = 0;
-        self.list.state = ListStatus::InProgress;
-    }
 }
-impl SongListComponent for AlbumSongsPanel {
+impl SongListComponent for PlaylistSongsPanel {
     fn get_song_from_idx(&self, idx: usize) -> Option<&crate::app::structures::ListSong> {
         self.get_filtered_list_iter().nth(idx)
     }
 }
-impl TextHandler for AlbumSongsPanel {
+impl TextHandler for PlaylistSongsPanel {
     fn get_text(&self) -> std::option::Option<&str> {
         self.filter.get_text()
     }
@@ -223,7 +210,7 @@ impl TextHandler for AlbumSongsPanel {
         self.filter.replace_text(text)
     }
     fn is_text_handling(&self) -> bool {
-        self.route == AlbumSongsInputRouting::Filter
+        self.route == PlaylistSongsInputRouting::Filter
     }
     fn clear_text(&mut self) -> bool {
         self.filter.clear_text()
@@ -234,40 +221,41 @@ impl TextHandler for AlbumSongsPanel {
     ) -> Option<ComponentEffect<Self>> {
         self.filter
             .handle_text_event_impl(event)
-            .map(|effect| effect.map(|this: &mut AlbumSongsPanel| &mut this.filter))
+            .map(|effect| effect.map(|this: &mut PlaylistSongsPanel| &mut this.filter))
     }
 }
 
-impl KeyRouter<AppAction> for AlbumSongsPanel {
+impl KeyRouter<AppAction> for PlaylistSongsPanel {
     fn get_all_keybinds<'a>(
         &self,
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
-        std::iter::once(&config.keybinds.browser_artist_songs)
+        std::iter::once(&config.keybinds.browser_playlist_songs)
     }
     fn get_active_keybinds<'a>(
         &self,
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         match self.route {
-            AlbumSongsInputRouting::List => {
-                Either::Left(std::iter::once(&config.keybinds.browser_artist_songs))
+            PlaylistSongsInputRouting::List => {
+                // TODO: Make unique
+                Either::Left(std::iter::once(&config.keybinds.browser_playlist_songs))
             }
-            AlbumSongsInputRouting::Filter => {
+            PlaylistSongsInputRouting::Filter => {
                 Either::Left(std::iter::once(&config.keybinds.filter))
             }
-            AlbumSongsInputRouting::Sort => Either::Right(get_sort_keybinds(config)),
+            PlaylistSongsInputRouting::Sort => Either::Right(get_sort_keybinds(config)),
         }
     }
 }
 
 // Is this still relevant?
-impl Loadable for AlbumSongsPanel {
+impl Loadable for PlaylistSongsPanel {
     fn is_loading(&self) -> bool {
         matches!(self.list.state, crate::app::structures::ListStatus::Loading)
     }
 }
-impl Scrollable for AlbumSongsPanel {
+impl Scrollable for PlaylistSongsPanel {
     fn increment_list(&mut self, amount: isize) {
         if self.sort.shown {
             self.sort.cur = self
@@ -288,7 +276,7 @@ impl Scrollable for AlbumSongsPanel {
     }
 }
 
-impl TableView for AlbumSongsPanel {
+impl TableView for PlaylistSongsPanel {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
@@ -301,7 +289,6 @@ impl TableView for AlbumSongsPanel {
             BasicConstraint::Percentage(Percentage(50)),
             BasicConstraint::Percentage(Percentage(50)),
             BasicConstraint::Length(10),
-            BasicConstraint::Length(5),
         ]
     }
     fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
@@ -310,7 +297,7 @@ impl TableView for AlbumSongsPanel {
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
     fn get_headings(&self) -> impl Iterator<Item = &'static str> {
-        ["#", "Album", "Song", "Duration", "Year"].into_iter()
+        ["#", "Album", "Song", "Duration"].into_iter()
     }
     fn get_highlighted_row(&self) -> Option<usize> {
         None
@@ -319,9 +306,10 @@ impl TableView for AlbumSongsPanel {
         &mut self.widget_state
     }
 }
-impl AdvancedTableView for AlbumSongsPanel {
+impl AdvancedTableView for PlaylistSongsPanel {
+    // TODO: Consider if perhaps this table should not be sortable or filterable!
     fn get_sortable_columns(&self) -> &[usize] {
-        &[1, 4]
+        &[1]
     }
     fn push_sort_command(&mut self, sort_command: TableSortCommand) -> Result<()> {
         // TODO: Maintain a view only struct, for easier rendering of this.
@@ -354,7 +342,7 @@ impl AdvancedTableView for AlbumSongsPanel {
             .map(|ls| ls.get_fields(Self::subcolumns_of_vec()).into_iter())
     }
     fn get_filterable_columns(&self) -> &[usize] {
-        &[1, 2, 4]
+        &[1, 2]
     }
     fn get_filter_commands(&self) -> &[TableFilterCommand] {
         &self.filter.filter_commands
@@ -384,7 +372,8 @@ impl AdvancedTableView for AlbumSongsPanel {
         &mut self.filter.filter_text
     }
 }
-impl HasTitle for AlbumSongsPanel {
+
+impl HasTitle for PlaylistSongsPanel {
     fn get_title(&self) -> Cow<'_, str> {
         match self.list.state {
             ListStatus::New => "Songs".into(),

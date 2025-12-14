@@ -56,6 +56,20 @@ enter.A = "browser_artist_songs.add_album_to_playlist"
 [mode_names.browser_artist_songs]
 enter = "Play"
 
+[keybinds.browser_playlists]
+enter = "browser_playlists.display_selected_playlist"
+
+[keybinds.browser_playlist_songs]
+F3 = {action = "browser_playlist_songs.filter", visibility = "global"}
+F4 = {action = "browser_playlist_songs.sort", visibility = "global"}
+enter.enter = "browser_playlist_songs.play_song"
+enter.p = "browser_playlist_songs.play_songs"
+enter.space = "browser_playlist_songs.add_song_to_playlist"
+enter.P = "browser_playlist_songs.add_songs_to_playlist"
+
+[mode_names.browser_playlist_songs]
+enter = "Play"
+
 [keybinds.browser_songs]
 F3 = {action = "browser_songs.filter", visibility = "global"}
 F4 = {action = "browser_songs.sort", visibility = "global"}
