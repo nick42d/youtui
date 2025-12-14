@@ -1,3 +1,4 @@
+use crate::app::structures::{AlbumOrUploadAlbumID, ListSong, ListSongAlbum};
 use crate::core::create_or_clean_directory;
 use crate::get_data_dir;
 use anyhow::{Context, anyhow};
@@ -8,7 +9,7 @@ use rusty_ytdl::reqwest;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tracing::{error, info};
-use ytmapi_rs::common::{AlbumID, YoutubeID};
+use ytmapi_rs::common::{AlbumID, UploadAlbumID, VideoID, YoutubeID};
 
 // The directory and prefix are to protect the user - files in this directory
 // with this prefix will be monitored by youtui and cleaned up when over a
@@ -23,31 +24,84 @@ fn get_album_art_dir() -> anyhow::Result<PathBuf> {
     get_data_dir().map(|dir| dir.join(ALBUM_ART_DIR_PATH))
 }
 
-#[derive(PartialEq)]
-pub struct AlbumArt {
-    pub in_mem_image: image::DynamicImage,
-    pub on_disk_path: std::path::PathBuf,
-    pub album_id: AlbumID<'static>,
+/// Unique identifier for the thumbnail - dependent on the type of song.
+#[derive(Clone, Hash, PartialEq, Eq, Debug)]
+pub enum SongThumbnailID<'a> {
+    Album(AlbumID<'a>),
+    UploadAlbum(UploadAlbumID<'a>),
+    Video(VideoID<'a>),
+}
+impl<'a> From<&'a ListSong> for SongThumbnailID<'a> {
+    fn from(song: &'a ListSong) -> SongThumbnailID<'a> {
+        match song.album.as_deref() {
+            Some(ListSongAlbum {
+                id: AlbumOrUploadAlbumID::Album(a),
+                ..
+            }) => SongThumbnailID::Album(a.into()),
+            Some(ListSongAlbum {
+                id: AlbumOrUploadAlbumID::UploadAlbum(a),
+                ..
+            }) => SongThumbnailID::UploadAlbum(a.into()),
+            None => SongThumbnailID::Video((&song.video_id).into()),
+        }
+    }
+}
+impl std::fmt::Display for SongThumbnailID<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SongThumbnailID::Album(id) => write!(f, "A_{}", id.get_raw()),
+            SongThumbnailID::UploadAlbum(id) => write!(f, "U_{}", id.get_raw()),
+            SongThumbnailID::Video(id) => write!(f, "V_{}", id.get_raw()),
+        }
+    }
+}
+impl<'a> SongThumbnailID<'a> {
+    /// Convert the SongThumbnailID to static lifetime (by cloning the
+    /// underlying data).
+    pub fn into_owned(self) -> SongThumbnailID<'static> {
+        match self {
+            SongThumbnailID::Album(id) => {
+                let id_string = id.get_raw().to_owned();
+                SongThumbnailID::Album(AlbumID::from_raw(id_string))
+            }
+            SongThumbnailID::UploadAlbum(id) => {
+                let id_string = id.get_raw().to_owned();
+                SongThumbnailID::UploadAlbum(UploadAlbumID::from_raw(id_string))
+            }
+            SongThumbnailID::Video(id) => {
+                let id_string = id.get_raw().to_owned();
+                SongThumbnailID::Video(VideoID::from_raw(id_string))
+            }
+        }
+    }
 }
 
-// Custom derive - otherwise in_mem_image will be displaying array of bytes...
-impl std::fmt::Debug for AlbumArt {
+#[derive(PartialEq)]
+pub struct SongThumbnail {
+    pub in_mem_image: image::DynamicImage,
+    pub on_disk_path: std::path::PathBuf,
+    pub song_thumbnail_id: SongThumbnailID<'static>,
+}
+
+// Custom debug format - otherwise in_mem_image will be displaying array of
+// bytes...
+impl std::fmt::Debug for SongThumbnail {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AlbumArt")
             .field("in_mem_image", &"image::DynamicImage")
             .field("on_disk_path", &self.on_disk_path)
-            .field("album_id", &self.album_id)
+            .field("song_thumbnail_id", &self.song_thumbnail_id)
             .finish()
     }
 }
 
-pub struct AlbumArtDownloader {
+pub struct SongThumbnailDownloader {
     client: reqwest::Client,
     // For information about why this error is stringly typed, see DynamicApiError
     status: Arc<AsyncCell<Result<(), String>>>,
 }
 
-impl AlbumArtDownloader {
+impl SongThumbnailDownloader {
     pub fn new(client: reqwest::Client) -> Self {
         let status = AsyncCell::new().into_shared();
         let status_clone = status.clone();
@@ -76,11 +130,11 @@ impl AlbumArtDownloader {
         });
         Self { client, status }
     }
-    pub async fn download_album_art(
+    pub async fn download_song_thumbnail(
         &self,
-        album_id: AlbumID<'static>,
+        thumbnail_id: SongThumbnailID<'static>,
         thumbnail_url: String,
-    ) -> anyhow::Result<AlbumArt> {
+    ) -> anyhow::Result<SongThumbnail> {
         // Do not download album art until directory setup and clean has completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
         let url = reqwest::Url::parse(&thumbnail_url)?;
@@ -92,11 +146,7 @@ impl AlbumArtDownloader {
             .format()
             .context("Unable to determine album art image format")?;
         let on_disk_path = get_album_art_dir()?
-            .join(format!(
-                "{}{}",
-                ALBUM_ART_FILENAME_PREFIX,
-                album_id.get_raw()
-            ))
+            .join(format!("{}{}", ALBUM_ART_FILENAME_PREFIX, thumbnail_id))
             .with_extension(image_format.extensions_str()[0]);
         let image_decoding_task = tokio::task::spawn_blocking(|| image_reader.decode());
         let (in_mem_image, _) = try_join(
@@ -105,10 +155,10 @@ impl AlbumArtDownloader {
                 .map(|res| res.map_err(anyhow::Error::from)),
         )
         .await?;
-        Ok(AlbumArt {
+        Ok(SongThumbnail {
             in_mem_image: in_mem_image?,
             on_disk_path,
-            album_id,
+            song_thumbnail_id: thumbnail_id,
         })
     }
 }

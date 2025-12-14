@@ -180,8 +180,8 @@ pub fn get_global_keybinds_as_readable_iter<'a, A: Action + 'static>(
 /// A component of the application that handles text entry, currently designed
 /// to wrap rat_text::TextInputState.
 pub trait TextHandler: Component {
-    /// Get a reference to the text.
-    fn get_text(&self) -> &str;
+    /// Get a reference to the text (if the component is_text_handling).
+    fn get_text(&self) -> Option<&str>;
     /// Clear text, returning false if it was already clear.
     fn clear_text(&mut self) -> bool;
     /// Replace all text

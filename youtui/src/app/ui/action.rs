@@ -7,6 +7,8 @@ use super::browser::songsearch::BrowserSongsAction;
 use super::logger::LoggerAction;
 use super::playlist::PlaylistAction;
 use crate::app::component::actionhandler::{Action, ActionHandler, YoutuiEffect};
+use crate::app::ui::browser::playlistsearch::search_panel::BrowserPlaylistsAction;
+use crate::app::ui::browser::playlistsearch::songs_panel::BrowserPlaylistSongsAction;
 use anyhow::bail;
 use async_callback_manager::AsyncTask;
 use serde::de::{self};
@@ -37,8 +39,10 @@ pub enum AppAction {
     Sort(SortAction),
     Help(HelpAction),
     BrowserArtists(BrowserArtistsAction),
+    BrowserPlaylists(BrowserPlaylistsAction),
     BrowserSearch(BrowserSearchAction),
     BrowserArtistSongs(BrowserArtistSongsAction),
+    BrowserPlaylistSongs(BrowserPlaylistSongsAction),
     BrowserSongs(BrowserSongsAction),
     Log(LoggerAction),
     Playlist(PlaylistAction),
@@ -123,6 +127,8 @@ impl Action for AppAction {
             AppAction::TextEntry(a) => a.context(),
             AppAction::List(a) => a.context(),
             AppAction::BrowserSongs(a) => a.context(),
+            AppAction::BrowserPlaylists(a) => a.context(),
+            AppAction::BrowserPlaylistSongs(a) => a.context(),
         }
     }
     fn describe(&self) -> std::borrow::Cow<'_, str> {
@@ -150,6 +156,8 @@ impl Action for AppAction {
             AppAction::TextEntry(a) => a.describe(),
             AppAction::List(a) => a.describe(),
             AppAction::BrowserSongs(a) => a.describe(),
+            AppAction::BrowserPlaylists(a) => a.describe(),
+            AppAction::BrowserPlaylistSongs(a) => a.describe(),
         }
     }
 }

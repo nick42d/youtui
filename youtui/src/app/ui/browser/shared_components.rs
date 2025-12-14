@@ -124,8 +124,8 @@ impl TextHandler for FilterManager {
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&self) -> &str {
-        self.filter_text.text()
+    fn get_text(&self) -> std::option::Option<&str> {
+        Some(self.filter_text.text())
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         self.filter_text.set_text(text)
@@ -150,8 +150,8 @@ impl TextHandler for SearchBlock {
     fn is_text_handling(&self) -> bool {
         true
     }
-    fn get_text(&self) -> &str {
-        self.search_contents.text()
+    fn get_text(&self) -> std::option::Option<&str> {
+        Some(self.search_contents.text())
     }
     fn replace_text(&mut self, text: impl Into<String>) {
         self.search_contents.set_text(text);
@@ -208,7 +208,7 @@ impl SearchBlock {
             ),
         };
         AsyncTask::new_future_chained(
-            GetSearchSuggestions(self.get_text().to_string()),
+            GetSearchSuggestions(self.search_contents.text().to_owned()),
             handler,
             Some(Constraint::new_kill_same_type()),
         )
@@ -218,7 +218,7 @@ impl SearchBlock {
         search_suggestions: Vec<SearchSuggestion>,
         search: String,
     ) {
-        if self.get_text() == search {
+        if self.get_text() == Some(&search) {
             self.search_suggestions = search_suggestions;
             self.suggestions_cur = None;
         }

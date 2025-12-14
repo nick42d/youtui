@@ -39,6 +39,9 @@ impl<'a, const N: usize> TabGrid<'a, N> {
             style,
         }
     }
+    #[allow(unused)]
+    // This is a library type module and its expected all methods on TabGrid
+    // will be eventually used.
     pub fn deselect(self) -> Self {
         let Self {
             titles,
@@ -73,6 +76,9 @@ impl<'a, const N: usize> TabGrid<'a, N> {
         }
     }
     /// Sets the style for all tabs.
+    #[allow(unused)]
+    // This is a library type module and its expected all methods on TabGrid
+    // will be eventually used.
     pub fn style(self, style: Style) -> Self {
         let Self {
             titles,
