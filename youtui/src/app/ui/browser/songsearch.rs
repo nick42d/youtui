@@ -413,12 +413,21 @@ impl SongSearchBrowser {
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
             FilterString::CaseInsensitive(filter),
         ));
+        let prev_cur = self.cur_selected;
+        let prev_offset = self.widget_state.offset();
+        // Calculate previous offset relative to the previous cur (as a signed int),
+        // defaulting to zero if any issues with cast required.
+        let prev_rel_offset = isize::try_from(prev_offset)
+            .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_cur))
+            .unwrap_or(0);
         self.push_filter_command(cmd);
-        // Need to match current selected row to length of list.
-        // Naive method to count the iterator. Consider making iterator exact sized...
-        self.cur_selected = self
-            .cur_selected
-            .min(self.get_filtered_items().count().saturating_sub(1))
+        let count = self.get_filtered_items().count();
+        // Clamp current selected row to length of list.
+        self.cur_selected = self.cur_selected.min(count.saturating_sub(1));
+        // Adjust offset accordingly to ensure the offset relative to cur is the same as
+        // it was previously.
+        let new_offset = self.cur_selected.saturating_add_signed(prev_rel_offset);
+        *self.widget_state.offset_mut() = new_offset
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;

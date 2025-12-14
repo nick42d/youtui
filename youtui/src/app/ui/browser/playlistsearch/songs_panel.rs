@@ -127,20 +127,21 @@ impl PlaylistSongsPanel {
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
             FilterString::CaseInsensitive(filter),
         ));
-        // TODO: Investigate ways to avoid looping twice to count.
-        let prev_count = self.get_filtered_items().count();
+        let prev_cur = self.cur_selected;
+        let prev_offset = self.widget_state.offset();
+        // Calculate previous offset relative to the previous cur (as a signed int),
+        // defaulting to zero if any issues with cast required.
+        let prev_rel_offset = isize::try_from(prev_offset)
+            .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_cur))
+            .unwrap_or(0);
         self.filter.filter_commands.push(cmd);
         let count = self.get_filtered_items().count();
         // Clamp current selected row to length of list.
         self.cur_selected = self.cur_selected.min(count.saturating_sub(1));
-        // Adjust offset accordingly based on the change in list length.
-        // Subtraction safety - count should be no greater than prev_count, ie a list
-        // should never get longer after adding a filter command.
-        debug_assert!(count <= prev_count);
-        *self.widget_state.offset_mut() = self
-            .widget_state
-            .offset()
-            .saturating_sub(prev_count - count);
+        // Adjust offset accordingly to ensure the offset relative to cur is the same as
+        // it was previously.
+        let new_offset = self.cur_selected.saturating_add_signed(prev_rel_offset);
+        *self.widget_state.offset_mut() = new_offset
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
