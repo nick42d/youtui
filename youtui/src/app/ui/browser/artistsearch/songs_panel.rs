@@ -152,9 +152,10 @@ impl AlbumSongsPanel {
         tracing::info!("prev_offset_rel_max: {prev_offset_rel_max}");
         self.filter.filter_commands.push(cmd);
         let count = self.get_filtered_items().count();
-        tracing::info!("count: {count}");
+        tracing::info!("count_after_filter: {count}");
         // Clamp current selected row to length of list.
         self.cur_selected = self.cur_selected.min(count.saturating_sub(1));
+        tracing::info!("cur: {}", self.cur_selected);
         // Adjust offset accordingly to ensure the offset relative to cur is the same as
         // it was previously.
         // let new_offset_rel_cur =
@@ -165,9 +166,15 @@ impl AlbumSongsPanel {
         //     .saturating_add_signed(prev_offset_rel_max);
         // tracing::info!("new_offset_rel_max: {new_offset_rel_max}");
         // let new_offset = (new_offset_rel_max + new_offset_rel_cur) / 2;
-        let new_offset = self
-            .cur_selected
-            .saturating_add_signed((prev_offset_rel_cur + prev_offset_rel_max) / 2);
+        let cur_isize: isize = self.cur_selected.try_into().unwrap();
+        let max_isize: isize = count.saturating_sub(1).try_into().unwrap();
+        let new_offset_using_rel_cur = cur_isize + prev_offset_rel_cur;
+        tracing::info!("new_offset_using_rel_cur: {new_offset_using_rel_cur}");
+        let new_offset_using_rel_max = max_isize + prev_offset_rel_max;
+        tracing::info!("new_offset_using_rel_max: {new_offset_using_rel_max}");
+        let new_offset: usize = ((new_offset_using_rel_max + new_offset_using_rel_cur) / 2)
+            .try_into()
+            .unwrap_or(0);
         tracing::info!("new_offset: {new_offset}");
         *self.widget_state.offset_mut() = new_offset
     }
