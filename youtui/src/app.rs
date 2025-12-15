@@ -50,7 +50,8 @@ pub struct Youtui {
     task_manager: AsyncCallbackManager<YoutuiWindow, ArcServer, TaskMetadata>,
     server: Arc<Server>,
     terminal: Terminal<CrosstermBackend<io::Stdout>>,
-    media_controls: MediaController,
+    // Optional as may be disabled at runtime.
+    media_controls: Option<MediaController>,
     /// Capabilities of the user's terminal in regards to image rendering - ie,
     /// font size / kitty protocal etc. This
     terminal_image_capabilities: Picker,
@@ -80,6 +81,7 @@ impl Youtui {
             debug,
             po_token,
             config,
+            disable_media_controls,
         } = rt;
         // Setup tracing and link to tui_logger.
         // NOTE: File logging is always enabled for now - I can't think of a use case
@@ -123,8 +125,14 @@ impl Youtui {
         // visibility. Note that this may briefly block, delaying startup, but likely
         // unavoidable.
         let terminal_image_capabilities = Picker::from_query_stdio()?;
-        let (media_controls, media_control_event_stream) = MediaController::new()
-            .context("Unable to initialise media controls - is the application already running?")?;
+        let (media_controls, media_control_event_stream) = if disable_media_controls {
+            (None, None)
+        } else {
+            let (media_controls, media_control_event_stream) = MediaController::new().context(
+                "Unable to initialise media controls - is the application already running?",
+            )?;
+            (Some(media_controls), Some(media_control_event_stream))
+        };
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
         let (window_state, effect) = YoutuiWindow::new(config);
         // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
@@ -156,9 +164,11 @@ impl Youtui {
                             &self.terminal_image_capabilities,
                         );
                     })?;
-                    self.media_controls.update_controls(
-                        ui::draw_media_controls::draw_app_media_controls(&self.window_state),
-                    )?;
+                    if let Some(media_controls) = &mut self.media_controls {
+                        media_controls.update_controls(
+                            ui::draw_media_controls::draw_app_media_controls(&self.window_state),
+                        )?;
+                    }
                     // When running, the app is event based, and will block until one of the
                     // following 2 message types is received.
                     tokio::select! {

@@ -37,6 +37,9 @@ struct Arguments {
     /// Display and log additional debug information.
     #[arg(short, long, default_value_t = false)]
     debug: bool,
+    /// Disable media controls
+    #[arg(long, default_value_t = false)]
+    disable_media_controls: bool,
     #[command(flatten)]
     cli: Cli,
     #[command(subcommand)]
@@ -345,6 +348,7 @@ enum Command {
 
 pub struct RuntimeInfo {
     debug: bool,
+    disable_media_controls: bool,
     config: Config,
     api_key: ApiKey,
     po_token: Option<String>,
@@ -371,6 +375,7 @@ async fn try_main() -> anyhow::Result<()> {
         auth_type,
         generate_completions,
         downloader_type,
+        disable_media_controls,
     } = args;
     // We don't need configuration to setup oauth token or generate completions.
     if let Some(c) = auth_cmd {
@@ -420,6 +425,7 @@ async fn try_main() -> anyhow::Result<()> {
         config,
         api_key,
         po_token,
+        disable_media_controls,
     };
     match cli.command {
         None => run_app(rt).await?,
