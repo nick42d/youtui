@@ -27,7 +27,7 @@ pub struct EventHandler {
     _ticker: EventSpawner<Ticker>,
     _signal_watcher: EventSpawner<SignalWatcher>,
     _crossterm_watcher: EventSpawner<CrosstermWatcher>,
-    _media_controls_watcher: EventSpawner<MediaControlsWatcher>,
+    _media_controls_watcher: Option<EventSpawner<MediaControlsWatcher>>,
 }
 
 struct Ticker;
@@ -198,13 +198,14 @@ impl EventSpawner<CrosstermWatcher> {
 impl EventHandler {
     pub fn new(
         channel_size: usize,
-        media_events: impl Stream<Item = MediaControlEvent> + Send + Unpin + 'static,
+        media_events: Option<impl Stream<Item = MediaControlEvent> + Send + Unpin + 'static>,
     ) -> Result<Self> {
         let (tx, rx) = channel(channel_size);
         let _ticker = EventSpawner::new_ticker(&tx);
         let _signal_watcher = EventSpawner::new_signal_watcher(&tx)?;
         let _crossterm_watcher = EventSpawner::new_crossterm_watcher(&tx);
-        let _media_controls_watcher = EventSpawner::new_media_controls_watcher(&tx, media_events);
+        let _media_controls_watcher = media_events
+            .map(|media_events| EventSpawner::new_media_controls_watcher(&tx, media_events));
         Ok(Self {
             rx,
             _tx: tx,
