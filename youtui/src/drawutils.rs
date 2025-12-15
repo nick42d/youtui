@@ -68,13 +68,63 @@ pub fn middle_of_rect(r: Rect) -> Rect {
         height: 1,
     }
 }
+/// Helper function to get `offset` of a list widget like `List` or `Table`
+/// after changing the size of the list.
+pub fn get_offset_after_list_resize(
+    prev_offset: usize,
+    prev_cur: usize,
+    prev_max_cur: usize,
+    new_cur: usize,
+    new_max_cur: usize,
+) -> usize {
+    // Calculate previous offset relative to the previous cur (as a signed int),
+    // defaulting to zero if any issues with cast identified.
+    let prev_offset_rel_cur = isize::try_from(prev_offset)
+        .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_cur))
+        .unwrap_or(0);
+    // Calculate previous offset relative to the previous max cur (as a signed int),
+    // defaulting to zero if any issues with cast required.
+    let prev_offset_rel_max = isize::try_from(prev_offset)
+        .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_max_cur))
+        .unwrap_or(0);
+    // Adjust offset accordingly to ensure the offset relative to cur is the same as
+    // it was previously.
+    let Ok(new_cur_isize) = isize::try_from(new_cur) else {
+        return 0;
+    };
+    let Ok(new_max_cur_isize) = isize::try_from(new_max_cur) else {
+        return 0;
+    };
+    let new_offset_using_rel_cur = new_cur_isize + prev_offset_rel_cur;
+    let new_offset_using_rel_max = new_max_cur_isize + prev_offset_rel_max;
+    let new_offset: usize = ((new_offset_using_rel_max + new_offset_using_rel_cur) / 2)
+        .try_into()
+        .unwrap_or(0);
+    new_offset
+}
 
 #[cfg(test)]
 mod tests {
     use super::{below_left_rect, centered_rect, left_bottom_corner_rect};
-    use crate::drawutils::middle_of_rect;
+    use crate::drawutils::{get_offset_after_list_resize, middle_of_rect};
     use ratatui::layout::Rect;
 
+    #[test]
+    fn test_get_offset_after_list_resize_prev_upper_list() {
+        let new_offset = get_offset_after_list_resize(30, 40, 50, 10, 10);
+        assert_eq!(new_offset, 0);
+    }
+    #[test]
+    fn test_get_offset_after_list_resize_prev_lower_list() {
+        let new_offset = get_offset_after_list_resize(20, 40, 40, 10, 10);
+        assert_eq!(new_offset, 0);
+    }
+    #[test]
+    fn test_get_offset_after_list_resize_prev_no_change() {
+        let prev_offset = 30;
+        let new_offset = get_offset_after_list_resize(prev_offset, 40, 50, 40, 50);
+        assert_eq!(prev_offset, new_offset);
+    }
     fn bounds_check_rect(r: Rect, max_bounds: Rect) {
         assert!(r.left() >= max_bounds.left());
         assert!(r.right() <= max_bounds.right());

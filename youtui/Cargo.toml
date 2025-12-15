@@ -11,8 +11,8 @@ repository = "https://github.com/nick42d/youtui"
 readme = "../README.md"
 keywords = ["youtube", "music", "player", "tui"]
 categories = ["multimedia::audio"]
-# Required for Edition 2024
-rust-version = "1.85"
+# Required for saturating_sub_signed
+rust-version = "1.90"
 
 [dependencies]
 clap = { version = "4.5.28", features = ["derive"] }

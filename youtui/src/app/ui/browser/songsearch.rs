@@ -19,6 +19,7 @@ use crate::app::view::{
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
+use crate::drawutils::get_offset_after_list_resize;
 use anyhow::{Result, bail};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
@@ -413,12 +414,22 @@ impl SongSearchBrowser {
         let cmd = TableFilterCommand::All(crate::app::view::Filter::Contains(
             FilterString::CaseInsensitive(filter),
         ));
-        self.push_filter_command(cmd);
-        // Need to match current selected row to length of list.
-        // Naive method to count the iterator. Consider making iterator exact sized...
-        self.cur_selected = self
-            .cur_selected
-            .min(self.get_filtered_items().count().saturating_sub(1))
+        let prev_max_cur = self.get_filtered_items().count().saturating_sub(1);
+        let prev_cur = self.cur_selected;
+        let prev_offset = self.widget_state.offset();
+        self.filter.filter_commands.push(cmd);
+        // Clamp current selected row to length of list.
+        let new_max_cur = self.get_filtered_items().count().saturating_sub(1);
+        self.cur_selected = self.cur_selected.min(new_max_cur);
+        // Adjust offset accordingly to ensure if list fits on the screen, offset is
+        // zero.
+        *self.widget_state.offset_mut() = get_offset_after_list_resize(
+            prev_offset,
+            prev_cur,
+            prev_max_cur,
+            self.cur_selected,
+            new_max_cur,
+        );
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
