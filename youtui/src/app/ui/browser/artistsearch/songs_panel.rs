@@ -15,6 +15,7 @@ use crate::app::view::{
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
+use crate::drawutils::get_offset_after_list_resize;
 use anyhow::{Result, bail};
 use itertools::Either;
 use ratatui::widgets::TableState;
@@ -133,50 +134,21 @@ impl AlbumSongsPanel {
             FilterString::CaseInsensitive(filter),
         ));
         let prev_max_cur = self.get_filtered_items().count().saturating_sub(1);
-        tracing::info!("prev_max_cur: {prev_max_cur}");
         let prev_cur = self.cur_selected;
-        tracing::info!("prev_cur: {prev_cur}");
         let prev_offset = self.widget_state.offset();
-        tracing::info!("prev_offset: {prev_offset}");
-        // Calculate previous offset relative to the previous cur (as a signed int),
-        // defaulting to zero if any issues with cast identified.
-        let prev_offset_rel_cur = isize::try_from(prev_offset)
-            .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_cur))
-            .unwrap_or(0);
-        tracing::info!("prev_offset_rel_cur: {prev_offset_rel_cur}");
-        // Calculate previous offset relative to the previous cur (as a signed int),
-        // defaulting to zero if any issues with cast required.
-        let prev_offset_rel_max = isize::try_from(prev_offset)
-            .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_max_cur))
-            .unwrap_or(0);
-        tracing::info!("prev_offset_rel_max: {prev_offset_rel_max}");
         self.filter.filter_commands.push(cmd);
-        let count = self.get_filtered_items().count();
-        tracing::info!("count_after_filter: {count}");
         // Clamp current selected row to length of list.
-        self.cur_selected = self.cur_selected.min(count.saturating_sub(1));
-        tracing::info!("cur: {}", self.cur_selected);
-        // Adjust offset accordingly to ensure the offset relative to cur is the same as
-        // it was previously.
-        // let new_offset_rel_cur =
-        // self.cur_selected.saturating_add_signed(prev_offset_rel_cur);
-        // tracing::info!("new_offset_rel_cur: {new_offset_rel_cur}");
-        // let new_offset_rel_max = count
-        //     .saturating_sub(1)
-        //     .saturating_add_signed(prev_offset_rel_max);
-        // tracing::info!("new_offset_rel_max: {new_offset_rel_max}");
-        // let new_offset = (new_offset_rel_max + new_offset_rel_cur) / 2;
-        let cur_isize: isize = self.cur_selected.try_into().unwrap();
-        let max_isize: isize = count.saturating_sub(1).try_into().unwrap();
-        let new_offset_using_rel_cur = cur_isize + prev_offset_rel_cur;
-        tracing::info!("new_offset_using_rel_cur: {new_offset_using_rel_cur}");
-        let new_offset_using_rel_max = max_isize + prev_offset_rel_max;
-        tracing::info!("new_offset_using_rel_max: {new_offset_using_rel_max}");
-        let new_offset: usize = ((new_offset_using_rel_max + new_offset_using_rel_cur) / 2)
-            .try_into()
-            .unwrap_or(0);
-        tracing::info!("new_offset: {new_offset}");
-        *self.widget_state.offset_mut() = new_offset
+        let new_max_cur = self.get_filtered_items().count().saturating_sub(1);
+        self.cur_selected = self.cur_selected.min(new_max_cur);
+        // Adjust offset accordingly to ensure if list fits on the screen, offset is
+        // zero.
+        *self.widget_state.offset_mut() = get_offset_after_list_resize(
+            prev_offset,
+            prev_cur,
+            prev_max_cur,
+            self.cur_selected,
+            new_max_cur,
+        );
     }
     pub fn clear_filter(&mut self) {
         self.filter.shown = false;
