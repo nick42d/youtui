@@ -15,6 +15,12 @@ release-youtui-to-aur NEW_YOUTUI_VERSION:
   set -euxo pipefail
   echo "Attempting to update AUR"
 
+  # Create a temporary directory for the AUR work
+  # This ensures we have write permissions and don't pollute the current directory.
+  WORK_DIR=$(mktemp -d)
+  echo "Working in $WORK_DIR"
+  cd "$WORK_DIR"
+
   git clone ssh://aur@aur.archlinux.org/youtui.git youtui-aur
   cd youtui-aur
   sed -i "s/^pkgver=.*/pkgver={{NEW_YOUTUI_VERSION}}/" PKGBUILD
