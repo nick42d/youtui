@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.32](https://github.com/nick42d/youtui/compare/youtui/v0.0.31...youtui/v0.0.32) - 2025-12-16
+
+### Added
+- show artists for playlist search ([#310](https://github.com/nick42d/youtui/pull/310))
+- add flag to disable media controls ([#308](https://github.com/nick42d/youtui/pull/308))
+- Add playlist search ([#300](https://github.com/nick42d/youtui/pull/300))
+
+### Fixed
+- adjust table list offset when applying filter ([#305](https://github.com/nick42d/youtui/pull/305))
+
+### Other
+- Add additional yt-dlp downloader logging ([#309](https://github.com/nick42d/youtui/pull/309))
+- Additional logging of song play process ([#307](https://github.com/nick42d/youtui/pull/307))
+
+
+
+
 ## [0.0.31](https://github.com/nick42d/youtui/compare/youtui/v0.0.30...youtui/v0.0.31) - 2025-12-10
 
 ### Added
