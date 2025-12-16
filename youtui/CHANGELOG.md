@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - show artists for playlist search ([#310](https://github.com/nick42d/youtui/pull/310))
 - add flag to disable media controls ([#308](https://github.com/nick42d/youtui/pull/308))
-- Add playlist search ([#300](https://github.com/nick42d/youtui/pull/300))ord_xor_partial_ord
+- Add playlist search ([#300](https://github.com/nick42d/youtui/pull/300))
 
 ### Fixed
 - adjust table list offset when applying filter ([#305](https://github.com/nick42d/youtui/pull/305))
