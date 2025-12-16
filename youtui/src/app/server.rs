@@ -33,10 +33,10 @@ impl Server {
             .use_rustls_tls()
             .build()
             .expect("Expected reqwest client build to succeed");
-        let api = api::Api::new(api_key, client.clone());
+        let api = api::Api::new(api_key.clone(), client.clone());
         let player = player::Player::new();
         let song_downloader =
-            song_downloader::SongDownloader::new(po_token, client.clone(), config);
+            song_downloader::SongDownloader::new(api_key, po_token, client.clone(), config);
         let song_thumbnail_downloader =
             song_thumbnail_downloader::SongThumbnailDownloader::new(client);
         let api_error_handler = api_error_handler::ApiErrorHandler::new();

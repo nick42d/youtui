@@ -20,6 +20,7 @@ impl NativeYoutubeDownloader {
         quality: VideoQuality,
         po_token: Option<String>,
         client: reqwest::Client,
+        cookies: Option<String>,
     ) -> Self {
         // Custom rusty_ytdl filter that downloads audio but prevents downloading webm
         // files - the contained Opus codec is not supported by Symphonia.
@@ -37,6 +38,7 @@ impl NativeYoutubeDownloader {
             request_options: RequestOptions {
                 client: Some(client),
                 po_token,
+                cookies,
                 ..Default::default()
             },
         });

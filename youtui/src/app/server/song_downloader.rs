@@ -2,7 +2,7 @@ use super::{AUDIO_QUALITY, DL_CALLBACK_CHUNK_SIZE};
 use crate::app::CALLBACK_CHANNEL_SIZE;
 use crate::app::server::MAX_RETRIES;
 use crate::app::structures::{ListSongID, Percentage};
-use crate::config::{Config, DownloaderType};
+use crate::config::{ApiKey, Config, DownloaderType};
 use crate::core::send_or_error;
 use crate::youtube_downloader::native::NativeYoutubeDownloader;
 use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
@@ -50,7 +50,16 @@ pub enum SongDownloader {
 }
 
 impl SongDownloader {
-    pub fn new(po_token: Option<String>, client: reqwest::Client, config: &Config) -> Self {
+    pub fn new(
+        api_key: ApiKey,
+        po_token: Option<String>,
+        client: reqwest::Client,
+        config: &Config,
+    ) -> Self {
+        let cookies = match api_key {
+            ApiKey::BrowserToken(cookies) => Some(cookies),
+            ApiKey::OAuthToken(_) | ApiKey::None => None,
+        };
         match config.downloader_type {
             DownloaderType::Native => {
                 info!(
@@ -62,6 +71,7 @@ impl SongDownloader {
                     AUDIO_QUALITY,
                     po_token,
                     client,
+                    cookies,
                 ))
             }
             DownloaderType::YtDlp => {

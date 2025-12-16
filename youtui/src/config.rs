@@ -9,7 +9,7 @@ const CONFIG_FILE_NAME: &str = "config.toml";
 
 pub mod keymap;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum ApiKey {
     OAuthToken(OAuthToken),
     // BrowserToken takes the cookie, not the BrowserToken itself. This is because to obtain the
