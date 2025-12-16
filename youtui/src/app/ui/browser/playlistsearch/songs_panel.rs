@@ -298,9 +298,9 @@ impl TableView for PlaylistSongsPanel {
     fn get_layout(&self) -> &[BasicConstraint] {
         &[
             BasicConstraint::Length(4),
+            BasicConstraint::Percentage(Percentage(25)),
             BasicConstraint::Percentage(Percentage(30)),
-            BasicConstraint::Percentage(Percentage(30)),
-            BasicConstraint::Percentage(Percentage(40)),
+            BasicConstraint::Percentage(Percentage(45)),
             BasicConstraint::Length(10),
         ]
     }
