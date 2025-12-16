@@ -17,21 +17,24 @@ pub struct YtDlpDownloader {
 
 #[derive(Debug)]
 pub enum YtDlpDownloaderError {
-    ErrorSpawningYtDlp { message: String },
-    ErrorRunningYtDlp,
-    InvalidYtDlpOutput { output: String },
+    IoError { message: String },
+    NoOutput,
+    InvalidFilesizeOutput { output: String },
 }
 
 impl std::fmt::Display for YtDlpDownloaderError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            YtDlpDownloaderError::ErrorSpawningYtDlp { message } => {
+            YtDlpDownloaderError::IoError { message } => {
                 write!(f, "Error running yt-dlp - <{message}>")
             }
-            YtDlpDownloaderError::ErrorRunningYtDlp => {
-                write!(f, "Error running yt-dlp - no or invalid output")
+            YtDlpDownloaderError::NoOutput => {
+                write!(
+                    f,
+                    "Error running yt-dlp - no output when output was expected"
+                )
             }
-            YtDlpDownloaderError::InvalidYtDlpOutput { output } => write!(
+            YtDlpDownloaderError::InvalidFilesizeOutput { output } => write!(
                 f,
                 "Error running yt-dlp - received <{output}> instead of filesize on stderr"
             ),
@@ -50,10 +53,10 @@ impl YtDlpDownloader {
             .arg("--version")
             .output()
             .await
-            .map_err(|e| YtDlpDownloaderError::ErrorSpawningYtDlp {
+            .map_err(|e| YtDlpDownloaderError::IoError {
                 message: format!("{e}"),
             })?;
-        String::from_utf8(output.stdout).map_err(|e| YtDlpDownloaderError::InvalidYtDlpOutput {
+        String::from_utf8(output.stdout).map_err(|e| YtDlpDownloaderError::InvalidFilesizeOutput {
             output: e.to_string(),
         })
     }
@@ -92,7 +95,7 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                 .stderr(Stdio::piped())
                 .stdout(Stdio::piped())
                 .spawn()
-                .map_err(|e| YtDlpDownloaderError::ErrorSpawningYtDlp {
+                .map_err(|e| YtDlpDownloaderError::IoError {
                     message: format!("{e}"),
                 })?;
             // Consider no stdout and/or no stdout to be an error.
@@ -104,7 +107,7 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                 ..
             } = proc
             else {
-                return Err(YtDlpDownloaderError::ErrorRunningYtDlp);
+                return Err(YtDlpDownloaderError::NoOutput);
             };
             let stderr = BufReader::new(stderr)
                 .lines()
@@ -112,11 +115,14 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                 .await
                 .ok()
                 .flatten()
-                .ok_or(YtDlpDownloaderError::ErrorRunningYtDlp)?;
+                .ok_or(YtDlpDownloaderError::NoOutput)?;
             let total_size_bytes = str::parse(&stderr)
-                .map_err(|_| YtDlpDownloaderError::InvalidYtDlpOutput { output: stderr })?;
-            let stream = tokio_util::io::ReaderStream::new(stdout)
-                .map_err(|_| YtDlpDownloaderError::ErrorRunningYtDlp);
+                .map_err(|_| YtDlpDownloaderError::InvalidFilesizeOutput { output: stderr })?;
+            let stream = tokio_util::io::ReaderStream::new(stdout).map_err(|e| {
+                YtDlpDownloaderError::IoError {
+                    message: format!("{e}"),
+                }
+            });
             Ok(YoutubeMusicDownload {
                 total_size_bytes,
                 song: stream,

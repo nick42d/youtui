@@ -65,16 +65,19 @@ impl SongDownloader {
                 ))
             }
             DownloaderType::YtDlp => {
-                info!("Initiating yt-dlp downloader");
+                info!(
+                    "Initiating yt-dlp downloader using yt-dlp path `{}`",
+                    config.yt_dlp_command
+                );
                 let downloader = YtDlpDownloader::new(config.yt_dlp_command.clone());
                 let downloader_clone = YtDlpDownloader::new(config.yt_dlp_command.clone());
                 tokio::task::spawn(async {
                     let output = downloader_clone.get_version().await;
                     match output {
                         Ok(output) => {
-                            info!("Output of 'yt-dlp --version': {:?}", output);
+                            info!("yt-dlp version is: {:?}", output.trim_end());
                         }
-                        Err(e) => error!("Unable to run 'yt-dlp --version', error: <{e}>"),
+                        Err(e) => error!("Unable to determine yt-dlp version, error: <{e}>"),
                     }
                 });
                 SongDownloader::YtDlp(downloader)
@@ -116,7 +119,7 @@ where
 {
     let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
     tokio::spawn(async move {
-        tracing::info!("Running download");
+        info!("Running download");
         send_or_error(
             &tx.clone(),
             DownloadProgressUpdate {
@@ -239,6 +242,7 @@ where
         }
         Ok(x) => x,
     };
+    info!("Commencing streaming song {song_video_id}, expected size bytes: {total_size_bytes}");
     let song = stream
         .scan((0, 0), |(bytes_streamed, last_progress_reported), chunk| {
             let chunk_bytes = match &chunk {
@@ -269,7 +273,13 @@ where
         .try_collect::<Vec<u8>>()
         .await;
     match song {
-        Ok(song) => Ok(InMemSong(song)),
+        Ok(song) => {
+            info!(
+                "Completed streaming song {song_video_id}, actual size bytes: {}",
+                song.len()
+            );
+            Ok(InMemSong(song))
+        }
         Err(e) => {
             error!("Error received downloading song: <{e}>");
             Err(e)
