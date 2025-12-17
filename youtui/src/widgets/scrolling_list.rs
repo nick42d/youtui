@@ -55,12 +55,16 @@ where
         let cur_selected = state.selected();
         let width = area.width;
         let offset: usize = (cur_tick % width as u64).try_into().unwrap();
-        let items = items.into_iter().enumerate().map(|(idx, item)| {
-            if Some(idx) == cur_selected {
-                return item.into().get(offset..).unwrap_or_default().into();
-            }
-            item.into()
-        });
+        let items = items
+            .into_iter()
+            .map(|item| -> Cow<str> { item.into() })
+            .enumerate()
+            .map(|(idx, ref item)| {
+                if Some(idx) == cur_selected {
+                    return item.get(offset..).unwrap_or_default();
+                }
+                item.as_str()
+            });
         let list = List::new(items)
             .style(style)
             .highlight_style(highlight_style);
