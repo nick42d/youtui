@@ -29,6 +29,8 @@ pub(crate) enum YoutubeMusicVideoType {
     Ugc,
     #[serde(rename = "MUSIC_VIDEO_TYPE_OMV")]
     Omv,
+    #[serde(rename = "MUSIC_VIDEO_TYPE_OFFICIAL_SOURCE_MUSIC")]
+    OfficialSourceMusic,
     // Unsure what `SHOULDER` represents. Appears to be a YouTube video.
     #[serde(rename = "MUSIC_VIDEO_TYPE_SHOULDER")]
     Shoulder,

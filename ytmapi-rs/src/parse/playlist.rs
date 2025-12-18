@@ -491,13 +491,13 @@ pub(crate) fn parse_playlist_item(
         NAVIGATION_VIDEO_TYPE
     );
     let video_type: YoutubeMusicVideoType = data.take_value_pointer(video_type_path)?;
-    // TODO: Deserialize to enum
     let item = match video_type {
         YoutubeMusicVideoType::Ugc
         | YoutubeMusicVideoType::Omv
-        | YoutubeMusicVideoType::Shoulder => Some(PlaylistItem::Video(parse_playlist_video(
-            title, track_no, data,
-        )?)),
+        | YoutubeMusicVideoType::Shoulder
+        | YoutubeMusicVideoType::OfficialSourceMusic => Some(PlaylistItem::Video(
+            parse_playlist_video(title, track_no, data)?,
+        )),
         YoutubeMusicVideoType::Atv => Some(PlaylistItem::Song(parse_playlist_song(
             title, track_no, data,
         )?)),

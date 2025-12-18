@@ -87,6 +87,7 @@ macro_rules! generate_query_test_logged_in {
                     .expect("Expected query to run succesfully under browser auth");
             }
             $(#[$m])*
+            #[cfg(feature = "test-oauth")]
             #[tokio::test]
             async fn [<$fname _oauth>]() {
                 let api = crate::utils::new_standard_oauth_api().await.unwrap();
@@ -124,6 +125,7 @@ macro_rules! generate_query_test {
                     .expect("Expected query to run succesfully without auth");
             }
             $(#[$m])*
+            #[cfg(feature = "test-oauth")]
             #[tokio::test]
             async fn [<$fname _oauth>]() {
                 let api = crate::utils::new_standard_oauth_api().await.unwrap();
@@ -175,6 +177,7 @@ macro_rules! generate_stream_test {
                     .expect("Expected all results from stream to succeed without auth");
             }
             $(#[$m])*
+            #[cfg(feature = "test-oauth")]
             #[tokio::test]
             async fn [<$fname _oauth>]() {
                 use futures::stream::{StreamExt, TryStreamExt};
@@ -218,6 +221,7 @@ macro_rules! generate_stream_test_logged_in {
                     .expect("Expected all results from browser stream to suceed");
             }
             $(#[$m])*
+            #[cfg(feature = "test-oauth")]
             #[tokio::test]
             async fn [<$fname _oauth>]() {
                 use futures::stream::{StreamExt, TryStreamExt};

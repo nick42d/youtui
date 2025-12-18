@@ -36,5 +36,11 @@ jobs:
       run: | 
         # live_integration_tests are API tests for ytmapi_rs
         cargo test --verbose --test live_integration_tests
+
+    - name: Run ignored tests
+      env:
+          youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
+          youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
+      run: | 
         # ignored tests are other tests live tests that shouldn't be run on every push - e.g downloading.
         cargo test --verbose -- --ignored

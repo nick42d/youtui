@@ -183,7 +183,8 @@ fn parse_history_item(mut json: JsonCrawlerOwned) -> Result<Option<HistoryItem>>
         )?)),
         YoutubeMusicVideoType::Ugc
         | YoutubeMusicVideoType::Omv
-        | YoutubeMusicVideoType::Shoulder => {
+        | YoutubeMusicVideoType::Shoulder
+        | YoutubeMusicVideoType::OfficialSourceMusic => {
             Some(HistoryItem::Video(parse_history_item_video(title, data)?))
         }
         YoutubeMusicVideoType::Atv => {
