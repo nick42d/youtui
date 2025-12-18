@@ -1372,7 +1372,7 @@
                                   },
                                   "watchEndpointMusicSupportedConfigs": {
                                     "watchEndpointMusicConfig": {
-                                      "musicVideoType": "MUSIC_VIDEO_TYPE_OMV"
+                                      "musicVideoType": "MUSIC_VIDEO_TYPE_OFFICIAL_SOURCE_MUSIC"
                                     }
                                   }
                                 }

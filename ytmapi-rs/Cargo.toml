@@ -57,6 +57,8 @@ reqwest = []
 # If this features is enabled, a warning will be printed to stderr if an old branch of an ab-test is taken.
 # I.e, Google is still using a format we are expected to be deprecated.
 ab-warning = []
+# Enable this feature to enable oath branch in live integration tests
+test-oauth = []
 
 [lints]
 workspace = true
