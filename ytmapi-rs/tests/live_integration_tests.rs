@@ -519,6 +519,7 @@ async fn test_add_remove_history_items() {
     );
 }
 
+#[cfg(feature = "test-oauth")]
 #[tokio::test]
 #[ignore = "Ignored by default due to quota"]
 async fn test_delete_create_playlist_oauth() {
@@ -725,6 +726,7 @@ async fn test_edit_playlist() {
 
 // # BASIC TESTS WITH ADDITIONAL ASSERTIONS
 
+#[cfg(feature = "test-oauth")]
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
@@ -740,6 +742,7 @@ async fn test_get_library_playlists() {
     let res = api.get_library_playlists().await.unwrap();
     assert!(!res.is_empty());
 }
+#[cfg(feature = "test-oauth")]
 #[tokio::test]
 async fn test_get_library_artists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();

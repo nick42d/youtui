@@ -11,12 +11,12 @@ use crate::common::{
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     APPEND_CONTINUATION_ITEMS, BADGE_LABEL, CONTENT, CONTINUATION_RENDERER_COMMAND,
-    DELETION_ENTITY_ID, FACEPILE_AVATAR_URL, FACEPILE_TEXT, LIVE_BADGE_LABEL, MENU_ITEMS,
-    MENU_LIKE_STATUS, MRLIR, MUSIC_PLAYLIST_SHELF, NAVIGATION_BROWSE_ID, NAVIGATION_PLAYLIST_ID,
-    NAVIGATION_VIDEO_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON, PLAYLIST_PANEL_CONTINUATION, PPR,
-    RADIO_CONTINUATION_PARAMS, RESPONSIVE_HEADER, RUN_TEXT, SECOND_SUBTITLE_RUNS,
-    SECONDARY_SECTION_LIST_RENDERER, SECTION_LIST_ITEM, TAB_CONTENT, TEXT_RUN, TEXT_RUN_TEXT,
-    THUMBNAIL, THUMBNAILS, WATCH_NEXT_CONTENT, WATCH_VIDEO_ID,
+    DELETION_ENTITY_ID, DISPLAY_POLICY, FACEPILE_AVATAR_URL, FACEPILE_TEXT, LIVE_BADGE_LABEL,
+    MENU_ITEMS, MENU_LIKE_STATUS, MRLIR, MUSIC_PLAYLIST_SHELF, NAVIGATION_BROWSE_ID,
+    NAVIGATION_PLAYLIST_ID, NAVIGATION_VIDEO_ID, NAVIGATION_VIDEO_TYPE, PLAY_BUTTON,
+    PLAYLIST_PANEL_CONTINUATION, PPR, RADIO_CONTINUATION_PARAMS, RESPONSIVE_HEADER, RUN_TEXT,
+    SECOND_SUBTITLE_RUNS, SECONDARY_SECTION_LIST_RENDERER, SECTION_LIST_ITEM, TAB_CONTENT,
+    TEXT_RUN, TEXT_RUN_TEXT, THUMBNAIL, THUMBNAILS, WATCH_NEXT_CONTENT, WATCH_VIDEO_ID,
 };
 use crate::query::playlist::{
     CreatePlaylistType, GetPlaylistDetailsQuery, GetWatchPlaylistQueryID, PrivacyStatus,
@@ -474,6 +474,12 @@ pub(crate) fn parse_playlist_video(
     })
 }
 
+/// Note for caller:
+///
+/// There are multiple ways this could return Ok(None), such as when a playlist
+/// item is deleted. Keep this in mind when reading the track_no field of the
+/// PlaylistItem, since it was likely assigned without knowing if the track
+/// would be invalid.
 pub(crate) fn parse_playlist_item(
     track_no: usize,
     mut json: impl JsonCrawler,
@@ -485,6 +491,12 @@ pub(crate) fn parse_playlist_item(
     if title == "Song deleted" {
         return Ok(None);
     }
+    // Handle not available case
+    if let Ok("MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT") =
+        data.take_value_pointer::<String>(DISPLAY_POLICY).as_deref()
+    {
+        return Ok(None);
+    };
     let video_type_path = concatcp!(
         PLAY_BUTTON,
         "/playNavigationEndpoint",

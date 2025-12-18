@@ -60091,6 +60091,123 @@
           },
           {
             "musicResponsiveListItemRenderer": {
+              "trackingParams": "CBcQ2PIDGA0iEwi597fS7cWRAxX7oEsFHezZCIc=",
+              "thumbnail": {
+                "musicThumbnailRenderer": {
+                  "thumbnail": {
+                    "thumbnails": [
+                      {
+                        "url": "https://i.ytimg.com/vi/CaK8y30YAG8/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3n3MUatkMv-V5MCB3OHJpB-iLsUPQ",
+                        "width": 400,
+                        "height": 225
+                      }
+                    ]
+                  },
+                  "thumbnailCrop": "MUSIC_THUMBNAIL_CROP_UNSPECIFIED",
+                  "thumbnailScale": "MUSIC_THUMBNAIL_SCALE_ASPECT_FIT",
+                  "trackingParams": "CBkQhL8CIhMIufe30u3FkQMV-6BLBR3s2QiH"
+                }
+              },
+              "overlay": {
+                "musicItemThumbnailOverlayRenderer": {
+                  "background": {
+                    "verticalGradient": {
+                      "gradientLayerColors": [
+                        "3422552064",
+                        "3422552064"
+                      ]
+                    }
+                  },
+                  "content": {
+                    "musicPlayButtonRenderer": {
+                      "trackingParams": "CBgQyN4CIhMIufe30u3FkQMV-6BLBR3s2QiH",
+                      "playIcon": {
+                        "iconType": "PLAY_ARROW"
+                      },
+                      "pauseIcon": {
+                        "iconType": "PAUSE"
+                      },
+                      "iconColor": 4294967295,
+                      "backgroundColor": 0,
+                      "activeBackgroundColor": 0,
+                      "loadingIndicatorColor": 14745645,
+                      "playingIcon": {
+                        "iconType": "VOLUME_UP"
+                      },
+                      "iconLoadingColor": 0,
+                      "activeScaleFactor": 1,
+                      "buttonSize": "MUSIC_PLAY_BUTTON_SIZE_SMALL",
+                      "rippleTarget": "MUSIC_PLAY_BUTTON_RIPPLE_TARGET_SELF"
+                    }
+                  },
+                  "contentPosition": "MUSIC_ITEM_THUMBNAIL_OVERLAY_CONTENT_POSITION_CENTERED",
+                  "displayStyle": "MUSIC_ITEM_THUMBNAIL_OVERLAY_DISPLAY_STYLE_PERSISTENT"
+                }
+              },
+              "flexColumns": [
+                {
+                  "musicResponsiveListItemFlexColumnRenderer": {
+                    "text": {
+                      "runs": [
+                        {
+                          "text": "Durga puja shopping guide🔥🔥in bengali | Durga pujo collection💯| #durgapuja2022 #durgapuja durga"
+                        }
+                      ]
+                    },
+                    "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                  }
+                },
+                {
+                  "musicResponsiveListItemFlexColumnRenderer": {
+                    "text": {
+                      "runs": [
+                        {
+                          "text": "THE TRIAL ROOM"
+                        }
+                      ]
+                    },
+                    "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH"
+                  }
+                },
+                {
+                  "musicResponsiveListItemFlexColumnRenderer": {
+                    "text": {
+                      
+                    },
+                    "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_MEDIUM"
+                  }
+                }
+              ],
+              "fixedColumns": [
+                {
+                  "musicResponsiveListItemFixedColumnRenderer": {
+                    "text": {
+                      "runs": [
+                        {
+                          "text": "0:34"
+                        }
+                      ],
+                      "accessibility": {
+                        "accessibilityData": {
+                          "label": "34 seconds"
+                        }
+                      }
+                    },
+                    "displayPriority": "MUSIC_RESPONSIVE_LIST_ITEM_COLUMN_DISPLAY_PRIORITY_HIGH",
+                    "size": "MUSIC_RESPONSIVE_LIST_ITEM_FIXED_COLUMN_SIZE_SMALL"
+                  }
+                }
+              ],
+              "playlistItemData": {
+                "playlistSetVideoId": "30892D90EC0C5586",
+                "videoId": "CaK8y30YAG8",
+                "voteSortValue": 1673288322
+              },
+              "musicItemRendererDisplayPolicy": "MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT"
+            }
+          },
+          {
+            "musicResponsiveListItemRenderer": {
               "trackingParams": "CCsQyfQCGGIiEwivsb3A0daNAxWtmksFHQ-lMM4=",
               "thumbnail": {
                 "musicThumbnailRenderer": {
