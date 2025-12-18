@@ -21,17 +21,35 @@ use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Clear, List, ListItem, ListState};
 use ytmapi_rs::common::{SuggestionType, TextRun};
 
-pub fn draw_browser(f: &mut Frame, browser: &mut Browser, chunk: Rect, selected: bool) {
+pub fn draw_browser(
+    f: &mut Frame,
+    browser: &mut Browser,
+    chunk: Rect,
+    selected: bool,
+    cur_tick: u64,
+) {
     match browser.variant {
-        super::BrowserVariant::Artist => {
-            draw_artist_search_browser(f, &mut browser.artist_search_browser, chunk, selected)
-        }
-        super::BrowserVariant::Song => {
-            draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected)
-        }
-        super::BrowserVariant::Playlist => {
-            draw_playlist_search_browser(f, &mut browser.playlist_search_browser, chunk, selected)
-        }
+        super::BrowserVariant::Artist => draw_artist_search_browser(
+            f,
+            &mut browser.artist_search_browser,
+            chunk,
+            selected,
+            cur_tick,
+        ),
+        super::BrowserVariant::Song => draw_song_search_browser(
+            f,
+            &mut browser.song_search_browser,
+            chunk,
+            selected,
+            cur_tick,
+        ),
+        super::BrowserVariant::Playlist => draw_playlist_search_browser(
+            f,
+            &mut browser.playlist_search_browser,
+            chunk,
+            selected,
+            cur_tick,
+        ),
     }
 }
 pub fn draw_artist_search_browser(
@@ -39,6 +57,7 @@ pub fn draw_artist_search_browser(
     browser: &mut ArtistSearchBrowser,
     chunk: Rect,
     selected: bool,
+    cur_tick: u64,
 ) {
     let [artists_chunk, songs_chunk] = Layout::new(
         ratatui::prelude::Direction::Horizontal,
@@ -61,7 +80,7 @@ pub fn draw_artist_search_browser(
             artists_chunk,
             artistselected,
             |t, f, chunk| {
-                draw_list(f, t, chunk);
+                draw_list(f, t, chunk, cur_tick);
                 None
             },
         );
@@ -77,7 +96,7 @@ pub fn draw_artist_search_browser(
             shrunk_artists_chunk,
             artistselected,
             |t, f, chunk| {
-                draw_list(f, t, chunk);
+                draw_list(f, t, chunk, cur_tick);
                 None
             },
         );
@@ -114,6 +133,7 @@ pub fn draw_playlist_search_browser(
     browser: &mut PlaylistSearchBrowser,
     chunk: Rect,
     selected: bool,
+    cur_tick: u64,
 ) {
     let [playlists_chunk, songs_chunk] = Layout::new(
         ratatui::prelude::Direction::Horizontal,
@@ -136,7 +156,7 @@ pub fn draw_playlist_search_browser(
             playlists_chunk,
             playlists_selected,
             |t, f, chunk| {
-                draw_list(f, t, chunk);
+                draw_list(f, t, chunk, cur_tick);
                 None
             },
         );
@@ -152,7 +172,7 @@ pub fn draw_playlist_search_browser(
             shrunk_playlists_chunk,
             playlists_selected,
             |t, f, chunk| {
-                draw_list(f, t, chunk);
+                draw_list(f, t, chunk, cur_tick);
                 None
             },
         );
@@ -189,6 +209,7 @@ pub fn draw_song_search_browser(
     browser: &mut SongSearchBrowser,
     chunk: Rect,
     selected: bool,
+    cur_tick: u64,
 ) {
     if !browser.search_popped {
         draw_panel_mut(f, browser, chunk, selected, |t, f, chunk| {

@@ -30,6 +30,11 @@ impl<'a, I> ScrollingList<'a, I> {
             highlight_symbol: Default::default(),
         }
     }
+    #[must_use = "method moves the value of self and returns the modified value"]
+    pub fn highlight_style<S: Into<Style>>(mut self, style: S) -> Self {
+        self.highlight_style = style.into();
+        self
+    }
 }
 
 impl<'a, I, II> StatefulWidget for ScrollingList<'a, I>
@@ -59,11 +64,14 @@ where
             .into_iter()
             .map(|item| -> Cow<str> { item.into() })
             .enumerate()
-            .map(|(idx, ref item)| {
+            .map(|(idx, item)| {
                 if Some(idx) == cur_selected {
-                    return item.get(offset..).unwrap_or_default();
+                    return match item {
+                        Cow::Borrowed(b) => Cow::Borrowed(b.get(offset..).unwrap_or_default()),
+                        Cow::Owned(o) => Cow::Owned(o.chars().skip(offset).collect()),
+                    };
                 }
-                item.as_str()
+                item
             });
         let list = List::new(items)
             .style(style)

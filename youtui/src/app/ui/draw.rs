@@ -31,12 +31,12 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities
     match w.context {
         WindowContext::Browser => {
             w.browser
-                .draw_mut_chunk(f, base_layout[1], context_selected);
+                .draw_mut_chunk(f, base_layout[1], context_selected, w.tick);
         }
         WindowContext::Logs => w.logger.draw_chunk(f, base_layout[1], context_selected),
         WindowContext::Playlist => {
             w.playlist
-                .draw_mut_chunk(f, base_layout[1], context_selected);
+                .draw_mut_chunk(f, base_layout[1], context_selected, w.tick);
         }
     }
     if w.help.shown {
@@ -47,6 +47,7 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities
     }
     footer::draw_footer(f, w, base_layout[2], terminal_image_capabilities);
 }
+
 fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
     // NOTE: if there are more commands than we can fit on the screen, some will be
     // cut off. If there are no commands, no need to draw anything.

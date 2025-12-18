@@ -198,7 +198,7 @@ pub trait Drawable {
 pub trait DrawableMut {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
-    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool);
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool, cur_tick: u64);
 }
 // A part of the application that can be in a Loading state.
 pub trait Loadable {

@@ -1,3 +1,5 @@
+use ratatui::buffer::Buffer;
+use ratatui::layout::Rect;
 pub use scrolling_list::ScrollingList;
 pub use tab_grid::TabGrid;
 
