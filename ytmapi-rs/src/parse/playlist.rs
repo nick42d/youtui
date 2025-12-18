@@ -474,6 +474,12 @@ pub(crate) fn parse_playlist_video(
     })
 }
 
+/// Note for caller:
+///
+/// There are multiple ways this could return Ok(None), such as when a playlist
+/// item is deleted. Keep this in mind when reading the track_no field of the
+/// PlaylistItem, since it was likely assigned without knowing if the track
+/// would be invalid.
 pub(crate) fn parse_playlist_item(
     track_no: usize,
     mut json: impl JsonCrawler,
