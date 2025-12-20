@@ -7,7 +7,7 @@ use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
-use crate::widgets::ScrollingList;
+use crate::widgets::{ScrollingList, ScrollingListState};
 use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style, Stylize};
@@ -116,13 +116,21 @@ where
 
 pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, cur_tick: u64) {
     let selected_item = list.get_selected_item();
-    list.get_mut_state().select(Some(selected_item));
+    // XXX: Hack, until state is properly stored
+    let mut state = ScrollingListState {
+        list_state: list.get_state().clone(),
+        last_scrolled_tick: 0,
+    };
+    state.select(Some(selected_item), cur_tick);
+
     // TODO: Scroll bars
     let list_widget = ScrollingList::new(list.get_items(), cur_tick)
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
     // ListState is cheap to clone
-    *list.get_mut_state() =
-        move_render_stateful_widget(f, list_widget, chunk, list.get_state().clone());
+    state = move_render_stateful_widget(f, list_widget, chunk, state);
+
+    // XXX: Hack, until state is properly stored
+    *list.get_mut_state() = state.list_state;
 }
 
 #[must_use = "PanelEffect does nothing if it is not used"]
