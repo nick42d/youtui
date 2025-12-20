@@ -115,7 +115,7 @@ async fn main() {
                 Action::ToggleMode => state.handle_toggle_mode(),
             },
             Some(outcome) = manager.get_next_response() => match outcome {
-                TaskOutcome::StreamClosed => continue,
+                TaskOutcome::StreamFinished {..} => continue,
                 TaskOutcome::TaskPanicked {error,..} => std::panic::resume_unwind(error.into_panic()),
                 TaskOutcome::MutationReceived { mutation, ..} =>
                     manager.spawn_task(&backend, mutation(&mut state)),

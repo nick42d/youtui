@@ -97,7 +97,7 @@ async fn drain_manager<Frntend, Bkend, Md>(
             return;
         };
         match resp {
-            async_callback_manager::TaskOutcome::StreamClosed => continue,
+            async_callback_manager::TaskOutcome::StreamFinished { .. } => continue,
             async_callback_manager::TaskOutcome::MutationReceived { mutation, .. } => {
                 manager.spawn_task(b, mutation(s))
             }

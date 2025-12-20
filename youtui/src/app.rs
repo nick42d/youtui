@@ -193,8 +193,16 @@ impl Youtui {
     }
     fn handle_effect(&mut self, effect: TaskOutcome<YoutuiWindow, ArcServer, TaskMetadata>) {
         match effect {
-            async_callback_manager::TaskOutcome::StreamClosed => {
-                info!("Received a stream closed message from task manager")
+            async_callback_manager::TaskOutcome::StreamFinished {
+                type_id,
+                type_debug,
+                task_id,
+                ..
+            } => {
+                info!(
+                    "Stream task {:?}: type_id: {:?}, task_id: {:?} finished",
+                    type_debug, type_id, task_id
+                );
             }
             async_callback_manager::TaskOutcome::TaskPanicked {
                 type_debug, error, ..
