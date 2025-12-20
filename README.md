@@ -27,7 +27,7 @@ This project is not supported or endorsed by Google.
 `pkg install youtui`
 
 ### Cargo
-`cargo install youtui`
+`cargo install youtui --locked`
 
 ## Running youtui
 ### Commands
