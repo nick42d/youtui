@@ -116,7 +116,7 @@ async fn main() {
             },
             Some(outcome) = manager.get_next_response() => match outcome {
                 TaskOutcome::StreamFinished {..} => continue,
-                TaskOutcome::TaskPanicked {error,..} => std::panic::resume_unwind(error.into_panic()),
+                TaskOutcome::TaskPanicked {error,..}|TaskOutcome::StreamPanicked { error, ..} => std::panic::resume_unwind(error.into_panic()),
                 TaskOutcome::MutationReceived { mutation, ..} =>
                     manager.spawn_task(&backend, mutation(&mut state)),
             },

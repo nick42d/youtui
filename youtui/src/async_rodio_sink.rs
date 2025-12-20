@@ -296,8 +296,9 @@ where
                         next_song_id = Some(song_id);
                     }
                     AsyncRodioRequest::PlaySong(song, song_id, tx) => {
+                        tracing::info!("Inside PlaySong");
                         cur_song_duration = song.total_duration();
-                        tracing::debug!(
+                        tracing::info!(
                             "Received request to play {song_id:?} of duration {cur_song_duration:?}"
                         );
                         if !sink.empty() {

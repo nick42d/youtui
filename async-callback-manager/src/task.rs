@@ -9,7 +9,7 @@ use std::fmt::Debug;
 use std::panic::UnwindSafe;
 use std::sync::Arc;
 use tokio::sync::mpsc;
-use tokio::task::{AbortHandle, JoinError, JoinHandle};
+use tokio::task::{JoinError, JoinHandle};
 
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
@@ -375,7 +375,7 @@ pub(crate) enum TaskWaiter<Frntend, Bkend, Md> {
     Future(JoinHandle<DynStateMutation<Frntend, Bkend, Md>>),
     Stream {
         receiver: mpsc::Receiver<DynStateMutation<Frntend, Bkend, Md>>,
-        abort_handle: AbortHandle,
+        join_handle: JoinHandle<()>,
     },
 }
 
@@ -383,26 +383,28 @@ impl<Frntend, Bkend, Md> TaskWaiter<Frntend, Bkend, Md> {
     fn kill(&mut self) {
         match self {
             TaskWaiter::Future(handle) => handle.abort(),
-            TaskWaiter::Stream {
-                abort_handle: abort,
-                ..
-            } => abort.abort(),
+            TaskWaiter::Stream { join_handle, .. } => join_handle.abort_handle().abort(),
         }
     }
 }
 
 pub enum TaskOutcome<Frntend, Bkend, Md> {
-    /// The stream has completed (or potentially panicked), it won't be sending
-    /// any more tasks.
+    /// The stream has completed, it won't be sending any more tasks.
     StreamFinished {
         type_id: TypeId,
         type_name: &'static str,
         type_debug: Arc<String>,
         task_id: TaskId,
     },
+    /// The stream has panicked, it won't be sending any more tasks.
+    StreamPanicked {
+        error: JoinError,
+        type_id: TypeId,
+        type_name: &'static str,
+        type_debug: Arc<String>,
+        task_id: TaskId,
+    },
     /// No task was recieved because the next task panicked.
-    /// Currently only applicable to Future type tasks.
-    // TODO: Implement for Stream type tasks.
     TaskPanicked {
         error: JoinError,
         type_id: TypeId,
@@ -488,7 +490,20 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
         if let Some(completed_idx) = maybe_completed_idx {
             // Safe - this value is in range as produced from enumerate on
             // original list.
-            self.inner.swap_remove(completed_idx);
+            let completed_task = self.inner.swap_remove(completed_idx);
+            if let TaskWaiter::Stream { join_handle, .. } = completed_task.receiver
+                && join_handle.is_finished()
+                // If stream is finished, this should return immediately.
+                && let Err(e) = join_handle.await
+            {
+                return Some(TaskOutcome::StreamPanicked {
+                    error: e,
+                    type_id: completed_task.type_id,
+                    type_name: completed_task.type_name,
+                    type_debug: completed_task.type_debug.clone(),
+                    task_id: completed_task.task_id,
+                });
+            }
         };
         Some(outcome)
     }

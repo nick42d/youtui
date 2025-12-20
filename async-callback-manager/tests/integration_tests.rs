@@ -16,6 +16,11 @@ struct DelayedBackendMutatingRequest(String);
 #[derive(Debug)]
 struct StreamingCounterTask(usize);
 #[derive(Debug)]
+struct PanickingStreamingCounterTask {
+    count: usize,
+    panic_on: usize,
+}
+#[derive(Debug)]
 struct DelayedBackendMutatingStreamingCounterTask(usize);
 #[derive(Default)]
 struct MockMutatingBackend {
@@ -58,6 +63,25 @@ impl<T> BackendStreamingTask<T> for StreamingCounterTask {
         futures::stream::iter(0..self.0)
     }
 }
+impl<T> BackendStreamingTask<T> for PanickingStreamingCounterTask {
+    type Output = usize;
+    type MetadataType = ();
+    fn into_stream(
+        self,
+        _: &T,
+    ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
+        futures::stream::unfold(0, move |x| async move {
+            if x == self.panic_on {
+                panic!("hit target");
+            }
+            if x == self.count {
+                return None;
+            }
+            Some((x, x + 1))
+        })
+        .boxed()
+    }
+}
 impl BackendStreamingTask<Arc<Mutex<MockMutatingBackend>>>
     for DelayedBackendMutatingStreamingCounterTask
 {
@@ -82,26 +106,36 @@ impl BackendStreamingTask<Arc<Mutex<MockMutatingBackend>>>
             .boxed()
     }
 }
-
+#[derive(Debug, PartialEq)]
+enum PanicType {
+    Stream,
+    Task,
+}
 async fn drain_manager<Frntend, Bkend, Md>(
     mut manager: AsyncCallbackManager<Frntend, Bkend, Md>,
     s: &mut Frntend,
     b: &Bkend,
-) where
+) -> Result<(), PanicType>
+where
     Md: PartialEq + 'static,
     Frntend: 'static,
     Bkend: Clone + 'static,
 {
     loop {
         let Some(resp) = manager.get_next_response().await else {
-            return;
+            return Ok(());
         };
         match resp {
             async_callback_manager::TaskOutcome::StreamFinished { .. } => continue,
             async_callback_manager::TaskOutcome::MutationReceived { mutation, .. } => {
                 manager.spawn_task(b, mutation(s))
             }
-            async_callback_manager::TaskOutcome::TaskPanicked { .. } => panic!(),
+            async_callback_manager::TaskOutcome::TaskPanicked { .. } => {
+                return Err(PanicType::Task);
+            }
+            async_callback_manager::TaskOutcome::StreamPanicked { .. } => {
+                return Err(PanicType::Stream);
+            }
         }
     }
 }
@@ -116,7 +150,7 @@ async fn test_mutate_once() {
         None,
     );
     manager.spawn_task(&(), task);
-    drain_manager(manager, &mut state, &()).await;
+    drain_manager(manager, &mut state, &()).await.unwrap();
     assert_eq!(state, "Hello from the future".to_string());
 }
 
@@ -136,7 +170,7 @@ async fn test_mutate_twice() {
         None,
     );
     manager.spawn_task(&(), task);
-    drain_manager(manager, &mut state, &()).await;
+    drain_manager(manager, &mut state, &()).await.unwrap();
     assert_eq!(
         state,
         vec!["Message 1".to_string(), "Message 2".to_string()]
@@ -153,8 +187,26 @@ async fn test_mutate_stream() {
         None,
     );
     manager.spawn_task(&(), task);
-    drain_manager(manager, &mut state, &()).await;
+    drain_manager(manager, &mut state, &()).await.unwrap();
     assert_eq!(state, (0..10).collect::<Vec<_>>());
+}
+
+#[tokio::test]
+async fn test_panicking_stream() {
+    let mut state = Vec::new();
+    let mut manager = AsyncCallbackManager::new();
+    let task = AsyncTask::new_stream(
+        PanickingStreamingCounterTask {
+            count: 10,
+            panic_on: 5,
+        },
+        |state: &mut Vec<_>, new| state.push(new),
+        None,
+    );
+    manager.spawn_task(&(), task);
+    let did_stream_panic = drain_manager(manager, &mut state, &()).await;
+    assert_eq!(state, (0..5).collect::<Vec<_>>());
+    assert_eq!(did_stream_panic, Err(PanicType::Stream))
 }
 
 #[tokio::test]
@@ -174,7 +226,7 @@ async fn test_mutate_stream_twice() {
         None,
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, &backend).await;
+    drain_manager(manager, &mut state, &backend).await.unwrap();
     // Streams should be interleaved
     assert_ne!(state, vec![0, 1, 2, 3, 4, 0, 1, 2, 3, 4]);
     // And should contain all values
@@ -199,7 +251,7 @@ async fn test_block_constraint() {
         Some(Constraint::new_block_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, &backend).await;
+    drain_manager(manager, &mut state, &backend).await.unwrap();
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec!["Message 2".to_string()]);
     assert_eq!(backend_counter, 2)
@@ -222,7 +274,7 @@ async fn test_kill_constraint() {
         Some(Constraint::new_kill_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, &backend).await;
+    drain_manager(manager, &mut state, &backend).await.unwrap();
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec!["Message 2".to_string()]);
     assert_eq!(backend_counter, 1)
@@ -245,7 +297,7 @@ async fn test_block_constraint_stream() {
         Some(Constraint::new_block_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, &backend).await;
+    drain_manager(manager, &mut state, &backend).await.unwrap();
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec![0, 1, 2, 3, 4]);
     assert_eq!(backend_counter, 10)
@@ -268,7 +320,7 @@ async fn test_kill_constraint_stream() {
         Some(Constraint::new_kill_same_type()),
     );
     manager.spawn_task(&backend, task);
-    drain_manager(manager, &mut state, &backend).await;
+    drain_manager(manager, &mut state, &backend).await.unwrap();
     let backend_counter = backend.lock().await.msgs_recvd;
     assert_eq!(state, vec![0, 1, 2, 3, 4]);
     assert_eq!(backend_counter, 5)
@@ -307,6 +359,6 @@ async fn test_task_spawns_task() {
         None,
     );
     manager.spawn_task(&(), task);
-    drain_manager(manager, &mut state, &()).await;
+    drain_manager(manager, &mut state, &()).await.unwrap();
     assert_eq!(vec!["Hello".to_string(), "World".to_string()], state);
 }

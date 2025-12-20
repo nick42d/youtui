@@ -181,7 +181,7 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
         });
         let mut stream = task(backend);
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
-        let abort_handle = tokio::spawn(async move {
+        let join_handle = tokio::spawn(async move {
             loop {
                 if let Some(mutation) = stream.next().await {
                     // Error could occur here if receiver is dropped.
@@ -191,12 +191,11 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
                 }
                 return;
             }
-        })
-        .abort_handle();
+        });
         TempSpawnedTask {
             waiter: TaskWaiter::Stream {
                 receiver: rx,
-                abort_handle,
+                join_handle,
             },
             type_id,
             type_name,

@@ -206,6 +206,9 @@ impl Youtui {
             }
             async_callback_manager::TaskOutcome::TaskPanicked {
                 type_debug, error, ..
+            }
+            | async_callback_manager::TaskOutcome::StreamPanicked {
+                type_debug, error, ..
             } => {
                 error!("Task {type_debug} panicked!");
                 std::panic::resume_unwind(error.into_panic())
