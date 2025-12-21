@@ -455,7 +455,8 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                         ),
                     },
                     TaskWaiter::Stream {
-                        ref mut receiver, ..
+                        ref mut receiver,
+                        ref mut join_handle,
                     } => {
                         if let Some(mutation) = receiver.recv().await {
                             return (
@@ -468,16 +469,29 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                                     type_debug: task.type_debug.clone(),
                                 },
                             );
+                        };
+                        match join_handle.await {
+                            Err(error) if error.is_panic() => (
+                                Some(idx),
+                                TaskOutcome::StreamPanicked {
+                                    error,
+                                    type_id: task.type_id,
+                                    type_name: task.type_name,
+                                    type_debug: task.type_debug.clone(),
+                                    task_id: task.task_id,
+                                },
+                            ),
+                            // Ok case or Err case where Err is not a panic (ie, it's an abort).
+                            _ => (
+                                Some(idx),
+                                TaskOutcome::StreamFinished {
+                                    type_id: task.type_id,
+                                    type_name: task.type_name,
+                                    type_debug: task.type_debug.clone(),
+                                    task_id: task.task_id,
+                                },
+                            ),
                         }
-                        (
-                            Some(idx),
-                            TaskOutcome::StreamFinished {
-                                type_id: task.type_id,
-                                type_name: task.type_name,
-                                type_debug: task.type_debug.clone(),
-                                task_id: task.task_id,
-                            },
-                        )
                     }
                 }
             })
@@ -488,20 +502,7 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
         if let Some(completed_idx) = maybe_completed_idx {
             // Safe - this value is in range as produced from enumerate on
             // original list.
-            let completed_task = self.inner.swap_remove(completed_idx);
-            if let TaskWaiter::Stream { join_handle, .. } = completed_task.receiver
-                && join_handle.is_finished()
-                // If stream is finished, this should return immediately.
-                && let Err(e) = join_handle.await
-            {
-                return Some(TaskOutcome::StreamPanicked {
-                    error: e,
-                    type_id: completed_task.type_id,
-                    type_name: completed_task.type_name,
-                    type_debug: completed_task.type_debug.clone(),
-                    task_id: completed_task.task_id,
-                });
-            }
+            self.inner.swap_remove(completed_idx);
         };
         Some(outcome)
     }
