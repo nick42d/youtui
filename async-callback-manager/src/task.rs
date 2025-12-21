@@ -207,7 +207,6 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         handler: impl FnOnce(&mut Frntend, R::Output) -> AsyncTask<Frntend, Bkend, Md>
         + Send
         + Clone
-        + UnwindSafe
         + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
