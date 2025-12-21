@@ -562,13 +562,15 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
     Ok(api_key)
 }
 
+/// Return a URL to exact README guide, or information
+/// to help a user find needed information without finding
+/// the repo's README if they closed it in their browser.
 fn auth_token_readme_link(token_type: config::AuthType) -> &'static str {
-    let readme_link = match token_type {
+    return match token_type {
         config::AuthType::OAuth => OAUTH_SETUP_STEPS_URL,
         config::AuthType::Browser => BROWSER_AUTH_SETUP_STEPS_URL,
         config::AuthType::Unauthenticated => RUNNING_YOUTUI_GUIDE_URL,
     };
-    return readme_link;
 }
 
 fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
