@@ -108,6 +108,7 @@ impl Youtui {
                 let _ = destruct_terminal();
                 println!("{panic_info}");
             }
+            tracing::error!("{panic_info}");
         }));
         // Setup components
         let mut task_manager = async_callback_manager::AsyncCallbackManager::new()
