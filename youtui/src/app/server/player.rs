@@ -101,7 +101,7 @@ impl Player {
     ) -> std::result::Result<DecodedInMemSong, DecoderError> {
         tokio::task::spawn_blocking(move || try_decode(song))
             .await
-            .unwrap()
+            .expect("Try decode should not panic")
     }
 }
 

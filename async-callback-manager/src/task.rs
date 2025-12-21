@@ -6,7 +6,6 @@ use futures::stream::FuturesUnordered;
 use futures::{FutureExt, StreamExt};
 use std::any::{TypeId, type_name};
 use std::fmt::Debug;
-use std::panic::UnwindSafe;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio::task::{JoinError, JoinHandle};
@@ -164,7 +163,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     pub fn new_stream<R>(
         request: R,
         // TODO: Review Clone bounds.
-        handler: impl FnOnce(&mut Frntend, R::Output) + Send + Clone + UnwindSafe + 'static,
+        handler: impl FnOnce(&mut Frntend, R::Output) + Send + Clone + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
