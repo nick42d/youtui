@@ -4,7 +4,6 @@ use crate::{
 use futures::{Stream, StreamExt};
 use std::fmt::Debug;
 use std::future::Future;
-use tokio_stream::wrappers::ReceiverStream;
 
 impl<Bkend, T: BackendTask<Bkend>> BackendTaskExt<Bkend> for T {}
 impl<Bkend, T: BackendTask<Bkend, Output = Result<O, E>>, O, E> TryBackendTaskExt<Bkend> for T {
