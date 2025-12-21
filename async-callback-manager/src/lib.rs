@@ -4,11 +4,13 @@ use std::any::Any;
 mod adaptors;
 mod error;
 mod manager;
+mod panicking_receiver_stream;
 mod task;
 
 pub use adaptors::*;
 pub use error::*;
 pub use manager::*;
+pub use panicking_receiver_stream::*;
 pub use task::{AsyncTask, Constraint, TaskInformation, TaskOutcome};
 
 // Size of the channel used for each stream task.

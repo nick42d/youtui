@@ -8,7 +8,7 @@ use std::any::{TypeId, type_name};
 use std::fmt::Debug;
 use std::sync::Arc;
 use tokio::sync::mpsc;
-use tokio::task::{AbortHandle, JoinError, JoinHandle};
+use tokio::task::{JoinError, JoinHandle};
 
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
@@ -373,7 +373,7 @@ pub(crate) enum TaskWaiter<Frntend, Bkend, Md> {
     Future(JoinHandle<DynStateMutation<Frntend, Bkend, Md>>),
     Stream {
         receiver: mpsc::Receiver<DynStateMutation<Frntend, Bkend, Md>>,
-        abort_handle: AbortHandle,
+        join_handle: JoinHandle<()>,
     },
 }
 
@@ -381,21 +381,28 @@ impl<Frntend, Bkend, Md> TaskWaiter<Frntend, Bkend, Md> {
     fn kill(&mut self) {
         match self {
             TaskWaiter::Future(handle) => handle.abort(),
-            TaskWaiter::Stream {
-                abort_handle: abort,
-                ..
-            } => abort.abort(),
+            TaskWaiter::Stream { join_handle, .. } => join_handle.abort_handle().abort(),
         }
     }
 }
 
 pub enum TaskOutcome<Frntend, Bkend, Md> {
-    /// No task was recieved because a stream closed, but there are still more
-    /// tasks.
-    StreamClosed,
+    /// The stream has completed, it won't be sending any more tasks.
+    StreamFinished {
+        type_id: TypeId,
+        type_name: &'static str,
+        type_debug: Arc<String>,
+        task_id: TaskId,
+    },
+    /// The stream has panicked, it won't be sending any more tasks.
+    StreamPanicked {
+        error: JoinError,
+        type_id: TypeId,
+        type_name: &'static str,
+        type_debug: Arc<String>,
+        task_id: TaskId,
+    },
     /// No task was recieved because the next task panicked.
-    /// Currently only applicable to Future type tasks.
-    // TODO: Implement for Stream type tasks.
     TaskPanicked {
         error: JoinError,
         type_id: TypeId,
@@ -448,7 +455,8 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                         ),
                     },
                     TaskWaiter::Stream {
-                        ref mut receiver, ..
+                        ref mut receiver,
+                        ref mut join_handle,
                     } => {
                         if let Some(mutation) = receiver.recv().await {
                             return (
@@ -461,19 +469,40 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                                     type_debug: task.type_debug.clone(),
                                 },
                             );
+                        };
+                        match join_handle.await {
+                            Err(error) if error.is_panic() => (
+                                Some(idx),
+                                TaskOutcome::StreamPanicked {
+                                    error,
+                                    type_id: task.type_id,
+                                    type_name: task.type_name,
+                                    type_debug: task.type_debug.clone(),
+                                    task_id: task.task_id,
+                                },
+                            ),
+                            // Ok case or Err case where Err is not a panic (ie, it's an abort).
+                            _ => (
+                                Some(idx),
+                                TaskOutcome::StreamFinished {
+                                    type_id: task.type_id,
+                                    type_name: task.type_name,
+                                    type_debug: task.type_debug.clone(),
+                                    task_id: task.task_id,
+                                },
+                            ),
                         }
-                        (Some(idx), TaskOutcome::StreamClosed)
                     }
                 }
             })
             .collect::<FuturesUnordered<_>>()
             .next()
             .await;
-        let (maybe_completed_id, outcome) = task_completed?;
-        if let Some(completed_id) = maybe_completed_id {
+        let (maybe_completed_idx, outcome) = task_completed?;
+        if let Some(completed_idx) = maybe_completed_idx {
             // Safe - this value is in range as produced from enumerate on
             // original list.
-            self.inner.swap_remove(completed_id);
+            self.inner.swap_remove(completed_idx);
         };
         Some(outcome)
     }

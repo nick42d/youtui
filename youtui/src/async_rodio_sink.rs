@@ -1,6 +1,7 @@
 //! Provides an asynchronous handle to a rodio sink, specifically designed to
 //! handle gapless playback.
 //! This module has been designed to be implemented as a library in future.
+use async_callback_manager::PanickingReceiverStream;
 use futures::Stream;
 use rodio::cpal::FromSample;
 use rodio::source::{EmptyCallback, PeriodicAccess, TrackPosition};
@@ -9,7 +10,6 @@ use std::borrow::Borrow;
 use std::fmt::Debug;
 use std::time::Duration;
 use tokio::sync::{mpsc, oneshot};
-use tokio_stream::wrappers::ReceiverStream;
 use tracing::{debug, error, info, warn};
 
 pub mod rodio {
@@ -296,8 +296,9 @@ where
                         next_song_id = Some(song_id);
                     }
                     AsyncRodioRequest::PlaySong(song, song_id, tx) => {
+                        tracing::info!("Inside PlaySong");
                         cur_song_duration = song.total_duration();
-                        tracing::debug!(
+                        tracing::info!(
                             "Received request to play {song_id:?} of duration {cur_song_duration:?}"
                         );
                         if !sink.empty() {
@@ -473,7 +474,7 @@ where
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
-        tokio::task::spawn(async move {
+        let handle = tokio::task::spawn(async move {
             std_send_or_error(
                 selftx,
                 AsyncRodioRequest::AutoplaySong(song, identifier, tx),
@@ -522,7 +523,7 @@ where
                 identifier
             );
         });
-        ReceiverStream::new(streamrx)
+        PanickingReceiverStream::new(streamrx, handle)
     }
     pub fn queue_song(
         &self,
@@ -532,7 +533,7 @@ where
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
-        tokio::task::spawn(async move {
+        let handle = tokio::task::spawn(async move {
             std_send_or_error(selftx, AsyncRodioRequest::QueueSong(song, identifier, tx)).await;
             while let Some(msg) = rx.recv().await {
                 match msg {
@@ -574,7 +575,7 @@ where
                 identifier
             );
         });
-        ReceiverStream::new(streamrx)
+        PanickingReceiverStream::new(streamrx, handle)
     }
     pub fn play_song(
         &self,
@@ -584,7 +585,7 @@ where
         let (tx, mut rx) = rodio_mpsc_channel(PLAYER_MSG_QUEUE_SIZE);
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
-        tokio::task::spawn(async move {
+        let handle = tokio::task::spawn(async move {
             std_send_or_error(selftx, AsyncRodioRequest::PlaySong(song, identifier, tx)).await;
             while let Some(msg) = rx.recv().await {
                 match msg {
@@ -626,7 +627,7 @@ where
                 identifier
             );
         });
-        ReceiverStream::new(streamrx)
+        PanickingReceiverStream::new(streamrx, handle)
     }
     pub async fn seek(
         &self,

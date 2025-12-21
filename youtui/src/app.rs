@@ -16,6 +16,7 @@ use ratatui::backend::CrosstermBackend;
 use ratatui_image::picker::Picker;
 use server::{ArcServer, Server, TaskMetadata};
 use std::borrow::Cow;
+use std::fmt::Display;
 use std::io;
 use std::sync::Arc;
 use structures::ListSong;
@@ -100,13 +101,23 @@ impl Youtui {
         enable_raw_mode()?;
         let mut stdout = io::stdout();
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture,)?;
-        // Ensure clean return to shell if panic.
+        // By only performing panic cleanup from the main thread, this largely prevents
+        // exits that occur part-way through a redraw.
         IS_MAIN_THREAD.with(|flag| flag.set(true));
         std::panic::set_hook(Box::new(|panic_info| {
             if IS_MAIN_THREAD.with(|flag| flag.get()) {
-                // If we fail to destruct terminal, ignore the error as panicking anyway.
-                let _ = destruct_terminal();
-                println!("{panic_info}");
+                tracing::error!(
+                    "Panic detected on main thread. \
+                     Message: {panic_info}"
+                );
+                // If we fail to exit cleanly, ignore the error as panicking anyway.
+                let _ = cleanup_tui_and_print_panic_message(&panic_info);
+            } else {
+                tracing::warn!(
+                    "Panic detected outside main thread - \
+                     this is not necessarily an error but may indicate one. \
+                     Message: {panic_info}"
+                );
             }
         }));
         // Setup components
@@ -193,14 +204,27 @@ impl Youtui {
     }
     fn handle_effect(&mut self, effect: TaskOutcome<YoutuiWindow, ArcServer, TaskMetadata>) {
         match effect {
-            async_callback_manager::TaskOutcome::StreamClosed => {
-                info!("Received a stream closed message from task manager")
+            async_callback_manager::TaskOutcome::StreamFinished {
+                type_id,
+                type_debug,
+                task_id,
+                ..
+            } => {
+                info!(
+                    "Stream task {:?}: type_id: {:?}, task_id: {:?} finished",
+                    type_debug, type_id, task_id
+                );
             }
             async_callback_manager::TaskOutcome::TaskPanicked {
                 type_debug, error, ..
+            }
+            | async_callback_manager::TaskOutcome::StreamPanicked {
+                type_debug, error, ..
             } => {
                 error!("Task {type_debug} panicked!");
-                std::panic::resume_unwind(error.into_panic())
+                // We are about to panic - ignore terminal destruction error.
+                let _ = cleanup_tui_and_print_panic_message(&error);
+                std::panic::resume_unwind(error.into_panic());
             }
             async_callback_manager::TaskOutcome::MutationReceived {
                 mutation,
@@ -255,6 +279,14 @@ impl Youtui {
             ),
         }
     }
+}
+
+/// When panicking in the tui, terminal cleanup and error message must be in the
+/// correct order.
+fn cleanup_tui_and_print_panic_message(panic: &impl Display) -> Result<()> {
+    destruct_terminal()?;
+    println!("{panic}");
+    Ok(())
 }
 
 /// Cleanly exit the tui
