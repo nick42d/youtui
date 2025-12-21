@@ -28,6 +28,14 @@ mod tests;
 pub const POTOKEN_FILENAME: &str = "po_token.txt";
 pub const COOKIE_FILENAME: &str = "cookie.txt";
 pub const OAUTH_FILENAME: &str = "oauth.json";
+const BROWSER_AUTH_SETUP_STEPS_URL: &str =
+    "https://github.com/nick42d/youtui?tab=readme-ov-file#browser-auth-setup-steps";
+const OAUTH_SETUP_STEPS_URL: &str =
+    "https://github.com/nick42d/youtui?tab=readme-ov-file#oauth-setup-steps-optional";
+const POTOKEN_INFORMATION_URL: &str =
+    "https://github.com/nick42d/youtui?tab=readme-ov-file#po-token-information";
+const RUNNING_YOUTUI_GUIDE_URL: &str =
+    "https://github.com/nick42d/youtui?tab=readme-ov-file#running-youtui";
 const DIRECTORY_NAME_ERROR_MESSAGE: &str = "Error generating application directory for your host system. See README.md for more information about application directories.";
 
 #[derive(Parser, Debug)]
@@ -508,8 +516,9 @@ async fn load_po_token() -> anyhow::Result<String> {
         .map(|s| s.trim().to_string())
         .with_context(|| {
             format!(
-                "Error loading po_token from {}. Does the file exist?",
-                path.display()
+                "Error loading po_token from {}. Does the file exist? See README.md for more information on PO tokens: {}",
+                path.display(),
+                POTOKEN_INFORMATION_URL
             )
         })
 }
@@ -529,7 +538,7 @@ async fn load_oauth_file() -> anyhow::Result<OAuthToken> {
         .await
         .with_context(|| auth_token_error_message(config::AuthType::OAuth, &path))?;
     serde_json::from_str(&file)
-        .with_context(|| format!("Error parsing AuthType::OAuth auth token from {}. See README.md for more information on auth tokens.", path.display()))
+        .with_context(|| format!("Error parsing AuthType::OAuth auth token from {}. See README.md for more information on auth tokens: {}", path.display(), OAUTH_SETUP_STEPS_URL))
 }
 
 /// Create the Config and Data directories for the app if they do not already
@@ -553,10 +562,20 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
     Ok(api_key)
 }
 
+fn auth_token_readme_link(token_type: config::AuthType) -> &'static str {
+    let readme_link = match token_type {
+        config::AuthType::OAuth => OAUTH_SETUP_STEPS_URL,
+        config::AuthType::Browser => BROWSER_AUTH_SETUP_STEPS_URL,
+        config::AuthType::Unauthenticated => RUNNING_YOUTUI_GUIDE_URL,
+    };
+    return readme_link;
+}
+
 fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
     format!(
-        "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information on auth tokens.",
+        "Error loading {:?} auth token from {}. Does the file exist? See README.md for more information: {}",
         token_type,
-        path.display()
+        path.display(),
+        auth_token_readme_link(token_type)
     )
 }
