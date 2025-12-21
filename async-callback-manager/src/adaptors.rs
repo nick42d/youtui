@@ -1,4 +1,6 @@
-use crate::{BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE};
+use crate::{
+    BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE, PanickingReceiverStream,
+};
 use futures::{Stream, StreamExt};
 use std::fmt::Debug;
 use std::future::Future;
@@ -88,7 +90,7 @@ where
         let Map { first, create_next } = self;
         let backend = backend.clone();
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
-        tokio::task::spawn(async move {
+        let handle = tokio::task::spawn(async move {
             let seed = BackendTask::into_future(first, &backend).await;
             match seed {
                 Ok(seed) => {
@@ -102,7 +104,7 @@ where
                 }
             }
         });
-        ReceiverStream::new(rx)
+        PanickingReceiverStream::new(rx, handle)
     }
     fn metadata() -> Vec<Self::MetadataType> {
         let mut first = T::metadata();
@@ -163,14 +165,14 @@ where
         let Then { first, create_next } = self;
         let backend = backend.clone();
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
-        tokio::task::spawn(async move {
+        let handle = tokio::task::spawn(async move {
             let seed = BackendTask::into_future(first, &backend).await;
             let mut stream = create_next(seed).into_stream(&backend);
             while let Some(item) = stream.next().await {
                 let _ = tx.send(item).await;
             }
         });
-        ReceiverStream::new(rx)
+        PanickingReceiverStream::new(rx, handle)
     }
     fn metadata() -> Vec<Self::MetadataType> {
         let mut first = T::metadata();

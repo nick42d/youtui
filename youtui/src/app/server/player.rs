@@ -101,8 +101,7 @@ impl Player {
     ) -> std::result::Result<DecodedInMemSong, DecoderError> {
         tokio::task::spawn_blocking(move || try_decode(song))
             .await
-            .map_err(|e| DecoderError::DecodeError(format!("{e}").leak()))
-            .flatten()
+            .unwrap()
     }
 }
 

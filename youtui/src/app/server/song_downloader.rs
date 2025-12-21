@@ -7,10 +7,10 @@ use crate::core::send_or_error;
 use crate::youtube_downloader::native::NativeYoutubeDownloader;
 use crate::youtube_downloader::yt_dlp::YtDlpDownloader;
 use crate::youtube_downloader::{YoutubeMusicDownload, YoutubeMusicDownloader};
+use async_callback_manager::PanickingReceiverStream;
 use futures::{Stream, StreamExt, TryStreamExt};
 use rusty_ytdl::reqwest;
 use std::future::Future;
-use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::{VideoID, YoutubeID};
 
@@ -118,7 +118,7 @@ where
     T::Error: std::fmt::Display + Send,
 {
     let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
-    tokio::spawn(async move {
+    let handle = tokio::spawn(async move {
         info!("Running download");
         send_or_error(
             &tx.clone(),
@@ -189,7 +189,7 @@ where
             }
         };
     });
-    ReceiverStream::new(rx)
+    PanickingReceiverStream::new(rx, handle)
 }
 
 /// Parameter for run_on_retry callback is "times retried"

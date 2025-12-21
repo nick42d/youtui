@@ -4,6 +4,7 @@ use crate::async_rodio_sink::send_or_error;
 use crate::config::ApiKey;
 use crate::{OAUTH_FILENAME, get_config_dir};
 use anyhow::{Error, Result};
+use async_callback_manager::PanickingReceiverStream;
 use async_cell::sync::AsyncCell;
 use futures::stream::FuturesOrdered;
 use futures::{Stream, StreamExt};
@@ -12,7 +13,6 @@ use std::borrow::Borrow;
 use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 use tokio::sync::RwLock;
-use tokio_stream::wrappers::ReceiverStream;
 use tracing::{error, info};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
 use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail};
@@ -222,7 +222,7 @@ fn get_artist_songs(
     browse_id: ArtistChannelID<'static>,
 ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static {
     let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
-    tokio::spawn(async move {
+    let handle = tokio::spawn(async move {
         tracing::info!("Running songs query");
         send_or_error(&tx, GetArtistSongsProgressUpdate::Loading).await;
         let api = match api.get().await {
@@ -347,7 +347,7 @@ fn get_artist_songs(
         }
         send_or_error(tx, GetArtistSongsProgressUpdate::AllSongsSent).await;
     });
-    ReceiverStream::new(rx)
+    PanickingReceiverStream::new(rx, handle)
 }
 
 pub enum GetPlaylistSongsProgressUpdate {
@@ -370,7 +370,7 @@ fn get_playlist_songs(
     _max_results: usize,
 ) -> impl Stream<Item = GetPlaylistSongsProgressUpdate> + 'static {
     let (tx, rx) = tokio::sync::mpsc::channel(CALLBACK_CHANNEL_SIZE);
-    tokio::spawn(async move {
+    let handle = tokio::spawn(async move {
         tracing::info!("Running songs query");
         send_or_error(&tx, GetPlaylistSongsProgressUpdate::Loading).await;
         let api = match api.get().await {
@@ -408,5 +408,5 @@ fn get_playlist_songs(
         }
         send_or_error(tx, GetPlaylistSongsProgressUpdate::AllSongsSent).await;
     });
-    ReceiverStream::new(rx)
+    PanickingReceiverStream::new(rx, handle)
 }
