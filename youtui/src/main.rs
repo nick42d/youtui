@@ -566,11 +566,11 @@ async fn load_api_key(cfg: &Config) -> anyhow::Result<ApiKey> {
 /// to help a user find needed information without finding
 /// the repo's README if they closed it in their browser.
 fn auth_token_readme_link(token_type: config::AuthType) -> &'static str {
-    return match token_type {
+    match token_type {
         config::AuthType::OAuth => OAUTH_SETUP_STEPS_URL,
         config::AuthType::Browser => BROWSER_AUTH_SETUP_STEPS_URL,
         config::AuthType::Unauthenticated => RUNNING_YOUTUI_GUIDE_URL,
-    };
+    }
 }
 
 fn auth_token_error_message(token_type: config::AuthType, path: &Path) -> String {
