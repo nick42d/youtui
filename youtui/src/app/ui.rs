@@ -394,7 +394,7 @@ impl YoutuiWindow {
         AsyncTask::new_no_op().into()
     }
     pub async fn handle_tick(&mut self) {
-        self.tick += 1;
+        self.tick = self.tick.wrapping_add(1);
         self.playlist.handle_tick().await;
     }
     fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) -> YoutuiEffect<Self> {

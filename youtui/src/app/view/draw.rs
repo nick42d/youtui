@@ -7,7 +7,7 @@ use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
-use crate::widgets::{ScrollingList, ScrollingListState};
+use crate::widgets::ScrollingList;
 use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style, Stylize};
