@@ -3,7 +3,7 @@ use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{HighlightSpacing, List, ListItem, ListState, StatefulWidget};
 use std::borrow::Cow;
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct ScrollingListState {
     pub list_state: ListState,
     // Tick recorded last time the user changed the selected item.
@@ -13,7 +13,7 @@ pub struct ScrollingListState {
 impl ScrollingListState {
     pub fn select(&mut self, index: Option<usize>, cur_tick: u64) {
         if self.list_state.selected() != index {
-            tracing::info!("Resetting tick");
+            tracing::info!("Resetting tick to {cur_tick}");
             self.last_scrolled_tick = cur_tick;
         }
         self.list_state.select(index);
@@ -76,24 +76,17 @@ where
             cur_tick,
         } = self;
         let cur_selected = state.list_state.selected();
+        // Doesn't seem to be quite working...
+        let adj_tick = cur_tick.saturating_sub(state.last_scrolled_tick);
+        tracing::info!("adj_tick: {adj_tick}");
         const BLANK_CHARS: u32 = 4;
-        let items = items
-            .into_iter()
-            .map(|item| -> Cow<str> { item.into() })
-            .enumerate()
-            .map(|(idx, item)| {
-                if Some(idx) == cur_selected {
-                    return get_scrolled_line(
-                        item,
-                        // Doesn't seem to be quite working...
-                        cur_tick.saturating_sub(state.last_scrolled_tick),
-                        BLANK_CHARS,
-                        area.width as usize,
-                    )
-                    .into();
-                }
-                ListItem::from(item)
-            });
+        let items = items.into_iter().enumerate().map(|(idx, item)| {
+            let item: Cow<_> = item.into();
+            if Some(idx) == cur_selected {
+                return get_scrolled_line(item, adj_tick, BLANK_CHARS, area.width as usize).into();
+            }
+            ListItem::from(item)
+        });
         let list = List::new(items)
             .style(style)
             .highlight_style(highlight_style);
@@ -118,7 +111,7 @@ fn get_scrolled_line<'a>(
     else {
         return Line::from(text);
     };
-    return match text {
+    match text {
         Cow::Borrowed(b) => {
             let (front, back) = b.split_at(chars_to_remove);
             Line::from_iter([
@@ -135,7 +128,7 @@ fn get_scrolled_line<'a>(
                 Cow::Owned(o),
             ])
         }
-    };
+    }
 }
 
 /// Number of characters to remove from front of string to fit it in the column,
