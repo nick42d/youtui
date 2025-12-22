@@ -1,24 +1,30 @@
 use crate::widgets::get_scrolled_line;
+use ratatui::layout::{Constraint, Layout, Rect};
 use ratatui::style::Style;
-use ratatui::widgets::{StatefulWidget, Table, TableState};
+use ratatui::widgets::{Cell, Row, StatefulWidget, Table, TableState};
 use std::borrow::Cow;
 
 pub const DEFAULT_TICKER_GAP: u16 = 4;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct ScrollingTableState {
-    pub list_state: TableState,
+    pub table_state: TableState,
     // Tick recorded last time the user changed the selected item.
     pub last_scrolled_tick: u64,
 }
 
 impl ScrollingTableState {
     pub fn select(&mut self, index: Option<usize>, cur_tick: u64) {
-        if self.list_state.selected() != index {
-            tracing::info!("Resetting tick to {cur_tick}");
+        if self.table_state.selected() != index {
             self.last_scrolled_tick = cur_tick;
         }
-        self.list_state.select(index);
+        self.table_state.select(index);
+    }
+    pub fn offset(&self) -> usize {
+        self.table_state.offset()
+    }
+    pub fn offset_mut(&mut self) -> &mut usize {
+        self.table_state.offset_mut()
     }
 }
 
@@ -39,46 +45,72 @@ pub struct ScrollingTable<I, H> {
     cur_tick: u64,
     /// Min gap between end of text and start of text (when wrapping around)
     min_ticker_gap: u16,
+    /// Column widths
+    table_widths: Vec<Constraint>,
 }
 
 impl<I, H> ScrollingTable<I, H> {
     /// `cur_tick` should represent a monotonically and periodically increasing
     /// tick count passed on every render, to determine list scroll frame.
-    pub fn new<'a, II>(items: I, cur_tick: u64) -> ScrollingTable<I, H>
+    pub fn new<'a, C, II>(
+        items: I,
+        headings: H,
+        table_widths: Vec<Constraint>,
+        cur_tick: u64,
+    ) -> ScrollingTable<I, H>
     where
+        H: IntoIterator<Item = C>,
+        C: Into<Cell<'static>>,
         I: IntoIterator<Item = II>,
         II: IntoIterator<Item = Cow<'a, str>> + 'a,
     {
         Self {
             items,
+            headings,
             cur_tick,
+            table_widths,
             min_ticker_gap: DEFAULT_TICKER_GAP,
             style: Default::default(),
-            highlight_style: Default::default(),
-            highlight_symbol: Default::default(),
+            row_highlight_style: Default::default(),
+            headings_style: Default::default(),
+            column_spacing: Default::default(),
         }
     }
     #[must_use = "method moves the value of self and returns the modified value"]
-    pub fn highlight_style<S: Into<Style>>(mut self, style: S) -> Self {
-        self.highlight_style = style.into();
+    pub fn row_highlight_style<S: Into<Style>>(mut self, style: S) -> Self {
+        self.row_highlight_style = style.into();
+        self
+    }
+    #[must_use = "method moves the value of self and returns the modified value"]
+    pub fn style<S: Into<Style>>(mut self, style: S) -> Self {
+        self.style = style.into();
+        self
+    }
+    #[must_use = "method moves the value of self and returns the modified value"]
+    pub fn headings_style<S: Into<Style>>(mut self, style: S) -> Self {
+        self.headings_style = style.into();
+        self
+    }
+    #[must_use = "method moves the value of self and returns the modified value"]
+    pub fn column_spacing(mut self, column_spacing: u16) -> Self {
+        self.column_spacing = column_spacing;
         self
     }
     #[must_use = "method moves the value of self and returns the modified value"]
     /// Set gap between end of text and start of text (when wrapping around).
     /// Default = [DEFAULT_TICKER_GAP]
-    /// ```
-    /// assert_eq!(DEFAULT_TICKER_GAP, 4);
-    /// ```
-    pub fn _ticker_gap(mut self, ticker_gap: u16) -> Self {
-        self.min_ticker_gap = ticker_gap;
+    pub fn _min_ticker_gap(mut self, min_ticker_gap: u16) -> Self {
+        self.min_ticker_gap = min_ticker_gap;
         self
     }
 }
 
-impl<'a, I, II> StatefulWidget for ScrollingTable<'a, I>
+impl<'a, I, II, H, C> StatefulWidget for ScrollingTable<I, H>
 where
-    I: IntoIterator<Item = II> + 'a,
-    II: Into<Cow<'a, str>>,
+    H: IntoIterator<Item = C>,
+    C: Into<Cell<'static>>,
+    I: IntoIterator<Item = II>,
+    II: IntoIterator<Item = Cow<'a, str>> + 'a,
 {
     type State = ScrollingTableState;
 
@@ -90,30 +122,63 @@ where
     ) {
         let Self {
             items,
+            headings,
             style,
-            highlight_style,
-            highlight_symbol,
+            headings_style,
+            row_highlight_style,
+            column_spacing,
             cur_tick,
-            min_ticker_gap: ticker_gap,
+            min_ticker_gap,
+            table_widths,
         } = self;
-        let cur_selected = state.list_state.selected();
+        let cur_selected = state.table_state.selected();
         let adj_tick = cur_tick.saturating_sub(state.last_scrolled_tick);
-        let items = items.into_iter().enumerate().map(|(idx, item)| {
-            let item: Cow<_> = item.into();
+
+        /// Copied from ratatui
+        fn get_column_widths(
+            column_spacing: u16,
+            table_widths: &[Constraint],
+            max_table_width: u16,
+            col_count: usize,
+        ) -> Vec<u16> {
+            let widths = if table_widths.is_empty() {
+                // Divide the space between each column equally
+                vec![Constraint::Length(max_table_width / col_count.max(1) as u16); col_count]
+            } else {
+                table_widths.to_vec()
+            };
+            let rects = Layout::horizontal(widths)
+                .spacing(column_spacing)
+                .split(Rect::new(0, 0, max_table_width, 1));
+            rects.iter().map(|c| c.width).collect()
+        }
+
+        let column_widths = get_column_widths(
+            column_spacing,
+            &table_widths,
+            area.width,
+            // XXX: This is a hack to get col count. Must be changed.
+            table_widths.len(),
+        );
+        let items = items.into_iter().enumerate().map(|(idx, row)| {
             if Some(idx) == cur_selected {
-                return get_scrolled_line(item, adj_tick, ticker_gap, area.width).into();
+                let row = row
+                    .into_iter()
+                    .enumerate()
+                    // TODO: confirm col_width safety
+                    .map(|(idx, item)| {
+                        get_scrolled_line(item, adj_tick, min_ticker_gap, column_widths[idx])
+                    });
+                return Row::new(row);
             }
-            TableItem::from(item)
+            Row::new(row)
         });
-        let list = Table::new(items)
+        let table = Table::new(items, table_widths)
             .style(style)
-            .highlight_style(highlight_style);
-        let list = if let Some(highlight_symbol) = highlight_symbol {
-            list.highlight_symbol(highlight_symbol)
-        } else {
-            list
-        };
-        list.render(area, buf, &mut state.list_state);
+            .row_highlight_style(row_highlight_style)
+            .column_spacing(column_spacing)
+            .header(Row::new(headings).style(headings_style));
+        table.render(area, buf, &mut state.table_state);
     }
 }
 
@@ -121,59 +186,65 @@ where
 mod tests {
     use crate::widgets::{ScrollingTable, ScrollingTableState};
     use pretty_assertions::assert_eq;
-    use ratatui::layout::Rect;
+    use ratatui::layout::{Constraint, Rect};
     use ratatui::widgets::StatefulWidget;
+    use std::borrow::Cow;
 
     #[test]
-    fn test_basic_scrolling_list() {
-        let list_items = ["AA", "ABCD"];
-        let mut list_state = ScrollingTableState::default();
-        list_state.select(Some(1), 0);
-        let area = Rect::new(0, 0, 3, 2);
+    fn test_basic_scrolling_table_not_scrolled() {
+        let headings = ["AA", "ABCD"];
+        let table_items = [
+            [Cow::from("AA"), Cow::from("ABCD")],
+            [Cow::from("AA"), Cow::from("ABCD")],
+        ];
+        let mut table_state = ScrollingTableState::default();
+        table_state.select(Some(1), 0);
+        let area = Rect::new(0, 0, 5, 3);
         let mut buf = ratatui::buffer::Buffer::empty(area);
 
-        // Frame 1 - scrolling hasn't started yet
-        let list_frame_1 = ScrollingTable::new(list_items, 0)._ticker_gap(1);
-        list_frame_1.render(area, &mut buf, &mut list_state);
-        let frame_1_cells_as_string = buf
+        let table = ScrollingTable::new(
+            table_items,
+            headings,
+            vec![Constraint::Length(2), Constraint::Length(3)],
+            0,
+        )
+        ._min_ticker_gap(1);
+        table.render(area, &mut buf, &mut table_state);
+        let cells_as_string = buf
             .content
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
-        let expected_frame_1_cells_as_string = "AA ABC".to_string();
-        assert_eq!(frame_1_cells_as_string, expected_frame_1_cells_as_string);
+        let expected_cells_as_string = "AAABCAAABCAAABC".to_string();
+        assert_eq!(cells_as_string, expected_cells_as_string);
+    }
 
-        // Frame 2 - scrolling only
-        let list_frame_2 = ScrollingTable::new(list_items, 1)._ticker_gap(1);
-        list_frame_2.render(area, &mut buf, &mut list_state);
-        let frame_2_cells_as_string = buf
-            .content
-            .iter()
-            .map(|cell| cell.symbol())
-            .collect::<String>();
-        let expected_frame_2_cells_as_string = "AA BCD".to_string();
-        assert_eq!(frame_2_cells_as_string, expected_frame_2_cells_as_string);
+    #[test]
+    fn test_basic_scrolling_scroll_one_frame() {
+        let headings = ["AA", "ABCD"];
+        let table_items = [
+            [Cow::from("AA"), Cow::from("ABCD")],
+            [Cow::from("AA"), Cow::from("ABCD")],
+        ];
+        let mut table_state = ScrollingTableState::default();
+        table_state.select(Some(1), 0);
+        let area = Rect::new(0, 0, 5, 3);
+        let mut buf = ratatui::buffer::Buffer::empty(area);
 
-        // Frame 3 - padding after scrolling
-        let list_frame_3 = ScrollingTable::new(list_items, 2)._ticker_gap(1);
-        list_frame_3.render(area, &mut buf, &mut list_state);
-        let frame_3_cells_as_string = buf
+        let table = ScrollingTable::new(
+            table_items,
+            headings,
+            vec![Constraint::Length(2), Constraint::Length(3)],
+            0,
+        )
+        ._min_ticker_gap(1);
+        table.render(area, &mut buf, &mut table_state);
+        let cells_as_string = buf
             .content
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
-        let expected_frame_3_cells_as_string = "AA CD ".to_string();
-        assert_eq!(frame_3_cells_as_string, expected_frame_3_cells_as_string);
-
-        // Frame 4 - wraparound
-        let list_frame_4 = ScrollingTable::new(list_items, 3)._ticker_gap(1);
-        list_frame_4.render(area, &mut buf, &mut list_state);
-        let frame_4_cells_as_string = buf
-            .content
-            .iter()
-            .map(|cell| cell.symbol())
-            .collect::<String>();
-        let expected_frame_4_cells_as_string = "AA D A".to_string();
-        assert_eq!(frame_4_cells_as_string, expected_frame_4_cells_as_string);
+        let expected_cells_as_string = "AAABCAAABCAAABC".to_string();
+        assert_eq!(cells_as_string, expected_cells_as_string);
     }
 }

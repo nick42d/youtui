@@ -16,9 +16,9 @@ use crate::app::view::{
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::drawutils::get_offset_after_list_resize;
+use crate::widgets::ScrollingTableState;
 use anyhow::{Result, bail};
 use itertools::Either;
-use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::iter::{ExactSizeIterator, Iterator};
@@ -39,7 +39,7 @@ pub struct PlaylistSongsPanel {
     pub sort: SortManager,
     pub filter: FilterManager,
     cur_selected: usize,
-    pub widget_state: TableState,
+    pub widget_state: ScrollingTableState,
 }
 impl_youtui_component!(PlaylistSongsPanel);
 
@@ -292,7 +292,7 @@ impl TableView for PlaylistSongsPanel {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> &ratatui::widgets::TableState {
+    fn get_state(&self) -> &ScrollingTableState {
         &self.widget_state
     }
     fn get_layout(&self) -> &[BasicConstraint] {
@@ -315,7 +315,7 @@ impl TableView for PlaylistSongsPanel {
     fn get_highlighted_row(&self) -> Option<usize> {
         None
     }
-    fn get_mut_state(&mut self) -> &mut TableState {
+    fn get_mut_state(&mut self) -> &mut ScrollingTableState {
         &mut self.widget_state
     }
 }

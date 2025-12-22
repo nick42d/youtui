@@ -141,6 +141,7 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
         chunk,
     );
     f.render_widget(Clear, area);
+    let cur_tick = w.tick;
     draw_panel_mut_impl(
         f,
         w,
@@ -166,6 +167,7 @@ fn draw_help(f: &mut Frame, w: &mut YoutuiWindow, chunk: Rect) {
                 &table_constraints,
                 headings,
                 None,
+                cur_tick,
             );
             t.help.widget_state = new_state;
             Some(effect)

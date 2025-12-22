@@ -13,11 +13,11 @@ use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
+use crate::widgets::ScrollingTableState;
 use action::{AppAction, ListAction, PAGE_KEY_LINES, SEEK_AMOUNT, TextEntryAction};
 use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
-use ratatui::widgets::TableState;
 use std::time::Duration;
 
 pub mod action;
@@ -57,7 +57,7 @@ pub struct HelpMenu {
     pub shown: bool,
     cur: usize,
     len: usize,
-    pub widget_state: TableState,
+    pub widget_state: ScrollingTableState,
 }
 
 impl HelpMenu {

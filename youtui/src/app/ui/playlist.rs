@@ -21,6 +21,7 @@ use crate::async_rodio_sink::{
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
+use crate::widgets::ScrollingTableState;
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::Frame;
 use ratatui::layout::Rect;
@@ -53,7 +54,7 @@ pub struct Playlist {
     pub queue_status: QueueState,
     pub volume: Percentage,
     cur_selected: usize,
-    pub widget_state: TableState,
+    pub widget_state: ScrollingTableState,
 }
 impl_youtui_component!(Playlist);
 
@@ -133,9 +134,11 @@ impl TextHandler for Playlist {
 }
 
 impl DrawableMut for Playlist {
-    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool, _cur_tick: u64) {
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool, cur_tick: u64) {
         draw_panel_mut(f, self, chunk, selected, |t, f, chunk| {
-            draw_loadable(f, t, chunk, |t, f, chunk| Some(draw_table(f, t, chunk)))
+            draw_loadable(f, t, chunk, |t, f, chunk| {
+                Some(draw_table(f, t, chunk, cur_tick))
+            })
         });
     }
 }
@@ -162,7 +165,7 @@ impl TableView for Playlist {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> &TableState {
+    fn get_state(&self) -> &ScrollingTableState {
         &self.widget_state
     }
     fn get_layout(&self) -> &[BasicConstraint] {
@@ -213,7 +216,7 @@ impl TableView for Playlist {
     fn get_highlighted_row(&self) -> Option<usize> {
         self.get_cur_playing_index()
     }
-    fn get_mut_state(&mut self) -> &mut TableState {
+    fn get_mut_state(&mut self) -> &mut ScrollingTableState {
         &mut self.widget_state
     }
 }

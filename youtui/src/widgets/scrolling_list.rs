@@ -1,6 +1,5 @@
 use crate::widgets::get_scrolled_line;
 use ratatui::style::Style;
-use ratatui::text::Line;
 use ratatui::widgets::{List, ListItem, ListState, StatefulWidget};
 use std::borrow::Cow;
 
@@ -16,7 +15,6 @@ pub struct ScrollingListState {
 impl ScrollingListState {
     pub fn select(&mut self, index: Option<usize>, cur_tick: u64) {
         if self.list_state.selected() != index {
-            tracing::info!("Resetting tick to {cur_tick}");
             self.last_scrolled_tick = cur_tick;
         }
         self.list_state.select(index);

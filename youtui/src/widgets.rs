@@ -1,5 +1,6 @@
 use ratatui::text::Line;
 pub use scrolling_list::{ScrollingList, ScrollingListState};
+pub use scrolling_table::{ScrollingTable, ScrollingTableState};
 use std::borrow::Cow;
 pub use tab_grid::TabGrid;
 
