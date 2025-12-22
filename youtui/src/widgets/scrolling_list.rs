@@ -1,4 +1,5 @@
 use ratatui::style::Style;
+use ratatui::text::{Line, Span, Text};
 use ratatui::widgets::{HighlightSpacing, List, ListItem, ListState, StatefulWidget};
 use std::borrow::Cow;
 
@@ -12,6 +13,7 @@ pub struct ScrollingListState {
 impl ScrollingListState {
     pub fn select(&mut self, index: Option<usize>, cur_tick: u64) {
         if self.list_state.selected() != index {
+            tracing::info!("Resetting tick");
             self.last_scrolled_tick = cur_tick;
         }
         self.list_state.select(index);
@@ -74,28 +76,23 @@ where
             cur_tick,
         } = self;
         let cur_selected = state.list_state.selected();
-        const PAUSED_TICKS_AFTER_SCROLL: u64 = 10;
-        const PAUSED_TICKS_BEFORE_SCROLL: u64 = 10;
+        const BLANK_CHARS: u32 = 4;
         let items = items
             .into_iter()
             .map(|item| -> Cow<str> { item.into() })
             .enumerate()
             .map(|(idx, item)| {
                 if Some(idx) == cur_selected {
-                    let offset = get_offset(
+                    return get_scrolled_line(
+                        item,
                         // Doesn't seem to be quite working...
                         cur_tick.saturating_sub(state.last_scrolled_tick),
-                        PAUSED_TICKS_BEFORE_SCROLL,
-                        PAUSED_TICKS_AFTER_SCROLL,
-                        item.len(),
+                        BLANK_CHARS,
                         area.width as usize,
-                    );
-                    return match item {
-                        Cow::Borrowed(b) => Cow::Borrowed(b.get(offset..).unwrap_or_default()),
-                        Cow::Owned(o) => Cow::Owned(o.chars().skip(offset).collect()),
-                    };
+                    )
+                    .into();
                 }
-                item
+                ListItem::from(item)
             });
         let list = List::new(items)
             .style(style)
@@ -109,7 +106,40 @@ where
     }
 }
 
-/// Number of characters to remove from front of string to fit it in the column.
+fn get_scrolled_line<'a>(
+    text: impl Into<Cow<'a, str>>,
+    cur_tick: u64,
+    blank_chars: u32,
+    col_width: usize,
+) -> Line<'a> {
+    let text = text.into();
+    let Some((chars_to_remove, blank_chars)) =
+        get_offset(cur_tick, blank_chars as u64, text.len(), col_width)
+    else {
+        return Line::from(text);
+    };
+    return match text {
+        Cow::Borrowed(b) => {
+            let (front, back) = b.split_at(chars_to_remove);
+            Line::from_iter([
+                Cow::Borrowed(back),
+                Cow::Owned(" ".repeat(blank_chars)),
+                Cow::Borrowed(front),
+            ])
+        }
+        Cow::Owned(mut o) => {
+            let back_half = o.split_off(chars_to_remove);
+            Line::from_iter([
+                Cow::Owned(back_half),
+                Cow::Owned(" ".repeat(blank_chars)),
+                Cow::Owned(o),
+            ])
+        }
+    };
+}
+
+/// Number of characters to remove from front of string to fit it in the column,
+/// number of blank characters. Or, no adjustment at all.
 /// ```
 /// // If string is shorter than column, offset is always zero.
 /// let no_adjustment_needed = get_offset(12, 0, 0, 14, 16);
@@ -117,20 +147,18 @@ where
 /// ```
 fn get_offset(
     cur_tick: u64,
-    pause_front: u64,
-    pause_back: u64,
+    gap_size: u64,
     string_len: usize,
     col_width: usize,
-) -> usize {
-    let max_adjustment = string_len.saturating_sub(col_width);
-    if max_adjustment == 0 {
-        return 0;
+) -> Option<(usize, usize)> {
+    if string_len <= col_width {
+        return None;
     }
-    let n_frames = u64::try_from(max_adjustment).unwrap() + pause_front + pause_back;
+    let n_frames = u64::try_from(string_len).unwrap().saturating_add(gap_size);
     let frame = cur_tick % n_frames;
-    frame
-        .saturating_sub(pause_front)
-        .min(max_adjustment.try_into().unwrap())
-        .try_into()
-        .unwrap()
+    let chars_to_remove = usize::try_from(frame).unwrap().min(string_len);
+    let blank_chars = (string_len + usize::try_from(gap_size).unwrap())
+        .saturating_sub(frame.try_into().unwrap())
+        .min(gap_size.try_into().unwrap());
+    Some((chars_to_remove, blank_chars))
 }
