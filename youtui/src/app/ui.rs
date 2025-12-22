@@ -49,6 +49,7 @@ pub struct YoutuiWindow {
     config: Config,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
+    tick: u64,
 }
 impl_youtui_component!(YoutuiWindow);
 
@@ -308,6 +309,7 @@ impl YoutuiWindow {
             logger: Logger::new(),
             key_stack: Vec::new(),
             help: HelpMenu::new(),
+            tick: 0,
         };
         (this, task.map(|this: &mut Self| &mut this.playlist))
     }
@@ -392,6 +394,7 @@ impl YoutuiWindow {
         AsyncTask::new_no_op().into()
     }
     pub async fn handle_tick(&mut self) {
+        self.tick = self.tick.wrapping_add(1);
         self.playlist.handle_tick().await;
     }
     fn handle_key_event(&mut self, key_event: crossterm::event::KeyEvent) -> YoutuiEffect<Self> {

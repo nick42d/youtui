@@ -133,7 +133,7 @@ impl TextHandler for Playlist {
 }
 
 impl DrawableMut for Playlist {
-    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool) {
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool, _cur_tick: u64) {
         draw_panel_mut(f, self, chunk, selected, |t, f, chunk| {
             draw_loadable(f, t, chunk, |t, f, chunk| Some(draw_table(f, t, chunk)))
         });

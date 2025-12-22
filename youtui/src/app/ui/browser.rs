@@ -299,8 +299,9 @@ impl DrawableMut for Browser {
         f: &mut ratatui::Frame,
         chunk: ratatui::prelude::Rect,
         selected: bool,
+        cur_tick: u64,
     ) {
-        draw_browser(f, self, chunk, selected);
+        draw_browser(f, self, chunk, selected, cur_tick);
     }
 }
 impl KeyRouter<AppAction> for Browser {

@@ -11,7 +11,7 @@ use tokio::task::JoinHandle;
 use tokio::time::interval;
 use tracing::warn;
 
-const TICK_RATE: Duration = Duration::from_millis(200);
+const TICK_RATE: Duration = Duration::from_millis(100);
 
 #[derive(Debug)]
 pub enum AppEvent {

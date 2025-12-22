@@ -7,7 +7,7 @@ use crate::app::ui::browser::shared_components::SearchBlock;
 use crate::app::view::{HasTitle, ListView};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
-use ratatui::widgets::ListState;
+use crate::widgets::ScrollingListState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::iter::Iterator;
@@ -29,7 +29,7 @@ pub struct ArtistSearchPanel {
     selected: usize,
     pub search_popped: bool,
     pub search: SearchBlock,
-    pub widget_state: ListState,
+    pub widget_state: ScrollingListState,
 }
 
 #[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
@@ -145,10 +145,10 @@ impl ListView for ArtistSearchPanel {
     fn get_selected_item(&self) -> usize {
         self.selected
     }
-    fn get_state(&self) -> &ratatui::widgets::ListState {
+    fn get_state(&self) -> &ScrollingListState {
         &self.widget_state
     }
-    fn get_mut_state(&mut self) -> &mut ListState {
+    fn get_mut_state(&mut self) -> &mut ScrollingListState {
         &mut self.widget_state
     }
     fn get_items(&self) -> impl ExactSizeIterator<Item = Cow<'_, str>> + '_ {

@@ -7,6 +7,7 @@ use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
+use crate::widgets::ScrollingList;
 use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
 use ratatui::style::{Modifier, Style, Stylize};
@@ -113,13 +114,14 @@ where
     draw_call(t, f, chunk)
 }
 
-pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect) {
+pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, cur_tick: u64) {
     let selected_item = list.get_selected_item();
-    list.get_mut_state().select(Some(selected_item));
+    list.get_mut_state().select(Some(selected_item), cur_tick);
+
     // TODO: Scroll bars
-    let list_widget =
-        List::new(list.get_items()).highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
-    // ListState is cheap to clone
+    let list_widget = ScrollingList::new(list.get_items(), cur_tick)
+        .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
+    // ScrollingListState is cheap to clone
     *list.get_mut_state() =
         move_render_stateful_widget(f, list_widget, chunk, list.get_state().clone());
 }

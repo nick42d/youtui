@@ -1,5 +1,6 @@
 /// Traits related to viewable application components.
 use super::structures::{ListSong, ListSongDisplayableField, Percentage};
+use crate::widgets::ScrollingListState;
 use rat_text::text_input::TextInputState;
 use ratatui::Frame;
 use ratatui::prelude::{Constraint, Rect};
@@ -182,8 +183,8 @@ pub trait AdvancedTableView: TableView {
 pub trait ListView {
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
-    fn get_state(&self) -> &ListState;
-    fn get_mut_state(&mut self) -> &mut ListState;
+    fn get_state(&self) -> &ScrollingListState;
+    fn get_mut_state(&mut self) -> &mut ScrollingListState;
     fn get_items(&self) -> impl ExactSizeIterator<Item = Cow<'_, str>> + '_;
     fn len(&self) -> usize {
         self.get_items().len()
@@ -198,7 +199,7 @@ pub trait Drawable {
 pub trait DrawableMut {
     // Helper function to draw.
     // TODO: Clean up function signature regarding mutable state.
-    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool);
+    fn draw_mut_chunk(&mut self, f: &mut Frame, chunk: Rect, selected: bool, cur_tick: u64);
 }
 // A part of the application that can be in a Loading state.
 pub trait Loadable {
