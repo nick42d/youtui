@@ -131,7 +131,10 @@ fn get_scrolled_line<'a>(
         get_split_point_and_blanks(cur_tick, blank_chars, text.len(), col_width);
     match text {
         Cow::Borrowed(b) => {
-            let (front, back) = b.split_at(chars_to_remove);
+            // TODO: Handle actual terminal with of string bytes. Currently, this ticker may
+            // render incorrectly for Strings containing multi-byte characters.
+            let safe_split_point = b.floor_char_boundary(chars_to_remove);
+            let (front, back) = b.split_at(safe_split_point);
             Line::from_iter([
                 Cow::Borrowed(back),
                 Cow::Owned(" ".repeat(blank_chars as usize)),
@@ -139,7 +142,10 @@ fn get_scrolled_line<'a>(
             ])
         }
         Cow::Owned(mut o) => {
-            let back_half = o.split_off(chars_to_remove);
+            // TODO: Handle actual terminal with of string bytes. Currently, this ticker may
+            // render incorrectly for Strings containing multi-byte characters.
+            let safe_split_point = o.floor_char_boundary(chars_to_remove);
+            let back_half = o.split_off(safe_split_point);
             Line::from_iter([
                 Cow::Owned(back_half),
                 Cow::Owned(" ".repeat(blank_chars as usize)),
