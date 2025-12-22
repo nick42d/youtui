@@ -63,9 +63,6 @@ impl<'a, I> ScrollingList<'a, I> {
     #[must_use = "method moves the value of self and returns the modified value"]
     /// Set gap between end of text and start of text (when wrapping around).
     /// Default = [DEFAULT_TICKER_GAP]
-    /// ```
-    /// assert_eq!(DEFAULT_TICKER_GAP, 4);
-    /// ```
     pub fn _ticker_gap(mut self, ticker_gap: u16) -> Self {
         self.ticker_gap = ticker_gap;
         self
