@@ -190,6 +190,7 @@ pub fn draw_table_impl<'a>(
         .style(Style::new().fg(TEXT_COLOUR))
         .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR).bold().italic())
         .headings_style(Style::default().bold().fg(TABLE_HEADINGS_COLOUR))
+        ._min_ticker_gap(10)
         .column_spacing(1);
     let scrollable_lines = len.saturating_sub(table_height);
     let pos = state.offset().min(scrollable_lines);
