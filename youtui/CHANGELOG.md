@@ -16,9 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Improve docs/logging to prevent symphonia 0.5.5 m4a issue ([#317](https://github.com/nick42d/youtui/pull/317))
 
-
-
-
 ## [0.0.32](https://github.com/nick42d/youtui/compare/youtui/v0.0.31...youtui/v0.0.32) - 2025-12-16
 
 ### Added
