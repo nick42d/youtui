@@ -7,9 +7,9 @@ pub const DEFAULT_TICKER_GAP: u16 = 4;
 
 #[derive(Debug, Default, Clone)]
 pub struct ScrollingListState {
-    pub list_state: ListState,
-    // Tick recorded last time the user changed the selected item.
-    pub last_scrolled_tick: u64,
+    list_state: ListState,
+    /// Tick recorded last time the user changed the selected item.
+    last_scrolled_tick: u64,
 }
 
 impl ScrollingListState {
@@ -34,6 +34,9 @@ pub struct ScrollingList<'a, I> {
     cur_tick: u64,
     /// Gap between end of text and start of text (when wrapping around)
     ticker_gap: u16,
+    /// Maximum number of times to scroll text before stopping (None for
+    /// unlimited).
+    max_times_to_scroll: Option<u16>,
 }
 
 impl<'a, I> ScrollingList<'a, I> {
@@ -48,6 +51,7 @@ impl<'a, I> ScrollingList<'a, I> {
             items,
             cur_tick,
             ticker_gap: DEFAULT_TICKER_GAP,
+            max_times_to_scroll: None,
             style: Default::default(),
             highlight_style: Default::default(),
             highlight_symbol: Default::default(),
@@ -61,8 +65,14 @@ impl<'a, I> ScrollingList<'a, I> {
     #[must_use = "method moves the value of self and returns the modified value"]
     /// Set gap between end of text and start of text (when wrapping around).
     /// Default = [DEFAULT_TICKER_GAP]
-    pub fn _ticker_gap(mut self, ticker_gap: u16) -> Self {
+    pub fn ticker_gap(mut self, ticker_gap: u16) -> Self {
         self.ticker_gap = ticker_gap;
+        self
+    }
+    #[must_use = "method moves the value of self and returns the modified value"]
+    /// Set maximum number of times to scroll text before stopping.
+    pub fn max_times_to_scroll(mut self, max_times_to_scroll: Option<u16>) -> Self {
+        self.max_times_to_scroll = max_times_to_scroll;
         self
     }
 }
@@ -87,13 +97,21 @@ where
             highlight_symbol,
             cur_tick,
             ticker_gap,
+            max_times_to_scroll,
         } = self;
         let cur_selected = state.list_state.selected();
         let adj_tick = cur_tick.saturating_sub(state.last_scrolled_tick);
         let items = items.into_iter().enumerate().map(|(idx, item)| {
             let item: Cow<_> = item.into();
             if Some(idx) == cur_selected {
-                return get_scrolled_line(item, adj_tick, ticker_gap, area.width).into();
+                return get_scrolled_line(
+                    item,
+                    adj_tick,
+                    ticker_gap,
+                    area.width,
+                    max_times_to_scroll,
+                )
+                .into();
             }
             ListItem::from(item)
         });
@@ -125,7 +143,7 @@ mod tests {
         let mut buf = ratatui::buffer::Buffer::empty(area);
 
         // Frame 1 - scrolling hasn't started yet
-        let list_frame_1 = ScrollingList::new(list_items, 0)._ticker_gap(1);
+        let list_frame_1 = ScrollingList::new(list_items, 0).ticker_gap(1);
         list_frame_1.render(area, &mut buf, &mut list_state);
         let frame_1_cells_as_string = buf
             .content
@@ -136,7 +154,7 @@ mod tests {
         assert_eq!(frame_1_cells_as_string, expected_frame_1_cells_as_string);
 
         // Frame 2 - scrolling only
-        let list_frame_2 = ScrollingList::new(list_items, 1)._ticker_gap(1);
+        let list_frame_2 = ScrollingList::new(list_items, 1).ticker_gap(1);
         list_frame_2.render(area, &mut buf, &mut list_state);
         let frame_2_cells_as_string = buf
             .content
@@ -147,7 +165,7 @@ mod tests {
         assert_eq!(frame_2_cells_as_string, expected_frame_2_cells_as_string);
 
         // Frame 3 - padding after scrolling
-        let list_frame_3 = ScrollingList::new(list_items, 2)._ticker_gap(1);
+        let list_frame_3 = ScrollingList::new(list_items, 2).ticker_gap(1);
         list_frame_3.render(area, &mut buf, &mut list_state);
         let frame_3_cells_as_string = buf
             .content
@@ -158,7 +176,7 @@ mod tests {
         assert_eq!(frame_3_cells_as_string, expected_frame_3_cells_as_string);
 
         // Frame 4 - wraparound
-        let list_frame_4 = ScrollingList::new(list_items, 3)._ticker_gap(1);
+        let list_frame_4 = ScrollingList::new(list_items, 3).ticker_gap(1);
         list_frame_4.render(area, &mut buf, &mut list_state);
         let frame_4_cells_as_string = buf
             .content
@@ -167,5 +185,37 @@ mod tests {
             .collect::<String>();
         let expected_frame_4_cells_as_string = "AA D A".to_string();
         assert_eq!(frame_4_cells_as_string, expected_frame_4_cells_as_string);
+    }
+    #[test]
+    fn test_max_times_to_scroll() {
+        let list_items = ["AA", "ABCD"];
+        let mut list_state = ScrollingListState::default();
+        list_state.select(Some(1), 0);
+        let area = Rect::new(0, 0, 3, 2);
+        let mut buf = ratatui::buffer::Buffer::empty(area);
+
+        // Frame 6 - should be same as frame 1 expect max_times_to_scroll is set.
+        let list_frame_6 = ScrollingList::new(list_items, 6)
+            .ticker_gap(1)
+            .max_times_to_scroll(Some(1));
+        list_frame_6.render(area, &mut buf, &mut list_state);
+        let frame_6_cells_as_string = buf
+            .content
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect::<String>();
+        let expected_frame_6_cells_as_string = "AA ABC".to_string();
+        assert_eq!(frame_6_cells_as_string, expected_frame_6_cells_as_string);
+
+        // Frame 6 - is same as frame 1 when max_times_to_scroll not set.
+        let list_frame_6 = ScrollingList::new(list_items, 6).ticker_gap(1);
+        list_frame_6.render(area, &mut buf, &mut list_state);
+        let frame_6_cells_as_string = buf
+            .content
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect::<String>();
+        let expected_frame_6_cells_as_string = "AA BCD".to_string();
+        assert_eq!(frame_6_cells_as_string, expected_frame_6_cells_as_string);
     }
 }

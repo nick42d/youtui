@@ -47,6 +47,9 @@ pub struct ScrollingTable<I, H> {
     min_ticker_gap: u16,
     /// Column widths
     table_widths: Vec<Constraint>,
+    /// Maximum number of times to scroll text before stopping (None for
+    /// unlimited).
+    max_times_to_scroll: Option<u16>,
 }
 
 impl<I, H> ScrollingTable<I, H> {
@@ -70,6 +73,7 @@ impl<I, H> ScrollingTable<I, H> {
             cur_tick,
             table_widths,
             min_ticker_gap: DEFAULT_TICKER_GAP,
+            max_times_to_scroll: None,
             style: Default::default(),
             row_highlight_style: Default::default(),
             headings_style: Default::default(),
@@ -99,8 +103,14 @@ impl<I, H> ScrollingTable<I, H> {
     #[must_use = "method moves the value of self and returns the modified value"]
     /// Set gap between end of text and start of text (when wrapping around).
     /// Default = [DEFAULT_TICKER_GAP]
-    pub fn _min_ticker_gap(mut self, min_ticker_gap: u16) -> Self {
+    pub fn min_ticker_gap(mut self, min_ticker_gap: u16) -> Self {
         self.min_ticker_gap = min_ticker_gap;
+        self
+    }
+    #[must_use = "method moves the value of self and returns the modified value"]
+    /// Set maximum number of times to scroll text before stopping.
+    pub fn max_times_to_scroll(mut self, max_times_to_scroll: Option<u16>) -> Self {
+        self.max_times_to_scroll = max_times_to_scroll;
         self
     }
 }
@@ -130,6 +140,7 @@ where
             cur_tick,
             min_ticker_gap,
             table_widths,
+            max_times_to_scroll,
         } = self;
         let cur_selected = state.table_state.selected();
         let adj_tick = cur_tick.saturating_sub(state.last_scrolled_tick);
@@ -162,12 +173,28 @@ where
         );
         let items = items.into_iter().enumerate().map(|(idx, row)| {
             if Some(idx) == cur_selected {
-                let row = row
+                // TODO: See if there is a way to remove allocation (may not be).
+                let items_vec: Vec<_> = row.into_iter().collect();
+                // Sync scrolling between all columns.
+                let max_col_length = items_vec
+                    .iter()
+                    .max_by_key(|item| item.len())
+                    .map(|item| item.len())
+                    .unwrap_or_default();
+                let row = items_vec
                     .into_iter()
                     .enumerate()
                     // TODO: confirm col_width safety
                     .map(|(idx, item)| {
-                        get_scrolled_line(item, adj_tick, min_ticker_gap, column_widths[idx])
+                        let item_len = item.len();
+                        get_scrolled_line(
+                            item,
+                            adj_tick,
+                            (max_col_length.saturating_sub(item_len) + min_ticker_gap as usize)
+                                as u16,
+                            column_widths[idx],
+                            max_times_to_scroll,
+                        )
                     });
                 return Row::new(row);
             }
@@ -208,7 +235,7 @@ mod tests {
             vec![Constraint::Length(2), Constraint::Length(3)],
             0,
         )
-        ._min_ticker_gap(1);
+        .min_ticker_gap(1);
         table.render(area, &mut buf, &mut table_state);
         let cells_as_string = buf
             .content
@@ -237,7 +264,7 @@ mod tests {
             vec![Constraint::Length(2), Constraint::Length(3)],
             0,
         )
-        ._min_ticker_gap(1);
+        .min_ticker_gap(1);
         table.render(area, &mut buf, &mut table_state);
         let cells_as_string = buf
             .content

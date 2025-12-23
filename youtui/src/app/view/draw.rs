@@ -22,6 +22,9 @@ use std::borrow::Cow;
 // Popups look aesthetically weird when really small, so setting a minimum.
 pub const MIN_POPUP_WIDTH: usize = 20;
 
+// Prevent constant flickering when rendering list.
+pub const MAX_TIMES_TO_SCROLL_LIST: u16 = 2;
+
 /// Helper function that calls get_stateful_widget but consumes the state and
 /// returns the modified version instead of mutating in place
 pub fn move_render_stateful_widget<W: StatefulWidget>(
@@ -120,6 +123,7 @@ pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, cur_tick:
 
     // TODO: Scroll bars
     let list_widget = ScrollingList::new(list.get_items(), cur_tick)
+        .max_times_to_scroll(Some(MAX_TIMES_TO_SCROLL_LIST))
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
     // ScrollingListState is cheap to clone
     *list.get_mut_state() =
@@ -171,6 +175,7 @@ pub fn draw_table_impl<'a>(
     f: &mut Frame,
     chunk: Rect,
     cur: usize,
+    // TODO: Handle secondary highlight case (ie, now playing track)
     highlighted: Option<usize>,
     state: &ScrollingTableState,
     items: impl Iterator<Item = impl Iterator<Item = Cow<'a, str>> + 'a> + 'a,
@@ -190,7 +195,8 @@ pub fn draw_table_impl<'a>(
         .style(Style::new().fg(TEXT_COLOUR))
         .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR).bold().italic())
         .headings_style(Style::default().bold().fg(TABLE_HEADINGS_COLOUR))
-        ._min_ticker_gap(10)
+        .min_ticker_gap(10)
+        .max_times_to_scroll(Some(MAX_TIMES_TO_SCROLL_LIST))
         .column_spacing(1);
     let scrollable_lines = len.saturating_sub(table_height);
     let pos = state.offset().min(scrollable_lines);
