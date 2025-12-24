@@ -1,10 +1,10 @@
 /// Traits related to viewable application components.
 use super::structures::{ListSong, ListSongDisplayableField, Percentage};
-use crate::widgets::ScrollingListState;
+use crate::widgets::{ScrollingListState, ScrollingTableState};
 use rat_text::text_input::TextInputState;
 use ratatui::Frame;
 use ratatui::prelude::{Constraint, Rect};
-use ratatui::widgets::{ListState, TableState};
+use ratatui::widgets::ListState;
 use std::borrow::Cow;
 
 pub mod draw;
@@ -146,8 +146,8 @@ pub fn basic_constraints_to_table_constraints(
 
 /// A struct that we are able to draw a table from using the underlying data.
 pub trait TableView {
-    fn get_state(&self) -> &TableState;
-    fn get_mut_state(&mut self) -> &mut TableState;
+    fn get_state(&self) -> &ScrollingTableState;
+    fn get_mut_state(&mut self) -> &mut ScrollingTableState;
     /// An item will always be selected.
     fn get_selected_item(&self) -> usize;
     fn get_layout(&self) -> &[BasicConstraint];

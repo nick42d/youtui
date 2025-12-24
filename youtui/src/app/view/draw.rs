@@ -7,20 +7,23 @@ use crate::drawutils::{
     DESELECTED_BORDER_COLOUR, ROW_HIGHLIGHT_COLOUR, SELECTED_BORDER_COLOUR, TABLE_HEADINGS_COLOUR,
     TEXT_COLOUR,
 };
-use crate::widgets::ScrollingList;
+use crate::widgets::{ScrollingList, ScrollingTable, ScrollingTableState};
 use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
-use ratatui::style::{Modifier, Style, Stylize};
+use ratatui::style::{Style, Stylize};
 use ratatui::symbols::{block, line};
 use ratatui::text::Line;
 use ratatui::widgets::{
-    Block, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Scrollbar, ScrollbarOrientation,
-    ScrollbarState, StatefulWidget, Table, TableState, Widget,
+    Block, Borders, Cell, Clear, List, ListItem, Paragraph, Scrollbar, ScrollbarOrientation,
+    ScrollbarState, StatefulWidget, Widget,
 };
 use std::borrow::Cow;
 
 // Popups look aesthetically weird when really small, so setting a minimum.
 pub const MIN_POPUP_WIDTH: usize = 20;
+
+// Prevent constant flickering when rendering list.
+pub const MAX_TIMES_TO_SCROLL_LIST: u16 = 2;
 
 /// Helper function that calls get_stateful_widget but consumes the state and
 /// returns the modified version instead of mutating in place
@@ -120,6 +123,7 @@ pub fn draw_list(f: &mut Frame, list: &mut impl ListView, chunk: Rect, cur_tick:
 
     // TODO: Scroll bars
     let list_widget = ScrollingList::new(list.get_items(), cur_tick)
+        .max_times_to_scroll(Some(MAX_TIMES_TO_SCROLL_LIST))
         .highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR));
     // ScrollingListState is cheap to clone
     *list.get_mut_state() =
@@ -171,37 +175,29 @@ pub fn draw_table_impl<'a>(
     f: &mut Frame,
     chunk: Rect,
     cur: usize,
-    highlighted: Option<usize>,
-    state: &TableState,
+    secondary_highlighted_row: Option<usize>,
+    state: &ScrollingTableState,
     items: impl Iterator<Item = impl Iterator<Item = Cow<'a, str>> + 'a> + 'a,
     len: usize,
     layout: &'a [BasicConstraint],
     headings: impl Iterator<Item = impl Into<Cell<'static>>>,
     footer: Option<String>,
-) -> (TableState, PanelEffect<'static>) {
+    cur_tick: u64,
+) -> (ScrollingTableState, PanelEffect<'static>) {
     // TableState is cheap to clone
     // Set the state to the currently selected item.
     let mut new_state = state.clone();
-    new_state.select(Some(cur));
-    let table_items = items.enumerate().map(|(idx, items)| {
-        if Some(idx) == highlighted {
-            Row::new(items).bold().italic()
-        } else {
-            Row::new(items)
-        }
-        .style(Style::new().fg(TEXT_COLOUR))
-    });
+    new_state.select(Some(cur), cur_tick);
     let table_height = chunk.height as usize;
     let table_widths = basic_constraints_to_table_constraints(layout, chunk.width, 1);
-    let table_widget = Table::new(table_items, table_widths)
+    let table_widget = ScrollingTable::new(items, headings, table_widths, cur_tick)
+        .style(Style::new().fg(TEXT_COLOUR))
+        .secondary_row_highlight_style(Style::default().bold().italic())
         .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
-        .header(
-            Row::new(headings).style(
-                Style::default()
-                    .add_modifier(Modifier::BOLD)
-                    .fg(TABLE_HEADINGS_COLOUR),
-            ),
-        )
+        .headings_style(Style::default().bold().fg(TABLE_HEADINGS_COLOUR))
+        .secondary_highlight_row(secondary_highlighted_row)
+        .min_ticker_gap(6)
+        .max_times_to_scroll(Some(MAX_TIMES_TO_SCROLL_LIST))
         .column_spacing(1);
     let scrollable_lines = len.saturating_sub(table_height);
     let pos = state.offset().min(scrollable_lines);
@@ -221,7 +217,12 @@ pub fn draw_table_impl<'a>(
 
 /// Returns a PanelEffect that can be used if rendered in a scrollable
 /// panel.
-pub fn draw_table<T>(f: &mut Frame, table: &mut T, chunk: Rect) -> PanelEffect<'static>
+pub fn draw_table<T>(
+    f: &mut Frame,
+    table: &mut T,
+    chunk: Rect,
+    cur_tick: u64,
+) -> PanelEffect<'static>
 where
     T: TableView,
 {
@@ -238,6 +239,7 @@ where
         table.get_layout(),
         table.get_headings(),
         None,
+        cur_tick,
     );
 
     *table.get_mut_state() = new_table_state;
@@ -250,10 +252,11 @@ pub fn draw_advanced_table(
     f: &mut Frame,
     table: &mut impl AdvancedTableView,
     chunk: Rect,
+    cur_tick: u64,
 ) -> PanelEffect<'static> {
     // Set the state to the currently selected item.
     let selected_item = table.get_selected_item();
-    table.get_mut_state().select(Some(selected_item));
+    table.get_mut_state().select(Some(selected_item), cur_tick);
     // Likely expensive, and could be optimised.
     let number_items = table.get_filtered_items().count();
     // Minus for height of block and heading.
@@ -300,6 +303,7 @@ pub fn draw_advanced_table(
         table.get_layout(),
         combined_headings,
         Some(filter_string),
+        cur_tick,
     );
     *table.get_mut_state() = new_table_state;
 

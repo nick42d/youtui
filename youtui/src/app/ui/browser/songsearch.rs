@@ -20,10 +20,10 @@ use crate::app::view::{
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::drawutils::get_offset_after_list_resize;
+use crate::widgets::ScrollingTableState;
 use anyhow::{Result, bail};
 use async_callback_manager::{AsyncTask, Constraint};
 use itertools::Either;
-use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use tracing::warn;
@@ -36,7 +36,7 @@ pub struct SongSearchBrowser {
     cur_selected: usize,
     pub search_popped: bool,
     pub search: SearchBlock,
-    pub widget_state: TableState,
+    pub widget_state: ScrollingTableState,
     pub sort: SortManager,
     pub filter: FilterManager,
 }
@@ -244,7 +244,7 @@ impl TableView for SongSearchBrowser {
     fn get_selected_item(&self) -> usize {
         self.cur_selected
     }
-    fn get_state(&self) -> &TableState {
+    fn get_state(&self) -> &ScrollingTableState {
         &self.widget_state
     }
     fn get_layout(&self) -> &[crate::app::view::BasicConstraint] {
@@ -252,7 +252,7 @@ impl TableView for SongSearchBrowser {
             BasicConstraint::Percentage(Percentage(40)),
             BasicConstraint::Percentage(Percentage(30)),
             BasicConstraint::Percentage(Percentage(30)),
-            BasicConstraint::Length(10),
+            BasicConstraint::Length(8),
             BasicConstraint::Length(10),
         ]
     }
@@ -267,7 +267,7 @@ impl TableView for SongSearchBrowser {
     fn get_headings(&self) -> impl Iterator<Item = &'static str> {
         ["Song", "Artist", "Album", "Duration", "Plays"].into_iter()
     }
-    fn get_mut_state(&mut self) -> &mut TableState {
+    fn get_mut_state(&mut self) -> &mut ScrollingTableState {
         &mut self.widget_state
     }
 }

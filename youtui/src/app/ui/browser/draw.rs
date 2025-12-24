@@ -36,9 +36,13 @@ pub fn draw_browser(
             selected,
             cur_tick,
         ),
-        super::BrowserVariant::Song => {
-            draw_song_search_browser(f, &mut browser.song_search_browser, chunk, selected)
-        }
+        super::BrowserVariant::Song => draw_song_search_browser(
+            f,
+            &mut browser.song_search_browser,
+            chunk,
+            selected,
+            cur_tick,
+        ),
         super::BrowserVariant::Playlist => draw_playlist_search_browser(
             f,
             &mut browser.playlist_search_browser,
@@ -119,7 +123,7 @@ pub fn draw_artist_search_browser(
         albumsongsselected,
         |t, f, chunk| {
             draw_loadable(f, t, chunk, |t, f, chunk| {
-                Some(draw_advanced_table(f, t, chunk))
+                Some(draw_advanced_table(f, t, chunk, cur_tick))
             })
         },
     );
@@ -195,7 +199,7 @@ pub fn draw_playlist_search_browser(
         songs_selected,
         |t, f, chunk| {
             draw_loadable(f, t, chunk, |t, f, chunk| {
-                Some(draw_advanced_table(f, t, chunk))
+                Some(draw_advanced_table(f, t, chunk, cur_tick))
             })
         },
     );
@@ -205,11 +209,12 @@ pub fn draw_song_search_browser(
     browser: &mut SongSearchBrowser,
     chunk: Rect,
     selected: bool,
+    cur_tick: u64,
 ) {
     if !browser.search_popped {
         draw_panel_mut(f, browser, chunk, selected, |t, f, chunk| {
             draw_loadable(f, t, chunk, |t, f, chunk| {
-                Some(draw_advanced_table(f, t, chunk))
+                Some(draw_advanced_table(f, t, chunk, cur_tick))
             })
         });
     } else {
@@ -220,7 +225,7 @@ pub fn draw_song_search_browser(
             .areas(chunk);
         draw_panel_mut(f, browser, new_chunk, false, |t, f, chunk| {
             draw_loadable(f, t, chunk, |t, f, chunk| {
-                Some(draw_advanced_table(f, t, chunk))
+                Some(draw_advanced_table(f, t, chunk, cur_tick))
             })
         });
         draw_search_box(f, "Search Songs", &mut browser.search, search_box_chunk);
