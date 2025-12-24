@@ -4,7 +4,7 @@ use crate::widgets::{ScrollingListState, ScrollingTableState};
 use rat_text::text_input::TextInputState;
 use ratatui::Frame;
 use ratatui::prelude::{Constraint, Rect};
-use ratatui::widgets::{ListState, TableState};
+use ratatui::widgets::ListState;
 use std::borrow::Cow;
 
 pub mod draw;

@@ -10,12 +10,12 @@ use crate::drawutils::{
 use crate::widgets::{ScrollingList, ScrollingTable, ScrollingTableState};
 use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
-use ratatui::style::{Modifier, Style, Stylize};
+use ratatui::style::{Style, Stylize};
 use ratatui::symbols::{block, line};
 use ratatui::text::Line;
 use ratatui::widgets::{
-    Block, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Scrollbar, ScrollbarOrientation,
-    ScrollbarState, StatefulWidget, Table, TableState, Widget,
+    Block, Borders, Cell, Clear, List, ListItem, Paragraph, Scrollbar, ScrollbarOrientation,
+    ScrollbarState, StatefulWidget, Widget,
 };
 use std::borrow::Cow;
 

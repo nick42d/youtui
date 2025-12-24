@@ -25,7 +25,6 @@ use crate::widgets::ScrollingTableState;
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::Frame;
 use ratatui::layout::Rect;
-use ratatui::widgets::TableState;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::collections::HashMap;
