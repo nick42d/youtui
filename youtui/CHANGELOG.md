@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.34](https://github.com/nick42d/youtui/compare/youtui/v0.0.33...youtui/v0.0.34) - 2025-12-24
+
+### Added
+- Scroll text in table too ([#319](https://github.com/nick42d/youtui/pull/319))
+
+
+
+
 ## [0.0.33](https://github.com/nick42d/youtui/compare/youtui/v0.0.32...youtui/v0.0.33) - 2025-12-22
 
 ### Added
