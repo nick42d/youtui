@@ -3,7 +3,7 @@ use ratatui::style::Style;
 use ratatui::widgets::{List, ListItem, ListState, StatefulWidget};
 use std::borrow::Cow;
 
-pub const DEFAULT_TICKER_GAP: u16 = 4;
+pub const DEFAULT_TICKER_GAP: u16 = 6;
 
 #[derive(Debug, Default, Clone)]
 pub struct ScrollingListState {

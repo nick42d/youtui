@@ -252,7 +252,7 @@ impl TableView for SongSearchBrowser {
             BasicConstraint::Percentage(Percentage(40)),
             BasicConstraint::Percentage(Percentage(30)),
             BasicConstraint::Percentage(Percentage(30)),
-            BasicConstraint::Length(10),
+            BasicConstraint::Length(8),
             BasicConstraint::Length(10),
         ]
     }

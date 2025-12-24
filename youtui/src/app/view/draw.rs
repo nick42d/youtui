@@ -175,8 +175,7 @@ pub fn draw_table_impl<'a>(
     f: &mut Frame,
     chunk: Rect,
     cur: usize,
-    // TODO: Handle secondary highlight case (ie, now playing track)
-    highlighted: Option<usize>,
+    secondary_highlighted_row: Option<usize>,
     state: &ScrollingTableState,
     items: impl Iterator<Item = impl Iterator<Item = Cow<'a, str>> + 'a> + 'a,
     len: usize,
@@ -193,9 +192,11 @@ pub fn draw_table_impl<'a>(
     let table_widths = basic_constraints_to_table_constraints(layout, chunk.width, 1);
     let table_widget = ScrollingTable::new(items, headings, table_widths, cur_tick)
         .style(Style::new().fg(TEXT_COLOUR))
-        .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR).bold().italic())
+        .secondary_row_highlight_style(Style::default().bold().italic())
+        .row_highlight_style(Style::default().bg(ROW_HIGHLIGHT_COLOUR))
         .headings_style(Style::default().bold().fg(TABLE_HEADINGS_COLOUR))
-        .min_ticker_gap(10)
+        .secondary_highlight_row(secondary_highlighted_row)
+        .min_ticker_gap(6)
         .max_times_to_scroll(Some(MAX_TIMES_TO_SCROLL_LIST))
         .column_spacing(1);
     let scrollable_lines = len.saturating_sub(table_height);

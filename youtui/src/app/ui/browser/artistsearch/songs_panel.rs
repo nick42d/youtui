@@ -311,7 +311,7 @@ impl TableView for AlbumSongsPanel {
             BasicConstraint::Length(4),
             BasicConstraint::Percentage(Percentage(50)),
             BasicConstraint::Percentage(Percentage(50)),
-            BasicConstraint::Length(10),
+            BasicConstraint::Length(8),
             BasicConstraint::Length(5),
         ]
     }
