@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.33"
+version = "0.0.34"
 # Required for let chains
 edition = "2024"
 authors = ["nick42d"]
