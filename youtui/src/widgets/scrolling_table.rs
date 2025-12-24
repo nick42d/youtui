@@ -8,9 +8,9 @@ pub const DEFAULT_TICKER_GAP: u16 = 6;
 
 #[derive(Debug, Default, Clone, PartialEq)]
 pub struct ScrollingTableState {
-    pub table_state: TableState,
+    table_state: TableState,
     // Tick recorded last time the user changed the selected item.
-    pub last_scrolled_tick: u64,
+    last_scrolled_tick: u64,
 }
 
 impl ScrollingTableState {
