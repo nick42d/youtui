@@ -22,19 +22,90 @@ pub struct AsyncTask<Frntend, Bkend, Md> {
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
 #[must_use = "AsyncTasks do nothing unless you run them"]
-pub struct AsyncTask2<Frntend, Bkend, Md> {
-    pub(crate) task: AsyncTaskKind2<Frntend, Bkend, Md>,
+pub struct AsyncTask2<Task, Handler, Md> {
+    pub(crate) task: AsyncTaskKind2<Task, Handler>,
     pub(crate) constraint: Option<Constraint<Md>>,
     pub(crate) metadata: Vec<Md>,
 }
-pub(crate) enum AsyncTaskKind2<Frntend, Bkend, Md> {
-    Future(FutureTask2<Frntend, Bkend, Md>),
+pub(crate) enum AsyncTaskKind2<Task, Handler> {
+    Future(FutureTask2<Task, Handler>),
 }
-pub(crate) struct FutureTask2<Frntend, Bkend, Md> {
+pub(crate) struct FutureTask2<Task, Handler> {
+    pub(crate) task: Task,
+    pub(crate) handler: Handler,
+    pub(crate) type_id: TypeId,
+    pub(crate) type_name: &'static str,
+    pub(crate) type_debug: String,
+}
+/// An asynchrnonous task that can generate state mutations and/or more tasks to
+/// be spawned by an AsyncCallbackManager.
+#[must_use = "AsyncTasks do nothing unless you run them"]
+pub struct ErasedAsyncTask2<Frntend, Bkend, Md> {
+    pub(crate) task: ErasedAsyncTaskKind2<Frntend, Bkend, Md>,
+    pub(crate) constraint: Option<Constraint<Md>>,
+    pub(crate) metadata: Vec<Md>,
+}
+pub(crate) enum ErasedAsyncTaskKind2<Frntend, Bkend, Md> {
+    Future(ErasedFutureTask2<Frntend, Bkend, Md>),
+}
+pub(crate) struct ErasedFutureTask2<Frntend, Bkend, Md> {
     pub(crate) task: DynFutureTask<Frntend, Bkend, Md>,
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
     pub(crate) type_debug: String,
+}
+
+pub(crate) struct TaskAndHandler<T, H> {
+    task: T,
+    handler: H,
+}
+
+impl<T, H> PartialEq for TaskAndHandler<T, H>
+where
+    T: PartialEq,
+    H: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.task == other.task && self.handler == other.handler
+    }
+}
+
+impl<T, H, Frntend, Bkend, Md> PipelineEq<Frntend, Bkend, Md> for TaskAndHandler<T, H>
+where
+    T: PartialEq + 'static,
+    H: PartialEq + 'static,
+{
+    fn run_task(self, bkend: &Bkend) -> Box<dyn FrontendMutation<Frntend, Bkend = Bkend, Md = Md>> {
+        todo!()
+    }
+    fn maybe_partial_eq(&self, other: &Self) -> bool
+    where
+        Self: Sized,
+    {
+        self.task == other.task && self.handler == other.handler
+    }
+}
+
+trait PipelineEq<Frntend, Bkend, Md>: std::any::Any {
+    fn run_task(self, bkend: &Bkend) -> Box<dyn FrontendMutation<Frntend, Bkend = Bkend, Md = Md>>;
+    fn maybe_partial_eq(&self, other: Box<dyn PipelineEq<Frntend, Bkend, Md>>) -> bool;
+}
+
+trait Pipeline<Frntend, Bkend, Md>: std::any::Any {
+    fn run_task(self, bkend: &Bkend) -> Box<dyn FrontendMutation<Frntend, Bkend = Bkend, Md = Md>>;
+}
+
+pub struct PipelineEqHodler<Frntend, Bkend, Md> {
+    pipeline: Box<dyn PipelineEq<Frntend, Bkend, Md>>,
+}
+
+impl<Frntend, Bkend, Md> PartialEq for PipelineEqHodler<Frntend, Bkend, Md> {
+    fn eq(&self, other: &Self) -> bool {
+        let self_any: &dyn std::any::Any = self.pipeline.as_ref();
+        let self_concrete = self_any.downcast_ref::<TaskAndHandler<_, _>>();
+        let other = Box::new(other);
+        self_concrete.is_some_and(|self_concrete| self_concrete.maybe_partial_eq(other))
+    }
 }
 
 pub(crate) enum AsyncTaskKind<Frntend, Bkend, Md> {
@@ -58,40 +129,30 @@ pub(crate) struct FutureTask<Frntend, Bkend, Md> {
     pub(crate) type_debug: String,
 }
 
-pub fn new_future_2<Frntend, Bkend, Md, R>(
-    request: R,
-    handler: impl TaskHandler<R::Output, Frntend>,
+pub fn new_future_2<Task, Handler, Md, Bkend, Frntend>(
+    task: Task,
+    handler: Handler,
     constraint: Option<Constraint<Md>>,
-) -> AsyncTask<Frntend, Bkend, Md>
+) -> AsyncTask2<Task, Handler, Md>
 where
-    R: BackendTask<Bkend, MetadataType = Md> + Debug + 'static,
+    Task: BackendTask<Bkend, MetadataType = Md> + Debug,
+    Handler: TaskHandler<Task::Output, Frntend>,
     Bkend: 'static,
     Frntend: 'static,
 {
-    let metadata = R::metadata();
-    let type_id = request.type_id();
-    let type_name = type_name::<R>();
-    let type_debug = format!("{request:?}");
-    let task = Box::new(move |b: &Bkend| {
-        Box::new({
-            let future = BackendTask::into_future(request, b);
-            Box::pin(async move {
-                let output = future.await;
-                Box::new(move |frontend: &mut Frntend| {
-                    handler(frontend, output);
-                    AsyncTask::new_no_op()
-                }) as DynStateMutation<Frntend, Bkend, Md>
-            })
-        }) as DynMutationFuture<Frntend, Bkend, Md>
-    }) as DynFutureTask<Frntend, Bkend, Md>;
-    let task = FutureTask {
+    let metadata = Task::metadata();
+    let type_id = task.type_id();
+    let type_name = type_name::<Task>();
+    let type_debug = format!("{task:?}");
+    let task = FutureTask2 {
         task,
+        handler,
         type_id,
         type_name,
         type_debug,
     };
-    AsyncTask {
-        task: AsyncTaskKind::Future(task),
+    AsyncTask2 {
+        task: AsyncTaskKind2::Future(task),
         constraint,
         metadata,
     }
