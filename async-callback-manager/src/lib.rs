@@ -51,3 +51,27 @@ pub trait BackendStreamingTask<Bkend>: Send + Any {
         vec![]
     }
 }
+
+/// Represents the handler for a task output.
+pub trait TaskHandler<Output, Frntend> {
+    fn handle(self) -> impl FrontendMutation<Frntend>;
+}
+
+/// Represents a mutation that can be applied to some state, returning an
+/// effect.
+pub trait FrontendMutation<Frntend> {
+    type Bkend;
+    type Md;
+    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Self::Bkend, Self::Md>;
+}
+
+impl<T, Frntend, Bkend, Md> FrontendMutation<Frntend> for T
+where
+    T: FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md>,
+{
+    type Bkend = Bkend;
+    type Md = Md;
+    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Self::Bkend, Self::Md> {
+        self(target)
+    }
+}

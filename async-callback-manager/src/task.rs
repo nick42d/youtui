@@ -1,6 +1,6 @@
 use crate::{
     BackendStreamingTask, BackendTask, DynFutureTask, DynMutationFuture, DynMutationStream,
-    DynStateMutation, DynStreamTask, TaskId,
+    DynStateMutation, DynStreamTask, FrontendMutation, TaskHandler, TaskId,
 };
 use futures::stream::FuturesUnordered;
 use futures::{FutureExt, StreamExt};
@@ -17,6 +17,24 @@ pub struct AsyncTask<Frntend, Bkend, Md> {
     pub(crate) task: AsyncTaskKind<Frntend, Bkend, Md>,
     pub(crate) constraint: Option<Constraint<Md>>,
     pub(crate) metadata: Vec<Md>,
+}
+
+/// An asynchrnonous task that can generate state mutations and/or more tasks to
+/// be spawned by an AsyncCallbackManager.
+#[must_use = "AsyncTasks do nothing unless you run them"]
+pub struct AsyncTask2<Frntend, Bkend, Md> {
+    pub(crate) task: AsyncTaskKind2<Frntend, Bkend, Md>,
+    pub(crate) constraint: Option<Constraint<Md>>,
+    pub(crate) metadata: Vec<Md>,
+}
+pub(crate) enum AsyncTaskKind2<Frntend, Bkend, Md> {
+    Future(FutureTask2<Frntend, Bkend, Md>),
+}
+pub(crate) struct FutureTask2<Frntend, Bkend, Md> {
+    pub(crate) task: DynFutureTask<Frntend, Bkend, Md>,
+    pub(crate) type_id: TypeId,
+    pub(crate) type_name: &'static str,
+    pub(crate) type_debug: String,
 }
 
 pub(crate) enum AsyncTaskKind<Frntend, Bkend, Md> {
@@ -38,6 +56,45 @@ pub(crate) struct FutureTask<Frntend, Bkend, Md> {
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
     pub(crate) type_debug: String,
+}
+
+pub fn new_future_2<Frntend, Bkend, Md, R>(
+    request: R,
+    handler: impl TaskHandler<R::Output, Frntend>,
+    constraint: Option<Constraint<Md>>,
+) -> AsyncTask<Frntend, Bkend, Md>
+where
+    R: BackendTask<Bkend, MetadataType = Md> + Debug + 'static,
+    Bkend: 'static,
+    Frntend: 'static,
+{
+    let metadata = R::metadata();
+    let type_id = request.type_id();
+    let type_name = type_name::<R>();
+    let type_debug = format!("{request:?}");
+    let task = Box::new(move |b: &Bkend| {
+        Box::new({
+            let future = BackendTask::into_future(request, b);
+            Box::pin(async move {
+                let output = future.await;
+                Box::new(move |frontend: &mut Frntend| {
+                    handler(frontend, output);
+                    AsyncTask::new_no_op()
+                }) as DynStateMutation<Frntend, Bkend, Md>
+            })
+        }) as DynMutationFuture<Frntend, Bkend, Md>
+    }) as DynFutureTask<Frntend, Bkend, Md>;
+    let task = FutureTask {
+        task,
+        type_id,
+        type_name,
+        type_debug,
+    };
+    AsyncTask {
+        task: AsyncTaskKind::Future(task),
+        constraint,
+        metadata,
+    }
 }
 
 impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
