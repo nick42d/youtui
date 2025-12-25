@@ -4,7 +4,8 @@ use crate::{
 };
 use futures::stream::FuturesUnordered;
 use futures::{FutureExt, StreamExt};
-use std::any::{TypeId, type_name};
+use std::any::{Any, TypeId, type_name};
+use std::boxed::Box;
 use std::fmt::Debug;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -22,24 +23,6 @@ pub struct AsyncTask<Frntend, Bkend, Md> {
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
 #[must_use = "AsyncTasks do nothing unless you run them"]
-pub struct AsyncTask2<Task, Handler, Md> {
-    pub(crate) task: AsyncTaskKind2<Task, Handler>,
-    pub(crate) constraint: Option<Constraint<Md>>,
-    pub(crate) metadata: Vec<Md>,
-}
-pub(crate) enum AsyncTaskKind2<Task, Handler> {
-    Future(FutureTask2<Task, Handler>),
-}
-pub(crate) struct FutureTask2<Task, Handler> {
-    pub(crate) task: Task,
-    pub(crate) handler: Handler,
-    pub(crate) type_id: TypeId,
-    pub(crate) type_name: &'static str,
-    pub(crate) type_debug: String,
-}
-/// An asynchrnonous task that can generate state mutations and/or more tasks to
-/// be spawned by an AsyncCallbackManager.
-#[must_use = "AsyncTasks do nothing unless you run them"]
 pub struct ErasedAsyncTask2<Frntend, Bkend, Md> {
     pub(crate) task: ErasedAsyncTaskKind2<Frntend, Bkend, Md>,
     pub(crate) constraint: Option<Constraint<Md>>,
@@ -47,20 +30,30 @@ pub struct ErasedAsyncTask2<Frntend, Bkend, Md> {
 }
 pub(crate) enum ErasedAsyncTaskKind2<Frntend, Bkend, Md> {
     Future(ErasedFutureTask2<Frntend, Bkend, Md>),
+    Stream(ErasedStreamTask<Frntend, Bkend, Md>),
+    Multi(Vec<ErasedAsyncTask2<Frntend, Bkend, Md>>),
+    NoOp,
 }
 pub(crate) struct ErasedFutureTask2<Frntend, Bkend, Md> {
-    pub(crate) task: DynFutureTask<Frntend, Bkend, Md>,
+    pub(crate) task: Box<dyn FutureTaskTrait<Frntend, Bkend, Md>>,
+    pub(crate) type_id: TypeId,
+    pub(crate) type_name: &'static str,
+    pub(crate) type_debug: String,
+}
+pub(crate) struct ErasedStreamTask<Frntend, Bkend, Md> {
+    pub(crate) task: Box<dyn StreamTaskTrait<Frntend, Bkend, Md>>,
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
     pub(crate) type_debug: String,
 }
 
-pub(crate) struct TaskAndHandler<T, H> {
+/// Combination of Task and Handler.
+pub(crate) struct FusedTask<T, H> {
     task: T,
     handler: H,
 }
 
-impl<T, H> PartialEq for TaskAndHandler<T, H>
+impl<T, H> PartialEq for FusedTask<T, H>
 where
     T: PartialEq,
     H: PartialEq,
@@ -70,42 +63,37 @@ where
     }
 }
 
-impl<T, H, Frntend, Bkend, Md> PipelineEq<Frntend, Bkend, Md> for TaskAndHandler<T, H>
+impl<T, H> MaybeDynEq for FusedTask<T, H>
 where
     T: PartialEq + 'static,
     H: PartialEq + 'static,
 {
-    fn run_task(self, bkend: &Bkend) -> Box<dyn FrontendMutation<Frntend, Bkend = Bkend, Md = Md>> {
+    fn dyn_partial_eq(&self, other: &dyn MaybeDynEq) -> bool {
+        (other as &dyn Any)
+            .downcast_ref::<Self>()
+            .is_some_and(|other_concrete| other_concrete == self)
+    }
+}
+impl<T, H, Bkend, Frntend> FutureTaskTrait<Frntend, Bkend, T::MetadataType> for FusedTask<T, H>
+where
+    T: PartialEq + 'static,
+    H: PartialEq + 'static,
+    T: BackendTask<Bkend>,
+    H: TaskHandler<T::Output, Frntend>,
+{
+    fn run_task(self, bkend: &Bkend) -> DynFutureTask<Frntend, Bkend, T::MetadataType> {
         todo!()
     }
-    fn maybe_partial_eq(&self, other: &Self) -> bool
-    where
-        Self: Sized,
-    {
-        self.task == other.task && self.handler == other.handler
-    }
 }
 
-trait PipelineEq<Frntend, Bkend, Md>: std::any::Any {
-    fn run_task(self, bkend: &Bkend) -> Box<dyn FrontendMutation<Frntend, Bkend = Bkend, Md = Md>>;
-    fn maybe_partial_eq(&self, other: Box<dyn PipelineEq<Frntend, Bkend, Md>>) -> bool;
+pub(crate) trait FutureTaskTrait<Frntend, Bkend, Md>: MaybeDynEq {
+    fn run_task(self, bkend: &Bkend) -> DynFutureTask<Frntend, Bkend, Md>;
 }
-
-trait Pipeline<Frntend, Bkend, Md>: std::any::Any {
-    fn run_task(self, bkend: &Bkend) -> Box<dyn FrontendMutation<Frntend, Bkend = Bkend, Md = Md>>;
+pub(crate) trait StreamTaskTrait<Frntend, Bkend, Md>: std::any::Any {
+    fn stream_task(self, bkend: &Bkend) -> DynStreamTask<Frntend, Bkend, Md>;
 }
-
-pub struct PipelineEqHodler<Frntend, Bkend, Md> {
-    pipeline: Box<dyn PipelineEq<Frntend, Bkend, Md>>,
-}
-
-impl<Frntend, Bkend, Md> PartialEq for PipelineEqHodler<Frntend, Bkend, Md> {
-    fn eq(&self, other: &Self) -> bool {
-        let self_any: &dyn std::any::Any = self.pipeline.as_ref();
-        let self_concrete = self_any.downcast_ref::<TaskAndHandler<_, _>>();
-        let other = Box::new(other);
-        self_concrete.is_some_and(|self_concrete| self_concrete.maybe_partial_eq(other))
-    }
+trait MaybeDynEq: std::any::Any {
+    fn dyn_partial_eq(&self, other: &dyn MaybeDynEq) -> bool;
 }
 
 pub(crate) enum AsyncTaskKind<Frntend, Bkend, Md> {
@@ -133,7 +121,7 @@ pub fn new_future_2<Task, Handler, Md, Bkend, Frntend>(
     task: Task,
     handler: Handler,
     constraint: Option<Constraint<Md>>,
-) -> AsyncTask2<Task, Handler, Md>
+) -> ErasedAsyncTask2<Frntend, Bkend, Md>
 where
     Task: BackendTask<Bkend, MetadataType = Md> + Debug,
     Handler: TaskHandler<Task::Output, Frntend>,
@@ -144,7 +132,7 @@ where
     let type_id = task.type_id();
     let type_name = type_name::<Task>();
     let type_debug = format!("{task:?}");
-    let task = FutureTask2 {
+    let task = ErasedFutureTask2 {
         task,
         handler,
         type_id,
