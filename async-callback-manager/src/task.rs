@@ -1,11 +1,12 @@
-use crate::task::dyn_task::{FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq};
-use crate::{BackendStreamingTask, BackendTask, Constraint, FrontendMutation, TaskHandler};
-use futures::{FutureExt, Stream, StreamExt};
-use std::any::{Any, TypeId, type_name};
+use crate::task::dyn_task::{FusedTask, IntoDynFutureTask, IntoDynStreamTask};
+use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
+use crate::{BackendStreamingTask, BackendTask, Constraint, TaskHandler};
+use std::any::{TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
 
 pub mod dyn_task;
+mod map;
 
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
@@ -32,60 +33,6 @@ pub(crate) struct StreamTask<Frntend, Bkend, Md> {
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
     pub(crate) type_debug: String,
-}
-pub struct MapDynFutureTask<Frntend, Bkend, Md, F> {
-    task: Box<dyn IntoDynFutureTask<Frntend, Bkend, Md>>,
-    map_fn: F,
-}
-pub struct MapDynStreamTask<Frntend, Bkend, Md, F> {
-    task: Box<dyn IntoDynStreamTask<Frntend, Bkend, Md>>,
-    map_fn: F,
-}
-impl<Frntend, Bkend, Md, F> MaybeDynEq for MapDynFutureTask<Frntend, Bkend, Md, F>
-where
-    F: 'static,
-    Md: 'static,
-    Frntend: 'static,
-    Bkend: 'static,
-{
-    fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool> {
-        todo!()
-    }
-}
-impl<Frntend, Bkend, Md, F> MaybeDynEq for MapDynStreamTask<Frntend, Bkend, Md, F>
-where
-    F: 'static,
-    Md: 'static,
-    Frntend: 'static,
-    Bkend: 'static,
-{
-    fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool> {
-        todo!()
-    }
-}
-impl<F, Frntend, NewFrntend, Bkend, Md> IntoDynFutureTask<NewFrntend, Bkend, Md>
-    for MapDynFutureTask<Frntend, Bkend, Md, F>
-where
-    F: Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
-    Md: 'static,
-    Frntend: 'static,
-    Bkend: 'static,
-{
-    fn into_dyn_task(self: Box<Self>) -> dyn_task::DynFutureTask<NewFrntend, Bkend, Md> {
-        todo!()
-    }
-}
-impl<F, Frntend, NewFrntend, Bkend, Md> IntoDynStreamTask<NewFrntend, Bkend, Md>
-    for MapDynStreamTask<Frntend, Bkend, Md, F>
-where
-    F: Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
-    Md: 'static,
-    Frntend: 'static,
-    Bkend: 'static,
-{
-    fn into_dyn_stream(self: Box<Self>) -> dyn_task::DynStreamTask<NewFrntend, Bkend, Md> {
-        todo!()
-    }
 }
 
 impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
@@ -334,6 +281,12 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
                 type_name,
                 type_debug,
             }) => {
+                let task = FusedTask {
+                    task,
+                    handler: todo!(),
+                    map_fn: todo!(),
+                    eq_fn: todo!(),
+                };
                 let map = MapDynFutureTask { task, map_fn: f };
                 let task = Box::new(map);
                 let task = FutureTask {
