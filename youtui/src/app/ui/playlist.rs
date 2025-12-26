@@ -235,7 +235,7 @@ impl Playlist {
     /// When creating a Playlist, an effect is also created.
     pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
-        let task = AsyncTask::new_future(
+        let task = AsyncTask::new_future_with_closure_handler(
             // Since IncreaseVolume responds back with player volume after change, this is a
             // neat hack.
             IncreaseVolume(0),
@@ -257,7 +257,7 @@ impl Playlist {
     /// - Stop playback of the song 'song_id', if it is still playing.
     /// - If stop was succesful, update state.
     pub fn stop_song_id(&self, song_id: ListSongID) -> ComponentEffect<Self> {
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             Stop(song_id),
             Self::handle_stopped,
             Some(Constraint::new_block_matching_metadata(
@@ -298,7 +298,7 @@ impl Playlist {
                         AsyncTask::new_no_op()
                     }
                 };
-                let effect = effect.push(AsyncTask::new_stream_chained(
+                let effect = effect.push(AsyncTask::new_stream_with_closure_handler_chained(
                     task,
                     handle_update,
                     constraint,
@@ -347,7 +347,11 @@ impl Playlist {
                         AsyncTask::new_no_op()
                     }
                 };
-                let effect = effect.push(AsyncTask::new_stream_chained(task, handle_update, None));
+                let effect = effect.push(AsyncTask::new_stream_with_closure_handler_chained(
+                    task,
+                    handle_update,
+                    None,
+                ));
                 self.play_status = PlayState::Playing(id);
                 self.queue_status = QueueState::NotQueued;
                 return effect;
@@ -444,7 +448,7 @@ impl Playlist {
             _ => (),
         };
         // TODO: Consider how to handle race conditions.
-        let effect = AsyncTask::new_stream_chained(
+        let effect = AsyncTask::new_stream_with_closure_handler_chained(
             DownloadSong(song.video_id.clone(), id),
             |this: &mut Playlist, item| {
                 let DownloadProgressUpdate { kind, id } = item;
@@ -494,7 +498,7 @@ impl Playlist {
         let effect = albums
             .into_iter()
             .map(|(thumbnail_id, thumbnail_url)| {
-                AsyncTask::new_future(
+                AsyncTask::new_future_with_closure_handler(
                     GetSongThumbnail {
                         thumbnail_url,
                         thumbnail_id: thumbnail_id.clone(),
@@ -680,7 +684,7 @@ impl Playlist {
         direction: SeekDirection,
     ) -> ComponentEffect<Self> {
         // Consider if we also want to update current duration.
-        AsyncTask::new_future_chained(
+        AsyncTask::new_future_with_closure_handler_chained(
             Seek {
                 duration,
                 direction,
@@ -707,7 +711,7 @@ impl Playlist {
             _ => return AsyncTask::new_no_op(),
         };
         // Consider if we also want to update current duration.
-        AsyncTask::new_future_chained(
+        AsyncTask::new_future_with_closure_handler_chained(
             SeekTo { position, id },
             |this: &mut Playlist, response| {
                 let Some(response) = response else {
@@ -785,7 +789,7 @@ impl Playlist {
             }
             _ => return AsyncTask::new_no_op(),
         };
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             PausePlay(id),
             |this: &mut Playlist, response| {
                 let Some(response) = response else { return };
@@ -809,7 +813,7 @@ impl Playlist {
             }
             _ => return AsyncTask::new_no_op(),
         };
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             Resume(id),
             |this: &mut Playlist, response| {
                 let Some(response) = response else { return };
@@ -830,7 +834,7 @@ impl Playlist {
             }
             _ => return AsyncTask::new_no_op(),
         };
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             Pause(id),
             |this: &mut Playlist, response| {
                 let Some(response) = response else { return };
@@ -845,7 +849,7 @@ impl Playlist {
     /// (server).
     pub fn stop(&mut self) -> ComponentEffect<Self> {
         self.play_status = PlayState::Stopped;
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             StopAll,
             |this: &mut Playlist, response| {
                 this.handle_all_stopped(response);
@@ -997,7 +1001,11 @@ impl Playlist {
                                 AsyncTask::new_no_op()
                             }
                         };
-                        let effect = AsyncTask::new_stream_chained(task, handle_update, None);
+                        let effect = AsyncTask::new_stream_with_closure_handler_chained(
+                            task,
+                            handle_update,
+                            None,
+                        );
                         self.queue_status = QueueState::Queued(next_song.id);
                         return effect;
                     }

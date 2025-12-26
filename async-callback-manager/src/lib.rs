@@ -1,17 +1,21 @@
 use futures::{Future, Stream};
 use std::any::Any;
+use std::process::Output;
 
 mod adaptors;
+mod constraint;
 mod error;
 mod manager;
 mod panicking_receiver_stream;
 mod task;
 
 pub use adaptors::*;
+pub use constraint::*;
 pub use error::*;
+pub use manager::task_list::{TaskInformation, TaskOutcome};
 pub use manager::*;
 pub use panicking_receiver_stream::*;
-pub use task::{AsyncTask, Constraint, TaskInformation, TaskOutcome};
+pub use task::AsyncTask;
 
 // Size of the channel used for each stream task.
 // In future, this could be settable.
@@ -53,8 +57,17 @@ pub trait BackendStreamingTask<Bkend>: Send + Any {
 }
 
 /// Represents the handler for a task output.
-pub trait TaskHandler<Output, Frntend> {
-    fn handle(self) -> impl FrontendMutation<Frntend>;
+pub trait TaskHandler<Output, Frntend, Bkend, Md> {
+    fn handle(self, output: Output) -> impl FrontendMutation<Frntend, Bkend = Bkend, Md = Md>;
+}
+
+impl<T, Output, Frntend, Bkend, Md> TaskHandler<Output, Frntend, Bkend, Md> for T
+where
+    T: FnOnce(&mut Frntend, Output) -> AsyncTask<Frntend, Bkend, Md> + Send + 'static,
+{
+    fn handle(self, output: Output) -> impl FrontendMutation<Frntend, Bkend = Bkend, Md = Md> {
+        |frontend: &mut Frntend| self(frontend, output)
+    }
 }
 
 /// Represents a mutation that can be applied to some state, returning an

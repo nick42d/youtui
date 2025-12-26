@@ -1,26 +1,15 @@
-use crate::task::{
-    AsyncTask, AsyncTaskKind, FutureTask, SpawnedTask, StreamTask, TaskInformation, TaskList,
-    TaskOutcome, TaskWaiter,
-};
+use crate::manager::task_list::{SpawnedTask, TaskInformation, TaskList, TaskOutcome, TaskWaiter};
+use crate::task::{AsyncTask, AsyncTaskKind, FutureTask, StreamTask};
 use crate::{Constraint, DEFAULT_STREAM_CHANNEL_SIZE};
 use futures::{Stream, StreamExt};
 use std::any::TypeId;
 use std::future::Future;
 use std::sync::Arc;
 
+pub mod task_list;
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct TaskId(pub(crate) u64);
-
-pub(crate) type DynStateMutation<Frntend, Bkend, Md> =
-    Box<dyn FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md> + Send>;
-pub(crate) type DynMutationFuture<Frntend, Bkend, Md> =
-    Box<dyn Future<Output = DynStateMutation<Frntend, Bkend, Md>> + Unpin + Send>;
-pub(crate) type DynMutationStream<Frntend, Bkend, Md> =
-    Box<dyn Stream<Item = DynStateMutation<Frntend, Bkend, Md>> + Unpin + Send>;
-pub(crate) type DynFutureTask<Frntend, Bkend, Md> =
-    Box<dyn FnOnce(&Bkend) -> DynMutationFuture<Frntend, Bkend, Md>>;
-pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
-    Box<dyn FnOnce(&Bkend) -> DynMutationStream<Frntend, Bkend, Md>>;
 
 pub(crate) type DynTaskSpawnCallback<Cstrnt> = dyn Fn(TaskInformation<Cstrnt>);
 
