@@ -1,12 +1,8 @@
-use crate::{BackendStreamingTask, BackendTask, Constraint, FrontendMutation, TaskHandler, TaskId};
-use futures::stream::FuturesUnordered;
+use crate::{BackendStreamingTask, BackendTask, Constraint, FrontendMutation, TaskHandler};
 use futures::{FutureExt, Stream, StreamExt};
 use std::any::{Any, TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
-use std::sync::Arc;
-use tokio::sync::mpsc;
-use tokio::task::{JoinError, JoinHandle};
 
 pub(crate) type DynStateMutation<Frntend, Bkend, Md> =
     Box<dyn FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md> + Send>;
@@ -294,10 +290,10 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         }
     }
     pub fn new_stream_with_closure_handler<R>(
-        request: R,
+        _request: R,
         // TODO: Review Clone bounds.
-        handler: impl FnOnce(&mut Frntend, R::Output) + Send + Clone + 'static,
-        constraint: Option<Constraint<Md>>,
+        _handler: impl FnOnce(&mut Frntend, R::Output) + Send + Clone + 'static,
+        _constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
         R: BackendStreamingTask<Bkend, MetadataType = Md> + Debug + 'static,
@@ -342,7 +338,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     /// overflow.
     pub fn map<NewFrntend>(
         self,
-        f: impl Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
+        _f: impl Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
     ) -> AsyncTask<NewFrntend, Bkend, Md>
     where
         Bkend: 'static,

@@ -1,11 +1,9 @@
 use crate::manager::task_list::{SpawnedTask, TaskInformation, TaskList, TaskOutcome, TaskWaiter};
 use crate::task::{AsyncTask, AsyncTaskKind, FutureTask, StreamTask};
 use crate::{Constraint, DEFAULT_STREAM_CHANNEL_SIZE};
-use futures::{Stream, StreamExt};
+use futures::StreamExt;
 use std::any::TypeId;
-use std::future::Future;
 use std::sync::Arc;
-use tracing::Instrument;
 
 pub mod task_list;
 

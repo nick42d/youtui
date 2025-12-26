@@ -1,6 +1,5 @@
 use futures::{Future, Stream};
 use std::any::Any;
-use std::process::Output;
 
 mod adaptors;
 mod constraint;
