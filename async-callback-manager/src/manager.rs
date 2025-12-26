@@ -5,6 +5,7 @@ use futures::{Stream, StreamExt};
 use std::any::TypeId;
 use std::future::Future;
 use std::sync::Arc;
+use tracing::Instrument;
 
 pub mod task_list;
 
@@ -130,13 +131,19 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
         Bkend: 'static,
         Md: 'static,
     {
+        let FutureTask {
+            task,
+            type_id,
+            type_name,
+            ref type_debug,
+        } = future_task;
         (self.on_task_spawn)(TaskInformation {
-            type_id: future_task.type_id,
-            type_name: future_task.type_name,
-            type_debug: &future_task.type_debug,
+            type_id,
+            type_name,
+            type_debug,
             constraint,
         });
-        let future = (future_task.task)(backend);
+        let future = task.into_dyn_task()(backend);
         let handle = tokio::spawn(future);
         TempSpawnedTask {
             waiter: TaskWaiter::Future(handle),
@@ -168,7 +175,7 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
             type_debug: &type_debug,
             constraint,
         });
-        let mut stream = task(backend);
+        let mut stream = task.into_dyn_stream()(backend);
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         let join_handle = tokio::spawn(async move {
             loop {

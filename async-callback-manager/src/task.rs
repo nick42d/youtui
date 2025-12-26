@@ -114,8 +114,8 @@ where
     H: TaskHandler<T::Output, Frntend, Bkend, T::MetadataType>,
     T::Output: 'static,
 {
-    fn into_dyn_task(self) -> DynFutureTask<Frntend, Bkend, T::MetadataType> {
-        let Self { task, handler, .. } = self;
+    fn into_dyn_task(self: Box<Self>) -> DynFutureTask<Frntend, Bkend, T::MetadataType> {
+        let Self { task, handler, .. } = *self;
         Box::new(move |b: &Bkend| {
             Box::new({
                 let future = task.into_future(b);
@@ -136,8 +136,8 @@ where
     H: TaskHandler<T::Output, Frntend, Bkend, T::MetadataType> + Clone,
     T::Output: 'static,
 {
-    fn into_dyn_stream(self) -> DynStreamTask<Frntend, Bkend, T::MetadataType> {
-        let Self { task, handler, .. } = self;
+    fn into_dyn_stream(self: Box<Self>) -> DynStreamTask<Frntend, Bkend, T::MetadataType> {
+        let Self { task, handler, .. } = *self;
         Box::new(move |b: &Bkend| {
             let stream = task.into_stream(b);
             Box::new({
@@ -153,10 +153,10 @@ where
 }
 
 pub(crate) trait IntoDynFutureTask<Frntend, Bkend, Md>: MaybeDynEq {
-    fn into_dyn_task(self) -> DynFutureTask<Frntend, Bkend, Md>;
+    fn into_dyn_task(self: Box<Self>) -> DynFutureTask<Frntend, Bkend, Md>;
 }
 pub(crate) trait IntoDynStreamTask<Frntend, Bkend, Md>: MaybeDynEq {
-    fn into_dyn_stream(self) -> DynStreamTask<Frntend, Bkend, Md>;
+    fn into_dyn_stream(self: Box<Self>) -> DynStreamTask<Frntend, Bkend, Md>;
 }
 trait MaybeDynEq: std::any::Any {
     fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool>;
