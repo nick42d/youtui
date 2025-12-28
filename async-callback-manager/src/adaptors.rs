@@ -2,8 +2,10 @@ use crate::{
     BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE, PanickingReceiverStream,
 };
 use futures::{Stream, StreamExt};
+use std::any::Any;
 use std::fmt::Debug;
 use std::future::Future;
+use std::marker::PhantomData;
 
 impl<Bkend, T: BackendTask<Bkend>> BackendTaskExt<Bkend> for T {}
 impl<Bkend, T: BackendTask<Bkend, Output = Result<O, E>>, O, E> TryBackendTaskExt<Bkend> for T {
@@ -14,7 +16,7 @@ impl<Bkend, T: BackendTask<Bkend, Output = Result<O, E>>, O, E> TryBackendTaskEx
 pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     type Error;
     type Ok;
-    fn map_stream<S, F>(self, create_next: F) -> Map<Self, F>
+    fn map_stream<S, F>(self, create_next: F) -> Map<Self, F, S>
     where
         Self: Sized,
         S: BackendStreamingTask<Bkend>,
@@ -23,6 +25,7 @@ pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
         Map {
             first: self,
             create_next,
+            create_next_type: PhantomData,
         }
     }
 }
@@ -51,25 +54,32 @@ pub trait BackendTaskExt<Bkend>: BackendTask<Bkend> {
     }
 }
 
-pub struct Map<T, F> {
+pub struct Map<T, F, Ty> {
     first: T,
     create_next: F,
+    /// Used for introspection / debugging (ie, consumer can pring output type
+    /// name.
+    create_next_type: PhantomData<Ty>,
 }
 
-impl<T, F> Debug for Map<T, F>
+impl<T, F, Ty> Debug for Map<T, F, Ty>
 where
     T: Debug,
+    Ty: Any,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Map")
             .field("first", &self.first)
             // TODO: we could deduce the type name returned by the closure
-            .field("create_next", &"..closure..")
+            .field(
+                "create_next",
+                &format!("{{{}}}", std::any::type_name::<Ty>()),
+            )
             .finish()
     }
 }
 
-impl<Bkend, T, S, F, Ct, O, E> BackendStreamingTask<Bkend> for Map<T, F>
+impl<Bkend, T, S, F, Ct, O, E, Ty> BackendStreamingTask<Bkend> for Map<T, F, Ty>
 where
     Bkend: Clone + Sync + Send + 'static,
     F: Sync + Send + 'static,
@@ -78,6 +88,7 @@ where
     Ct: PartialEq,
     F: FnOnce(O) -> S,
     E: Send + 'static,
+    Ty: Send + 'static,
     O: Send,
 {
     type Output = std::result::Result<S::Output, E>;
@@ -86,7 +97,9 @@ where
         self,
         backend: &Bkend,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        let Map { first, create_next } = self;
+        let Map {
+            first, create_next, ..
+        } = self;
         let backend = backend.clone();
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         let handle = tokio::task::spawn(async move {
