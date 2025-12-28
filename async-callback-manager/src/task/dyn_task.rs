@@ -9,8 +9,6 @@ use futures::Stream;
 use std::any::Any;
 use tokio_stream::StreamExt;
 
-mod map;
-
 pub(crate) type DynStateMutation<Frntend, Bkend, Md> =
     Box<dyn FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md> + Send>;
 pub(crate) type DynMutationFuture<Frntend, Bkend, Md> =

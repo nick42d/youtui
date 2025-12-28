@@ -20,10 +20,6 @@ pub use task::AsyncTask;
 // In future, this could be settable.
 pub(crate) const DEFAULT_STREAM_CHANNEL_SIZE: usize = 20;
 
-pub trait BkendMap<Bkend> {
-    fn map(backend: &Bkend) -> &Self;
-}
-
 /// A task of kind T that can be run on a backend, returning a future of output
 /// Output. The type must implement Any, as the
 /// TypeId is used as part of the task management process.
@@ -82,4 +78,10 @@ where
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
         self(target)
     }
+}
+
+/// Helper trait, representing an equality that is not always able to be
+/// determined.
+pub trait MaybePartialEq<T> {
+    fn eq(&self, other: T) -> Option<bool>;
 }

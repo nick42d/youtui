@@ -1,6 +1,6 @@
 use crate::task::dyn_task::{FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq};
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
-use crate::{BackendStreamingTask, BackendTask, Constraint, TaskHandler};
+use crate::{BackendStreamingTask, BackendTask, Constraint, MaybePartialEq, TaskHandler};
 use std::any::{Any, TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
@@ -33,6 +33,14 @@ pub(crate) struct StreamTask<Frntend, Bkend, Md> {
     pub(crate) type_id: TypeId,
     pub(crate) type_name: &'static str,
     pub(crate) type_debug: String,
+}
+
+impl<Frntend, Bkend, Md> MaybePartialEq<AsyncTask<Frntend, Bkend, Md>>
+    for AsyncTask<Frntend, Bkend, Md>
+{
+    fn eq(&self, other: AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
+        todo!()
+    }
 }
 
 impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
