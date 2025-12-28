@@ -33,14 +33,13 @@ pub(crate) trait MaybeDynEq: std::any::Any {
 }
 
 /// Combination of Task and Handler.
-pub(crate) struct FusedTask<T, H, F> {
-    task: T,
-    handler: H,
-    map_fn: F,
-    eq_fn: Option<fn(&Self, &Self) -> bool>,
+pub(crate) struct FusedTask<T, H> {
+    pub(crate) task: T,
+    pub(crate) handler: H,
+    pub(crate) eq_fn: Option<fn(&Self, &Self) -> bool>,
 }
 
-impl<T, H> FusedTask<T, H, ()> {
+impl<T, H> FusedTask<T, H> {
     pub(crate) fn new_future_with_closure_handler<Bkend, Frntend, Md>(
         request: T,
         handler: H,
@@ -53,7 +52,6 @@ impl<T, H> FusedTask<T, H, ()> {
             task: request,
             handler,
             eq_fn: None,
-            map_fn: (),
         }
     }
     pub(crate) fn new_future_eq<Bkend, Frntend, Md>(request: T, handler: H) -> Self
@@ -67,7 +65,6 @@ impl<T, H> FusedTask<T, H, ()> {
             task: request,
             handler,
             eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
-            map_fn: (),
         }
     }
     pub(crate) fn new_stream_with_closure_handler<Bkend, Frntend, Md>(
@@ -85,7 +82,6 @@ impl<T, H> FusedTask<T, H, ()> {
             task: request,
             handler,
             eq_fn: None,
-            map_fn: (),
         }
     }
     pub(crate) fn new_stream_eq<Bkend, Frntend, Md>(request: T, handler: H) -> Self
@@ -99,14 +95,12 @@ impl<T, H> FusedTask<T, H, ()> {
             task: request,
             handler,
             eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
-            map_fn: (),
         }
     }
 }
 
-impl<T, H, F> MaybeDynEq for FusedTask<T, H, F>
+impl<T, H> MaybeDynEq for FusedTask<T, H>
 where
-    F: 'static,
     T: 'static,
     H: 'static,
 {
@@ -117,8 +111,7 @@ where
     }
 }
 
-impl<T, H, Bkend, Frntend> IntoDynFutureTask<Frntend, Bkend, T::MetadataType>
-    for FusedTask<T, H, ()>
+impl<T, H, Bkend, Frntend> IntoDynFutureTask<Frntend, Bkend, T::MetadataType> for FusedTask<T, H>
 where
     T: Send + 'static,
     H: Send + 'static,
@@ -127,12 +120,7 @@ where
     T::Output: 'static,
 {
     fn into_dyn_task(self: Box<Self>) -> DynFutureTask<Frntend, Bkend, T::MetadataType> {
-        let Self {
-            task,
-            handler,
-            map_fn,
-            ..
-        } = *self;
+        let Self { task, handler, .. } = *self;
         Box::new(move |b: &Bkend| {
             Box::new({
                 let future = task.into_future(b);
@@ -145,40 +133,7 @@ where
         }) as DynFutureTask<Frntend, Bkend, T::MetadataType>
     }
 }
-impl<T, H, F, Bkend, Frntend, NewFrntend> IntoDynFutureTask<NewFrntend, Bkend, T::MetadataType>
-    for FusedTask<T, H, F>
-where
-    F: Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
-    T: BackendTask<Bkend>,
-    H: TaskHandler<T::Output, Frntend, Bkend, T::MetadataType>,
-    T: Send + 'static,
-    H: Send + 'static,
-    T::Output: 'static,
-    Frntend: 'static,
-    Bkend: 'static,
-{
-    fn into_dyn_task(self: Box<Self>) -> DynFutureTask<NewFrntend, Bkend, T::MetadataType> {
-        let Self {
-            task,
-            handler,
-            map_fn,
-            ..
-        } = *self;
-        Box::new(move |b: &Bkend| {
-            Box::new({
-                let future = task.into_future(b);
-                Box::pin(async move {
-                    let output = future.await;
-                    Box::new(move |frontend: &mut NewFrntend| {
-                        handler.handle(output).apply(map_fn(frontend)).map(map_fn)
-                    }) as DynStateMutation<NewFrntend, Bkend, T::MetadataType>
-                })
-            }) as DynMutationFuture<NewFrntend, Bkend, T::MetadataType>
-        }) as DynFutureTask<NewFrntend, Bkend, T::MetadataType>
-    }
-}
-impl<T, H, Bkend, Frntend> IntoDynStreamTask<Frntend, Bkend, T::MetadataType>
-    for FusedTask<T, H, ()>
+impl<T, H, Bkend, Frntend> IntoDynStreamTask<Frntend, Bkend, T::MetadataType> for FusedTask<T, H>
 where
     T: Send + 'static,
     H: Send + 'static,

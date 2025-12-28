@@ -75,7 +75,6 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
                 let outcome = self.spawn_stream_task(backend, stream_task, &constraint);
                 self.add_task_to_list(outcome, metadata, constraint);
             }
-            // Don't call (self.on_task_spawn)() for NoOp.
             AsyncTaskKind::Multi(tasks) => {
                 for task in tasks {
                     self.spawn_task(backend, task)

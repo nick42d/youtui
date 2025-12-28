@@ -1,7 +1,7 @@
-use crate::task::dyn_task::{FusedTask, IntoDynFutureTask, IntoDynStreamTask};
+use crate::task::dyn_task::{FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq};
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
 use crate::{BackendStreamingTask, BackendTask, Constraint, TaskHandler};
-use std::any::{TypeId, type_name};
+use std::any::{Any, TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
 
@@ -281,12 +281,6 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
                 type_name,
                 type_debug,
             }) => {
-                let task = FusedTask {
-                    task,
-                    handler: todo!(),
-                    map_fn: todo!(),
-                    eq_fn: todo!(),
-                };
                 let map = MapDynFutureTask { task, map_fn: f };
                 let task = Box::new(map);
                 let task = FutureTask {

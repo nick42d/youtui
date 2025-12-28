@@ -3,15 +3,16 @@ use crate::task::dyn_task::{
     IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq,
 };
 use futures::FutureExt;
+use std::any::Any;
 use tokio_stream::StreamExt;
 
 pub struct MapDynFutureTask<Frntend, Bkend, Md, F> {
-    pub task: Box<dyn IntoDynFutureTask<Frntend, Bkend, Md>>,
-    pub map_fn: F,
+    pub(crate) task: Box<dyn IntoDynFutureTask<Frntend, Bkend, Md>>,
+    pub(crate) map_fn: F,
 }
 pub struct MapDynStreamTask<Frntend, Bkend, Md, F> {
-    pub task: Box<dyn IntoDynStreamTask<Frntend, Bkend, Md>>,
-    pub map_fn: F,
+    pub(crate) task: Box<dyn IntoDynStreamTask<Frntend, Bkend, Md>>,
+    pub(crate) map_fn: F,
 }
 impl<Frntend, Bkend, Md, F> MaybeDynEq for MapDynFutureTask<Frntend, Bkend, Md, F>
 where
@@ -21,7 +22,10 @@ where
     Bkend: 'static,
 {
     fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool> {
-        todo!()
+        // Note - map function is not checked. It's assumed that this doesn't change the
+        // equality in any meaningful way.
+        let other = (other as &dyn Any).downcast_ref::<Self>()?;
+        self.task.maybe_dyn_eq(other.task.as_ref())
     }
 }
 impl<Frntend, Bkend, Md, F> MaybeDynEq for MapDynStreamTask<Frntend, Bkend, Md, F>
@@ -32,7 +36,10 @@ where
     Bkend: 'static,
 {
     fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool> {
-        todo!()
+        // Note - map function is not checked. It's assumed that this doesn't change the
+        // equality in any meaningful way.
+        let other = (other as &dyn Any).downcast_ref::<Self>()?;
+        self.task.maybe_dyn_eq(other.task.as_ref())
     }
 }
 impl<F, Frntend, NewFrntend, Bkend, Md> IntoDynFutureTask<NewFrntend, Bkend, Md>
