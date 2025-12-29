@@ -37,9 +37,33 @@ pub(crate) struct StreamTask<Frntend, Bkend, Md> {
 
 impl<Frntend, Bkend, Md> MaybePartialEq<AsyncTask<Frntend, Bkend, Md>>
     for AsyncTask<Frntend, Bkend, Md>
+where
+    Md: PartialEq + 'static,
+    Frntend: 'static,
+    Bkend: 'static,
 {
-    fn eq(&self, other: AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
-        todo!()
+    fn maybe_eq(&self, other: AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
+        let constraint_eq = self.constraint == other.constraint;
+        let metadata_eq = self.metadata == other.metadata;
+        match (&self.task, &other.task) {
+            (AsyncTaskKind::Future(self_future_task), AsyncTaskKind::Future(other_future_task)) => {
+                let attrs_eq = self_future_task.type_id == other_future_task.type_id
+                    && self_future_task.type_name == other_future_task.type_name
+                    && self_future_task.type_debug == other_future_task.type_debug;
+                self_future_task
+                    .task
+                    .maybe_dyn_eq(other_future_task.task.as_ref())
+                    .map(|task_eq| task_eq && attrs_eq)
+            }
+            (AsyncTaskKind::Stream(self_stream_task), AsyncTaskKind::Stream(other_stream_task)) => {
+                todo!()
+            }
+            (AsyncTaskKind::Multi(self_async_tasks), AsyncTaskKind::Multi(other_async_tasks)) => {
+                todo!()
+            }
+            (AsyncTaskKind::NoOp, AsyncTaskKind::NoOp) => Some(constraint_eq && metadata_eq),
+            _ => Some(false),
+        }
     }
 }
 

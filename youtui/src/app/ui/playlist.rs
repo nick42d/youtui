@@ -5,8 +5,8 @@ use crate::app::component::actionhandler::{
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause, PausePlay,
-    PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
+    ArcServer, AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause,
+    PausePlay, PlaySong, QueueSong, Resume, Seek, SeekTo, Server, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
     AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
@@ -22,7 +22,7 @@ use crate::async_rodio_sink::{
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::widgets::ScrollingTableState;
-use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
+use async_callback_manager::{AsyncTask, Constraint, TaskHandler, TryBackendTaskExt};
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use serde::{Deserialize, Serialize};
@@ -422,11 +422,11 @@ impl Playlist {
     }
     /// Play song at ID, if it was buffering.
     pub fn handle_song_downloaded(&mut self, id: ListSongID) -> ComponentEffect<Self> {
-        if let PlayState::Buffering(target_id) = self.play_status {
-            if target_id == id {
-                info!("Received downloaded song {id:?}, now trying to play it.");
-                return self.play_song_id(id);
-            }
+        if let PlayState::Buffering(target_id) = self.play_status
+            && target_id == id
+        {
+            info!("Received downloaded song {id:?}, now trying to play it.");
+            return self.play_song_id(id);
         }
         AsyncTask::new_no_op()
     }
@@ -752,11 +752,11 @@ impl Playlist {
         let mut return_task = AsyncTask::new_no_op();
         let cur_selected_idx = self.cur_selected;
         // If current song is playing, stop it.
-        if let Some(cur_playing_id) = self.get_cur_playing_id() {
-            if Some(cur_selected_idx) == self.get_cur_playing_index() {
-                self.play_status = PlayState::NotPlaying;
-                return_task = self.stop_song_id(cur_playing_id);
-            }
+        if let Some(cur_playing_id) = self.get_cur_playing_id()
+            && Some(cur_selected_idx) == self.get_cur_playing_index()
+        {
+            self.play_status = PlayState::NotPlaying;
+            return_task = self.stop_song_id(cur_playing_id);
         }
         self.list.remove_song_index(cur_selected_idx);
         // If we are removing a song at a position less than current index, decrement
@@ -980,38 +980,31 @@ impl Playlist {
                 .as_ref()
                 .zip(cur_dur)
                 .map(|(d1, d2)| d2.saturating_sub(*d1))
-        } {
-            if duration_dif
-                .saturating_sub(GAPLESS_PLAYBACK_THRESHOLD)
-                .is_zero()
-                && !matches!(self.queue_status, QueueState::Queued(_))
-            {
-                if let Some(next_song) = self.get_next_song() {
-                    if let DownloadStatus::Downloaded(song) = &next_song.download_status {
-                        // This task has the metadata of both DecodeSong and QueueSong and returns
-                        // Result<QueueUpdate>.
-                        let task =
-                            DecodeSong(song.clone()).map_stream(move |song| QueueSong { song, id });
-                        info!("Queuing up song!");
-                        let handle_update = move |this: &mut Self, update| match update {
-                            Ok(u) => this.handle_queue_update(u),
-                            Err(e) => {
-                                error!("Error {e} received when trying to decode {:?}", id);
-                                this.handle_set_to_error(id);
-                                AsyncTask::new_no_op()
-                            }
-                        };
-                        let effect = AsyncTask::new_stream_with_closure_handler_chained(
-                            task,
-                            handle_update,
-                            None,
-                        );
-                        self.queue_status = QueueState::Queued(next_song.id);
-                        return effect;
-                    }
+        } && duration_dif
+            .saturating_sub(GAPLESS_PLAYBACK_THRESHOLD)
+            .is_zero()
+            && !matches!(self.queue_status, QueueState::Queued(_))
+            && let Some(next_song) = self.get_next_song()
+            && let DownloadStatus::Downloaded(song) = &next_song.download_status
+        {
+            // This task has the metadata of both DecodeSong and QueueSong and returns
+            // Result<QueueUpdate>.
+            let task = DecodeSong(song.clone()).map_stream(move |song| QueueSong { song, id });
+            info!("Queuing up song!");
+            let handle_update = move |this: &mut Self, update| match update {
+                Ok(u) => this.handle_queue_update(u),
+                Err(e) => {
+                    error!("Error {e} received when trying to decode {:?}", id);
+                    this.handle_set_to_error(id);
+                    AsyncTask::new_no_op()
                 }
-            }
+            };
+            let effect =
+                AsyncTask::new_stream_with_closure_handler_chained(task, handle_update, None);
+            self.queue_status = QueueState::Queued(next_song.id);
+            return effect;
         }
+
         AsyncTask::new_no_op()
     }
     /// Handle done playing message from server
@@ -1052,10 +1045,10 @@ impl Playlist {
         if let Some(song) = self.get_mut_song_from_id(id) {
             song.actual_duration = duration;
         }
-        if let PlayState::Paused(p_id) = self.play_status {
-            if p_id == id {
-                self.play_status = PlayState::Playing(id)
-            }
+        if let PlayState::Paused(p_id) = self.play_status
+            && p_id == id
+        {
+            self.play_status = PlayState::Playing(id)
         }
     }
     /// Handle set to error message from server (playback)
@@ -1068,18 +1061,18 @@ impl Playlist {
     }
     /// Handle set to paused message from server
     pub fn handle_paused(&mut self, s_id: ListSongID) {
-        if let PlayState::Playing(p_id) = self.play_status {
-            if p_id == s_id {
-                self.play_status = PlayState::Paused(s_id)
-            }
+        if let PlayState::Playing(p_id) = self.play_status
+            && p_id == s_id
+        {
+            self.play_status = PlayState::Paused(s_id)
         }
     }
     /// Handle resumed message from server
     pub fn handle_resumed(&mut self, id: ListSongID) {
-        if let PlayState::Paused(p_id) = self.play_status {
-            if p_id == id {
-                self.play_status = PlayState::Playing(id)
-            }
+        if let PlayState::Paused(p_id) = self.play_status
+            && p_id == id
+        {
+            self.play_status = PlayState::Playing(id)
         }
     }
     /// Handle stopped message from server
@@ -1098,5 +1091,15 @@ impl Playlist {
             return;
         }
         self.play_status = PlayState::Stopped
+    }
+}
+
+struct HandleAllStopped(Option<AllStopped>);
+impl TaskHandler<Playlist, ArcServer, TaskMetadata> for HandleAllStopped {
+    fn handle(
+        self,
+        output: Output,
+    ) -> impl async_callback_manager::FrontendMutation<Frntend, Bkend, Md> {
+        todo!()
     }
 }

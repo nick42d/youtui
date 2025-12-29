@@ -1,8 +1,10 @@
 use super::Playlist;
+use crate::app::server::{Stop, TaskMetadata};
 use crate::app::structures::ListStatus;
 use crate::app::ui::playlist::QueueState;
 use crate::app::ui::{ListSongID, PlayState};
 use crate::async_rodio_sink::{AllStopped, Stopped};
+use async_callback_manager::{AsyncTask, Constraint, MaybePartialEq};
 use pretty_assertions::assert_eq;
 use std::sync::OnceLock;
 use std::time::Duration;
@@ -47,6 +49,26 @@ async fn get_dummy_playlist() -> Playlist {
         vec![],
     );
     playlist
+}
+#[tokio::test]
+async fn test_reset_when_playing_stops_song_id() {
+    let mut p = get_dummy_playlist().await;
+    p.play_status = PlayState::Playing(ListSongID(1));
+    let effect = p.reset();
+    let expected_effect = AsyncTask::new_future_with_closure_handler(
+        Stop(ListSongID(1)),
+        Playlist::handle_stopped,
+        Some(Constraint::new_block_matching_metadata(
+            TaskMetadata::PlayPause,
+        )),
+    );
+    assert_eq!(effect.maybe_eq(expected_effect), Some(true));
+}
+#[tokio::test]
+async fn test_reset_when_not_playing_has_no_effect() {
+    let mut p = get_dummy_playlist().await;
+    let effect = p.reset();
+    assert_eq!(effect.maybe_eq(AsyncTask::new_no_op()), Some(true));
 }
 #[tokio::test]
 async fn test_handle_autoplay_queued_when_other_queued() {
