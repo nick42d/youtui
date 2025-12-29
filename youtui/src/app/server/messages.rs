@@ -85,7 +85,7 @@ pub struct SeekTo {
 #[derive(Debug)]
 pub struct Stop(pub ListSongID);
 /// Stop the player, regardless of what song is playing.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StopAll;
 #[derive(Debug)]
 pub struct PausePlay(pub ListSongID);

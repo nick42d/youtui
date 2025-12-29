@@ -849,11 +849,9 @@ impl Playlist {
     /// (server).
     pub fn stop(&mut self) -> ComponentEffect<Self> {
         self.play_status = PlayState::Stopped;
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future_eq(
             StopAll,
-            |this: &mut Playlist, response| {
-                this.handle_all_stopped(response);
-            },
+            HandleAllStopped,
             Some(Constraint::new_block_matching_metadata(
                 TaskMetadata::PlayPause,
             )),
@@ -1094,12 +1092,16 @@ impl Playlist {
     }
 }
 
-struct HandleAllStopped(Option<AllStopped>);
-impl TaskHandler<Playlist, ArcServer, TaskMetadata> for HandleAllStopped {
+#[derive(PartialEq)]
+struct HandleAllStopped;
+impl TaskHandler<Option<AllStopped>, Playlist, ArcServer, TaskMetadata> for HandleAllStopped {
     fn handle(
         self,
-        output: Output,
-    ) -> impl async_callback_manager::FrontendMutation<Frntend, Bkend, Md> {
-        todo!()
+        output: Option<AllStopped>,
+    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        |playlist: &mut Playlist| {
+            playlist.handle_all_stopped(output);
+            AsyncTask::new_no_op()
+        }
     }
 }
