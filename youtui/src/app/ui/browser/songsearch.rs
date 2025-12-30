@@ -536,7 +536,7 @@ impl SongSearchBrowser {
                 this.replace_song_list(songs);
                 AsyncTask::new_no_op()
             }
-            Err(error) => AsyncTask::new_future(
+            Err(error) => AsyncTask::new_future_with_closure_handler(
                 HandleApiError {
                     error,
                     // To avoid needing to clone search query to use in the error message, this
@@ -547,7 +547,7 @@ impl SongSearchBrowser {
                 None,
             ),
         };
-        AsyncTask::new_future_chained(
+        AsyncTask::new_future_with_closure_handler_chained(
             SearchSongs(search_query),
             handler,
             Some(Constraint::new_kill_same_type()),

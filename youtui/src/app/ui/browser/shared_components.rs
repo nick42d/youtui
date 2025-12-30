@@ -196,7 +196,7 @@ impl SearchBlock {
                 this.replace_search_suggestions(suggestions, text);
                 AsyncTask::new_no_op()
             }
-            Err(error) => AsyncTask::new_future(
+            Err(error) => AsyncTask::new_future_with_closure_handler(
                 HandleApiError {
                     error,
                     // To avoid needing to clone search query to use in the error message, this
@@ -207,7 +207,7 @@ impl SearchBlock {
                 None,
             ),
         };
-        AsyncTask::new_future_chained(
+        AsyncTask::new_future_with_closure_handler_chained(
             GetSearchSuggestions(self.search_contents.text().to_owned()),
             handler,
             Some(Constraint::new_kill_same_type()),

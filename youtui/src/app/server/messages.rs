@@ -63,18 +63,18 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
 // New note - 2025:
 // SetVolume should be able to kill IncreaseVolume however...
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct IncreaseVolume(pub i8);
 #[derive(Debug)]
 pub struct SetVolume(pub u8);
 /// Seek forwards or backwards a duration in a song.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Seek {
     pub duration: Duration,
     pub direction: SeekDirection,
 }
 /// Seek to a target position in a song.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SeekTo {
     pub position: Duration,
     // Unlike seeking forward or back, it would be odd if user was expecting to seek to pos x in
@@ -82,10 +82,10 @@ pub struct SeekTo {
     pub id: ListSongID,
 }
 /// Stop a song if it is still currently playing.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Stop(pub ListSongID);
 /// Stop the player, regardless of what song is playing.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StopAll;
 #[derive(Debug)]
 pub struct PausePlay(pub ListSongID);

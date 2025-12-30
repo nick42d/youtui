@@ -257,7 +257,7 @@ impl PlaylistSearchBrowser {
                 this.replace_playlist_list(artists);
                 AsyncTask::new_no_op()
             }
-            Err(error) => AsyncTask::new_future(
+            Err(error) => AsyncTask::new_future_with_closure_handler(
                 HandleApiError {
                     error,
                     // To avoid needing to clone search query to use in the error message, this
@@ -268,7 +268,7 @@ impl PlaylistSearchBrowser {
                 None,
             ),
         };
-        AsyncTask::new_future_chained(
+        AsyncTask::new_future_with_closure_handler_chained(
             SearchPlaylists(search_query),
             handler,
             Some(Constraint::new_kill_same_type()),
@@ -304,7 +304,7 @@ impl PlaylistSearchBrowser {
             AsyncTask::new_no_op()
         };
 
-        AsyncTask::new_stream_chained(
+        AsyncTask::new_stream_with_closure_handler_chained(
             GetPlaylistSongs {
                 playlist_id: cur_playlist_id,
                 max_songs: MAX_PLAYLIST_SONGS,
@@ -373,7 +373,7 @@ impl PlaylistSearchBrowser {
         error: anyhow::Error,
     ) -> ComponentEffect<Self> {
         self.playlist_songs_panel.list.state = ListStatus::Error;
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             HandleApiError {
                 error,
                 message: format!("Error searching for playlist {playlist_id:?} tracks"),

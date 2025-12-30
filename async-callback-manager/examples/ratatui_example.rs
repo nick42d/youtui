@@ -72,7 +72,7 @@ impl State {
     }
     async fn handle_get_word(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.word = "Loading".to_string();
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             GetWordRequest,
             |state: &mut Self, word| state.word = word,
             (&self.mode).into(),
@@ -80,7 +80,7 @@ impl State {
     }
     async fn handle_start_counter(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.number = "Loading".to_string();
-        AsyncTask::new_stream(
+        AsyncTask::new_stream_with_closure_handler(
             CounterStream,
             |state: &mut Self, num| state.number = num,
             (&self.mode).into(),

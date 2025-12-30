@@ -1,26 +1,14 @@
-use crate::task::{
-    AsyncTask, AsyncTaskKind, FutureTask, SpawnedTask, StreamTask, TaskInformation, TaskList,
-    TaskOutcome, TaskWaiter,
-};
+use crate::manager::task_list::{SpawnedTask, TaskInformation, TaskList, TaskOutcome, TaskWaiter};
+use crate::task::{AsyncTask, AsyncTaskKind, FutureTask, StreamTask};
 use crate::{Constraint, DEFAULT_STREAM_CHANNEL_SIZE};
-use futures::{Stream, StreamExt};
+use futures::StreamExt;
 use std::any::TypeId;
-use std::future::Future;
 use std::sync::Arc;
+
+pub mod task_list;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct TaskId(pub(crate) u64);
-
-pub(crate) type DynStateMutation<Frntend, Bkend, Md> =
-    Box<dyn FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md> + Send>;
-pub(crate) type DynMutationFuture<Frntend, Bkend, Md> =
-    Box<dyn Future<Output = DynStateMutation<Frntend, Bkend, Md>> + Unpin + Send>;
-pub(crate) type DynMutationStream<Frntend, Bkend, Md> =
-    Box<dyn Stream<Item = DynStateMutation<Frntend, Bkend, Md>> + Unpin + Send>;
-pub(crate) type DynFutureTask<Frntend, Bkend, Md> =
-    Box<dyn FnOnce(&Bkend) -> DynMutationFuture<Frntend, Bkend, Md>>;
-pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
-    Box<dyn FnOnce(&Bkend) -> DynMutationStream<Frntend, Bkend, Md>>;
 
 pub(crate) type DynTaskSpawnCallback<Cstrnt> = dyn Fn(TaskInformation<Cstrnt>);
 
@@ -87,7 +75,6 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
                 let outcome = self.spawn_stream_task(backend, stream_task, &constraint);
                 self.add_task_to_list(outcome, metadata, constraint);
             }
-            // Don't call (self.on_task_spawn)() for NoOp.
             AsyncTaskKind::Multi(tasks) => {
                 for task in tasks {
                     self.spawn_task(backend, task)
@@ -141,13 +128,19 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
         Bkend: 'static,
         Md: 'static,
     {
+        let FutureTask {
+            task,
+            type_id,
+            type_name,
+            ref type_debug,
+        } = future_task;
         (self.on_task_spawn)(TaskInformation {
-            type_id: future_task.type_id,
-            type_name: future_task.type_name,
-            type_debug: &future_task.type_debug,
+            type_id,
+            type_name,
+            type_debug,
             constraint,
         });
-        let future = (future_task.task)(backend);
+        let future = task.into_dyn_task()(backend);
         let handle = tokio::spawn(future);
         TempSpawnedTask {
             waiter: TaskWaiter::Future(handle),
@@ -179,7 +172,7 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
             type_debug: &type_debug,
             constraint,
         });
-        let mut stream = task(backend);
+        let mut stream = task.into_dyn_stream()(backend);
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         let join_handle = tokio::spawn(async move {
             loop {
