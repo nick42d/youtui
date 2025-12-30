@@ -63,7 +63,7 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
 // New note - 2025:
 // SetVolume should be able to kill IncreaseVolume however...
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct IncreaseVolume(pub i8);
 #[derive(Debug)]
 pub struct SetVolume(pub u8);

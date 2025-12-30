@@ -237,11 +237,11 @@ impl Playlist {
     /// When creating a Playlist, an effect is also created.
     pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
-        let task = AsyncTask::new_future_with_closure_handler(
+        let task = AsyncTask::new_future_eq(
             // Since IncreaseVolume responds back with player volume after change, this is a
             // neat hack.
             IncreaseVolume(0),
-            Self::handle_volume_update,
+            HandleVolumeUpdate,
             Some(Constraint::new_block_same_type()),
         );
         let playlist = Playlist {
@@ -1086,12 +1086,15 @@ struct HandleAllStopped;
 struct HandleStopped;
 #[derive(PartialEq)]
 struct HandleSetSongPlayProgress;
+#[derive(PartialEq)]
+struct HandleVolumeUpdate;
 
 #[derive(Debug, PartialEq)]
 enum PlaylistMessage {
     SetStatusStoppedIfSome(Option<AllStopped>),
     StopSongIDIfSomeAndCur(Option<Stopped<ListSongID>>),
     HandleSetSongPlayProgress(Option<ProgressUpdate<ListSongID>>),
+    HandleVolumeUpdate(Option<VolumeUpdate>),
 }
 
 impl TaskHandler<Option<Stopped<ListSongID>>, Playlist, ArcServer, TaskMetadata> for HandleStopped {
@@ -1120,6 +1123,14 @@ impl TaskHandler<Option<ProgressUpdate<ListSongID>>, Playlist, ArcServer, TaskMe
         PlaylistMessage::HandleSetSongPlayProgress(output)
     }
 }
+impl TaskHandler<Option<VolumeUpdate>, Playlist, ArcServer, TaskMetadata> for HandleVolumeUpdate {
+    fn handle(
+        self,
+        output: Option<VolumeUpdate>,
+    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        PlaylistMessage::HandleVolumeUpdate(output)
+    }
+}
 impl FrontendMutation<Playlist, ArcServer, TaskMetadata> for PlaylistMessage {
     fn apply(self, target: &mut Playlist) -> ComponentEffect<Playlist> {
         match self {
@@ -1135,6 +1146,7 @@ impl FrontendMutation<Playlist, ArcServer, TaskMetadata> for PlaylistMessage {
                 };
                 return target.handle_set_song_play_progress(msg.duration, msg.identifier);
             }
+            PlaylistMessage::HandleVolumeUpdate(msg) => target.handle_volume_update(msg),
         }
         AsyncTask::new_no_op()
     }

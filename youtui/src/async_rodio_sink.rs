@@ -98,7 +98,7 @@ impl<T> From<RodioOneshot<T>> for oneshot::Sender<T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VolumeUpdate(pub Percentage);
 #[derive(Debug, PartialEq)]
 pub struct ProgressUpdate<I> {

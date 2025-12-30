@@ -37,6 +37,46 @@ pub(crate) struct FusedTask<T, H> {
     pub(crate) eq_fn: Option<fn(&Self, &Self) -> bool>,
 }
 
+pub(crate) struct TryHandler<OkH, ErrH> {
+    pub(crate) ok_handler: OkH,
+    pub(crate) err_handler: ErrH,
+}
+
+pub(crate) enum Either<L, R> {
+    Left(L),
+    Right(R),
+}
+
+impl<OkH, ErrH, T, E, Frntend, Bkend, Md> TaskHandler<Result<T, E>, Frntend, Bkend, Md>
+    for TryHandler<OkH, ErrH>
+where
+    OkH: TaskHandler<T, Frntend, Bkend, Md>,
+    ErrH: TaskHandler<E, Frntend, Bkend, Md>,
+{
+    fn handle(self, output: Result<T, E>) -> impl FrontendMutation<Frntend, Bkend, Md> {
+        let Self {
+            ok_handler,
+            err_handler,
+        } = self;
+        match output {
+            Ok(x) => Either::Left(ok_handler.handle(x)),
+            Err(e) => Either::Right(err_handler.handle(e)),
+        }
+    }
+}
+impl<L, R, Frntend, Bkend, Md> FrontendMutation<Frntend, Bkend, Md> for Either<L, R>
+where
+    L: FrontendMutation<Frntend, Bkend, Md>,
+    R: FrontendMutation<Frntend, Bkend, Md>,
+{
+    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
+        match self {
+            Either::Left(x) => x.apply(target),
+            Either::Right(x) => x.apply(target),
+        }
+    }
+}
+
 impl<T, H> FusedTask<T, H> {
     pub(crate) fn new_future_with_closure_handler<Bkend, Frntend, Md>(
         request: T,
