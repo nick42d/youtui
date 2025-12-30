@@ -17,7 +17,7 @@ use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
 use ytmapi_rs::common::{ArtistChannelID, PlaylistID, SearchSuggestion, VideoID};
-use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong};
+use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong, WatchPlaylistTrack};
 
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -46,6 +46,8 @@ pub struct GetPlaylistSongs {
     pub playlist_id: PlaylistID<'static>,
     pub max_songs: usize,
 }
+#[derive(Debug)]
+pub struct GetWatchPlaylist(pub VideoID<'static>);
 
 #[derive(Debug)]
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
@@ -204,6 +206,17 @@ impl BackendStreamingTask<ArcServer> for GetPlaylistSongs {
         backend
             .api
             .get_playlist_songs(self.playlist_id, self.max_songs)
+    }
+}
+impl BackendTask<ArcServer> for GetWatchPlaylist {
+    type Output = Result<Vec<WatchPlaylistTrack>>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.api.get_watch_playlist(self.0).await }
     }
 }
 
