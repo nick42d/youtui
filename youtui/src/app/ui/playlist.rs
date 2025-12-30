@@ -16,13 +16,15 @@ use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::{draw_loadable, draw_panel_mut, draw_table};
 use crate::app::view::{BasicConstraint, DrawableMut, HasTitle, Loadable, TableView};
 use crate::async_rodio_sink::{
-    AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, QueueUpdate, SeekDirection, Stopped,
-    VolumeUpdate,
+    AllStopped, AutoplayUpdate, PausePlayResponse, PlayUpdate, ProgressUpdate, QueueUpdate,
+    SeekDirection, Stopped, VolumeUpdate,
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::widgets::ScrollingTableState;
-use async_callback_manager::{AsyncTask, Constraint, TaskHandler, TryBackendTaskExt};
+use async_callback_manager::{
+    AsyncTask, Constraint, FrontendMutation, TaskHandler, TryBackendTaskExt,
+};
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use serde::{Deserialize, Serialize};
@@ -257,9 +259,9 @@ impl Playlist {
     /// - Stop playback of the song 'song_id', if it is still playing.
     /// - If stop was succesful, update state.
     pub fn stop_song_id(&self, song_id: ListSongID) -> ComponentEffect<Self> {
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future_eq(
             Stop(song_id),
-            Self::handle_stopped,
+            HandleStopped,
             Some(Constraint::new_block_matching_metadata(
                 TaskMetadata::PlayPause,
             )),
@@ -684,17 +686,12 @@ impl Playlist {
         direction: SeekDirection,
     ) -> ComponentEffect<Self> {
         // Consider if we also want to update current duration.
-        AsyncTask::new_future_with_closure_handler_chained(
+        AsyncTask::new_future_eq(
             Seek {
                 duration,
                 direction,
             },
-            |this: &mut Playlist, response| {
-                let Some(response) = response else {
-                    return AsyncTask::new_no_op();
-                };
-                this.handle_set_song_play_progress(response.duration, response.identifier)
-            },
+            HandleSetSongPlayProgress,
             None,
         )
     }
@@ -711,16 +708,7 @@ impl Playlist {
             _ => return AsyncTask::new_no_op(),
         };
         // Consider if we also want to update current duration.
-        AsyncTask::new_future_with_closure_handler_chained(
-            SeekTo { position, id },
-            |this: &mut Playlist, response| {
-                let Some(response) = response else {
-                    return AsyncTask::new_no_op();
-                };
-                this.handle_set_song_play_progress(response.duration, response.identifier)
-            },
-            None,
-        )
+        AsyncTask::new_future_eq(SeekTo { position, id }, HandleSetSongPlayProgress, None)
     }
     /// Handle next command (from global keypress), if currently playing.
     pub fn handle_next(&mut self) -> ComponentEffect<Self> {
@@ -1094,14 +1082,60 @@ impl Playlist {
 
 #[derive(PartialEq)]
 struct HandleAllStopped;
+#[derive(PartialEq)]
+struct HandleStopped;
+#[derive(PartialEq)]
+struct HandleSetSongPlayProgress;
+
+#[derive(Debug, PartialEq)]
+enum PlaylistMessage {
+    SetStatusStoppedIfSome(Option<AllStopped>),
+    StopSongIDIfSomeAndCur(Option<Stopped<ListSongID>>),
+    HandleSetSongPlayProgress(Option<ProgressUpdate<ListSongID>>),
+}
+
+impl TaskHandler<Option<Stopped<ListSongID>>, Playlist, ArcServer, TaskMetadata> for HandleStopped {
+    fn handle(
+        self,
+        output: Option<Stopped<ListSongID>>,
+    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        PlaylistMessage::StopSongIDIfSomeAndCur(output)
+    }
+}
 impl TaskHandler<Option<AllStopped>, Playlist, ArcServer, TaskMetadata> for HandleAllStopped {
     fn handle(
         self,
         output: Option<AllStopped>,
     ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        |playlist: &mut Playlist| {
-            playlist.handle_all_stopped(output);
-            AsyncTask::new_no_op()
+        PlaylistMessage::SetStatusStoppedIfSome(output)
+    }
+}
+impl TaskHandler<Option<ProgressUpdate<ListSongID>>, Playlist, ArcServer, TaskMetadata>
+    for HandleSetSongPlayProgress
+{
+    fn handle(
+        self,
+        output: Option<ProgressUpdate<ListSongID>>,
+    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        PlaylistMessage::HandleSetSongPlayProgress(output)
+    }
+}
+impl FrontendMutation<Playlist, ArcServer, TaskMetadata> for PlaylistMessage {
+    fn apply(self, target: &mut Playlist) -> ComponentEffect<Playlist> {
+        match self {
+            PlaylistMessage::SetStatusStoppedIfSome(msg) => {
+                target.handle_all_stopped(msg);
+            }
+            PlaylistMessage::StopSongIDIfSomeAndCur(msg) => {
+                target.handle_stopped(msg);
+            }
+            PlaylistMessage::HandleSetSongPlayProgress(msg) => {
+                let Some(msg) = msg else {
+                    return AsyncTask::new_no_op();
+                };
+                return target.handle_set_song_play_progress(msg.duration, msg.identifier);
+            }
         }
+        AsyncTask::new_no_op()
     }
 }

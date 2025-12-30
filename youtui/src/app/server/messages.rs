@@ -68,13 +68,13 @@ pub struct IncreaseVolume(pub i8);
 #[derive(Debug)]
 pub struct SetVolume(pub u8);
 /// Seek forwards or backwards a duration in a song.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Seek {
     pub duration: Duration,
     pub direction: SeekDirection,
 }
 /// Seek to a target position in a song.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SeekTo {
     pub position: Duration,
     // Unlike seeking forward or back, it would be odd if user was expecting to seek to pos x in
@@ -82,7 +82,7 @@ pub struct SeekTo {
     pub id: ListSongID,
 }
 /// Stop a song if it is still currently playing.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Stop(pub ListSongID);
 /// Stop the player, regardless of what song is playing.
 #[derive(Debug, PartialEq)]

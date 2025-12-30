@@ -1,7 +1,7 @@
 use super::Playlist;
 use crate::app::server::{Stop, TaskMetadata};
 use crate::app::structures::ListStatus;
-use crate::app::ui::playlist::QueueState;
+use crate::app::ui::playlist::{HandleAllStopped, HandleStopped, QueueState};
 use crate::app::ui::{ListSongID, PlayState};
 use crate::async_rodio_sink::{AllStopped, Stopped};
 use async_callback_manager::{AsyncTask, Constraint, MaybePartialEq};
@@ -55,9 +55,9 @@ async fn test_reset_when_playing_stops_song_id() {
     let mut p = get_dummy_playlist().await;
     p.play_status = PlayState::Playing(ListSongID(1));
     let effect = p.reset();
-    let expected_effect = AsyncTask::new_future_with_closure_handler(
+    let expected_effect = AsyncTask::new_future_eq(
         Stop(ListSongID(1)),
-        Playlist::handle_stopped,
+        HandleStopped,
         Some(Constraint::new_block_matching_metadata(
             TaskMetadata::PlayPause,
         )),

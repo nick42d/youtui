@@ -100,7 +100,7 @@ impl<T> From<RodioOneshot<T>> for oneshot::Sender<T> {
 
 #[derive(Debug)]
 pub struct VolumeUpdate(pub Percentage);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ProgressUpdate<I> {
     pub duration: Duration,
     pub identifier: I,
@@ -108,10 +108,10 @@ pub struct ProgressUpdate<I> {
 // NOTE: At this stage this difference between DonePlaying and Stopped is
 // very thin. DonePlaying means that the song has been dropped by the player,
 // whereas Stopped simply means that a Stop message to the player was succesful.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Stopped<I>(pub I);
 /// Message to say that playback has stopped - all songs.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct AllStopped;
 #[derive(Debug)]
 pub struct Resumed<I>(pub I);
