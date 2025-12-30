@@ -22,6 +22,7 @@ C-c = "quit"
 
 [keybinds.playlist]
 F5 = {action = "playlist.view_browser", visibility = "global"}
+C-c = {action = "playlist.toggle_continuous_play", visibility = "global"}
 enter.enter = "playlist.play_selected"
 enter.d = "playlist.delete_selected"
 enter.D = "playlist.delete_all"

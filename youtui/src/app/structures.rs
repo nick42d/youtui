@@ -14,8 +14,32 @@ use ytmapi_rs::common::{
 use ytmapi_rs::parse::{
     AlbumSong, ParsedSongAlbum, ParsedSongArtist, ParsedUploadArtist, ParsedUploadSongAlbum,
     PlaylistEpisode, PlaylistItem, PlaylistSong, PlaylistUploadSong, PlaylistVideo,
-    SearchResultSong,
+    SearchResultSong, WatchPlaylistTrack,
 };
+
+impl From<WatchPlaylistTrack> for ListSong {
+    fn from(track: WatchPlaylistTrack) -> Self {
+        ListSong {
+            video_id: track.video_id,
+            track_no: None,
+            plays: String::new(),
+            title: track.title,
+            explicit: None,
+            download_status: DownloadStatus::None,
+            id: ListSongID::default(), // This will be replaced when added to the playlist
+            duration_string: track.duration,
+            actual_duration: None,
+            year: None,
+            album_art: AlbumArtState::default(),
+            artists: MaybeRc::Owned(vec![ListSongArtist {
+                name: track.author,
+                id: None,
+            }]),
+            thumbnails: MaybeRc::Owned(track.thumbnails),
+            album: None,
+        }
+    }
+}
 
 pub trait SongListComponent {
     fn get_song_from_idx(&self, idx: usize) -> Option<&ListSong>;
@@ -52,7 +76,7 @@ pub struct BrowserSongsList {
 }
 
 // As this is a simple wrapper type we implement Copy for ease of handling
-#[derive(Clone, PartialEq, Copy, Debug, PartialOrd)]
+#[derive(Clone, PartialEq, Copy, Debug, PartialOrd, Default)]
 pub struct ListSongID(#[cfg(test)] pub usize, #[cfg(not(test))] usize);
 
 // As this is a simple wrapper type we implement Copy for ease of handling

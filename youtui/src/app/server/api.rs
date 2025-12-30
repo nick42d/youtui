@@ -15,12 +15,14 @@ use tokio::io::AsyncWriteExt;
 use tokio::sync::RwLock;
 use tracing::{error, info};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail};
+use ytmapi_rs::common::{
+    AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail, VideoID,
+};
 use ytmapi_rs::parse::{
     AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, PlaylistItem,
-    SearchResultArtist, SearchResultPlaylist, SearchResultSong,
+    SearchResultArtist, SearchResultPlaylist, SearchResultSong, WatchPlaylistTrack,
 };
-use ytmapi_rs::query::{GetAlbumQuery, GetArtistAlbumsQuery};
+use ytmapi_rs::query::{GetAlbumQuery, GetArtistAlbumsQuery, GetWatchPlaylistQuery};
 
 #[derive(Clone)]
 /// # Note
@@ -78,6 +80,12 @@ impl Api {
     ) -> impl Stream<Item = GetArtistSongsProgressUpdate> + 'static + use<> {
         let api = self.api.clone();
         get_artist_songs(api, browse_id)
+    }
+    pub async fn get_watch_playlist(
+        &self,
+        video_id: VideoID<'static>,
+    ) -> Result<Vec<WatchPlaylistTrack>> {
+        get_watch_playlist(self.get_api().await?, video_id).await
     }
 }
 
@@ -409,4 +417,13 @@ fn get_playlist_songs(
         send_or_error(tx, GetPlaylistSongsProgressUpdate::AllSongsSent).await;
     });
     PanickingReceiverStream::new(rx, handle)
+}
+
+async fn get_watch_playlist(
+    api: ConcurrentApi,
+    video_id: VideoID<'static>,
+) -> Result<Vec<WatchPlaylistTrack>> {
+    tracing::info!("Getting watch playlist for {:?}", video_id);
+    let query = GetWatchPlaylistQuery::new_from_video_id(video_id);
+    query_api_with_retry(&api, query).await
 }

@@ -5,9 +5,10 @@ use crate::app::component::actionhandler::{
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use crate::app::server::{
-    AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause, PausePlay,
-    PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
+    AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, GetWatchPlaylist, IncreaseVolume,
+    Pause, PausePlay, PlaySong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
 };
+use ytmapi_rs::parse::WatchPlaylistTrack;
 use crate::app::structures::{
     AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
     ListSongID, Percentage, PlayState, SongListComponent,
@@ -54,6 +55,7 @@ pub struct Playlist {
     pub volume: Percentage,
     cur_selected: usize,
     pub widget_state: ScrollingTableState,
+    pub continuous_play: bool,
 }
 impl_youtui_component!(Playlist);
 
@@ -64,6 +66,7 @@ pub enum PlaylistAction {
     PlaySelected,
     DeleteSelected,
     DeleteAll,
+    ToggleContinuousPlay,
 }
 
 impl Action for PlaylistAction {
@@ -76,6 +79,7 @@ impl Action for PlaylistAction {
             PlaylistAction::PlaySelected => "Play Selected",
             PlaylistAction::DeleteSelected => "Delete Selected",
             PlaylistAction::DeleteAll => "Delete All",
+            PlaylistAction::ToggleContinuousPlay => "Toggle Continuous Play",
         }
         .into()
     }
@@ -94,6 +98,10 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::PlaySelected => (self.play_selected(), None),
             PlaylistAction::DeleteSelected => (self.delete_selected(), None),
             PlaylistAction::DeleteAll => (self.delete_all(), None),
+            PlaylistAction::ToggleContinuousPlay => {
+                self.continuous_play = !self.continuous_play;
+                (AsyncTask::new_no_op(), None).into()
+            }
         }
     }
 }
@@ -250,6 +258,7 @@ impl Playlist {
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
             widget_state: Default::default(),
+            continuous_play: true,
         };
         (playlist, task)
     }
@@ -576,6 +585,19 @@ impl Playlist {
                 match next_song_id {
                     Some(id) => self.autoplay_song_id(id),
                     None => {
+                        if self.continuous_play {
+                            if let Some(video_id) =
+                                self.get_song_from_id(*id).map(|s| s.video_id.clone())
+                            {
+                                return AsyncTask::new_future_chained(
+                                    GetWatchPlaylist(video_id),
+                                    |this: &mut Self, result| {
+                                        this.handle_watch_playlist_response(result)
+                                    },
+                                    None,
+                                );
+                            }
+                        }
                         info!("No next song - resetting play status");
                         self.queue_status = QueueState::NotQueued;
                         // As a neat hack I only need to ask the player to stop current ID - even if
@@ -858,6 +880,25 @@ impl Playlist {
 }
 // Server handlers
 impl Playlist {
+    pub fn handle_watch_playlist_response(
+        &mut self,
+        response: anyhow::Result<Vec<WatchPlaylistTrack>>,
+    ) -> ComponentEffect<Self> {
+        match response {
+            Ok(tracks) => {
+                let songs: Vec<ListSong> = tracks.into_iter().map(Into::into).collect();
+                if songs.is_empty() {
+                    return AsyncTask::new_no_op();
+                }
+                let (id, effect) = self.push_song_list(songs);
+                effect.push(self.play_song_id(id))
+            }
+            Err(e) => {
+                error!("Error getting watch playlist: {}", e);
+                AsyncTask::new_no_op()
+            }
+        }
+    }
     /// Handle song progress update from server.
     pub fn handle_song_download_progress_update(
         &mut self,
