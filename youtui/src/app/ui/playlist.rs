@@ -2,11 +2,13 @@ use super::action::AppAction;
 use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
+use crate::app::server::player::DecodedInMemSong;
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
-use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
+use crate::app::server::song_thumbnail_downloader::{SongThumbnail, SongThumbnailID};
 use crate::app::server::{
     ArcServer, AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause,
-    PausePlay, PlaySong, QueueSong, Resume, Seek, SeekTo, Server, Stop, StopAll, TaskMetadata,
+    PausePlay, PlayDecodedSong, PlaySong, QueueSong, Resume, Seek, SeekTo, Server, Stop, StopAll,
+    TaskMetadata,
 };
 use crate::app::structures::{
     AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
@@ -23,10 +25,11 @@ use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::widgets::ScrollingTableState;
 use async_callback_manager::{
-    AsyncTask, Constraint, FrontendMutation, TaskHandler, TryBackendTaskExt,
+    AsyncTask, Constraint, FrontendMutation, MapFn, TaskHandler, TryBackendTaskExt,
 };
 use ratatui::Frame;
 use ratatui::layout::Rect;
+use rodio::decoder::DecoderError;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -285,24 +288,14 @@ impl Playlist {
             {
                 // This task has the metadata of both DecodeSong and PlaySong and returns
                 // Result<PlayUpdate>.
-                let task = DecodeSong(pointer.clone()).map_stream(move |song| {
-                    tracing::info!("Song decoded succesfully. {:?}", id);
-                    PlaySong { song, id }
-                });
+                let task = DecodeSong(pointer.clone()).map_stream(PlayDecodedSong(id));
                 let constraint = Some(Constraint::new_block_matching_metadata(
                     TaskMetadata::PlayingSong,
                 ));
-                let handle_update = move |this: &mut Self, update| match update {
-                    Ok(u) => this.handle_play_update(u),
-                    Err(e) => {
-                        error!("Error {e} received when trying to decode {:?}", id);
-                        this.handle_set_to_error(id);
-                        AsyncTask::new_no_op()
-                    }
-                };
-                let effect = effect.push(AsyncTask::new_stream_with_closure_handler_chained(
+                let effect = effect.push(AsyncTask::new_stream_try(
                     task,
-                    handle_update,
+                    HandlePlayUpdateOk,
+                    HandlePlayUpdateError(id),
                     constraint,
                 ));
                 self.play_status = PlayState::Playing(id);
@@ -341,17 +334,10 @@ impl Playlist {
                 // Result<AutoplayUpdate>.
                 let task =
                     DecodeSong(pointer.clone()).map_stream(move |song| AutoplaySong { song, id });
-                let handle_update = move |this: &mut Self, update| match update {
-                    Ok(u) => this.handle_autoplay_update(u),
-                    Err(e) => {
-                        error!("Error {e} received when trying to decode {:?}", id);
-                        this.handle_set_to_error(id);
-                        AsyncTask::new_no_op()
-                    }
-                };
-                let effect = effect.push(AsyncTask::new_stream_with_closure_handler_chained(
+                let effect = effect.push(AsyncTask::new_stream_try(
                     task,
-                    handle_update,
+                    HandleAutoplayUpdateOk,
+                    HandlePlayUpdateError(id),
                     None,
                 ));
                 self.play_status = PlayState::Playing(id);
@@ -450,12 +436,9 @@ impl Playlist {
             _ => (),
         };
         // TODO: Consider how to handle race conditions.
-        let effect = AsyncTask::new_stream_with_closure_handler_chained(
+        let effect = AsyncTask::new_stream_eq(
             DownloadSong(song.video_id.clone(), id),
-            |this: &mut Playlist, item| {
-                let DownloadProgressUpdate { kind, id } = item;
-                this.handle_song_download_progress_update(kind, id)
-            },
+            HandleSongDownloadProgressUpdate,
             None,
         );
         song.download_status = DownloadStatus::Queued;
@@ -500,20 +483,13 @@ impl Playlist {
         let effect = albums
             .into_iter()
             .map(|(thumbnail_id, thumbnail_url)| {
-                AsyncTask::new_future_with_closure_handler(
+                AsyncTask::new_future_try_eq(
                     GetSongThumbnail {
                         thumbnail_url,
                         thumbnail_id: thumbnail_id.clone(),
                     },
-                    |this: &mut Self, result| match result {
-                        Ok(album_art) => this.list.add_song_thumbnail(album_art),
-                        Err(e) => {
-                            error!("Error {e} getting album art");
-                            // TODO: if set_song_thumbnail_error sends back it's ID, one less clone
-                            // is required.
-                            this.list.set_song_thumbnail_error(thumbnail_id);
-                        }
-                    },
+                    HandleGetSongThumbnailOk,
+                    HandleGetSongThumbnailError(thumbnail_id),
                     None,
                 )
             })
@@ -777,15 +753,9 @@ impl Playlist {
             }
             _ => return AsyncTask::new_no_op(),
         };
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future_eq(
             PausePlay(id),
-            |this: &mut Playlist, response| {
-                let Some(response) = response else { return };
-                match response {
-                    PausePlayResponse::Paused(id) => this.handle_paused(id),
-                    PausePlayResponse::Resumed(id) => this.handle_resumed(id),
-                };
-            },
+            HandlePausePlayResponse,
             Some(Constraint::new_block_matching_metadata(
                 TaskMetadata::PlayPause,
             )),
@@ -1088,6 +1058,22 @@ struct HandleStopped;
 struct HandleSetSongPlayProgress;
 #[derive(PartialEq)]
 struct HandleVolumeUpdate;
+#[derive(PartialEq)]
+struct HandleGetSongThumbnailOk;
+#[derive(PartialEq)]
+struct HandlePausePlayResponse;
+#[derive(PartialEq)]
+struct HandleResumeResponse;
+#[derive(PartialEq)]
+struct HandleGetSongThumbnailError(SongThumbnailID<'static>);
+#[derive(PartialEq, Clone)]
+struct HandlePlayUpdateOk;
+#[derive(PartialEq, Clone)]
+struct HandleAutoplayUpdateOk;
+#[derive(PartialEq, Clone)]
+struct HandlePlayUpdateError(ListSongID);
+#[derive(PartialEq, Clone)]
+struct HandleSongDownloadProgressUpdate;
 
 #[derive(Debug, PartialEq)]
 enum PlaylistMessage {
@@ -1095,13 +1081,23 @@ enum PlaylistMessage {
     StopSongIDIfSomeAndCur(Option<Stopped<ListSongID>>),
     HandleSetSongPlayProgress(Option<ProgressUpdate<ListSongID>>),
     HandleVolumeUpdate(Option<VolumeUpdate>),
+    HandlePausePlayResponse(Option<PausePlayResponse<ListSongID>>),
+    HandlePlayUpdate(PlayUpdate<ListSongID>),
+    HandleAutoplayUpdate(AutoplayUpdate<ListSongID>),
+    HandleSetToError(ListSongID),
+    HandleSongDownloadProgressUpdate {
+        kind: DownloadProgressUpdateType,
+        id: ListSongID,
+    },
+    SetSongThumbnailError(SongThumbnailID<'static>),
+    AddSongThumbnail(SongThumbnail),
 }
 
 impl TaskHandler<Option<Stopped<ListSongID>>, Playlist, ArcServer, TaskMetadata> for HandleStopped {
     fn handle(
         self,
         output: Option<Stopped<ListSongID>>,
-    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
         PlaylistMessage::StopSongIDIfSomeAndCur(output)
     }
 }
@@ -1109,7 +1105,7 @@ impl TaskHandler<Option<AllStopped>, Playlist, ArcServer, TaskMetadata> for Hand
     fn handle(
         self,
         output: Option<AllStopped>,
-    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
         PlaylistMessage::SetStatusStoppedIfSome(output)
     }
 }
@@ -1119,7 +1115,7 @@ impl TaskHandler<Option<ProgressUpdate<ListSongID>>, Playlist, ArcServer, TaskMe
     fn handle(
         self,
         output: Option<ProgressUpdate<ListSongID>>,
-    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
         PlaylistMessage::HandleSetSongPlayProgress(output)
     }
 }
@@ -1127,8 +1123,75 @@ impl TaskHandler<Option<VolumeUpdate>, Playlist, ArcServer, TaskMetadata> for Ha
     fn handle(
         self,
         output: Option<VolumeUpdate>,
-    ) -> impl async_callback_manager::FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
         PlaylistMessage::HandleVolumeUpdate(output)
+    }
+}
+impl TaskHandler<PlayUpdate<ListSongID>, Playlist, ArcServer, TaskMetadata> for HandlePlayUpdateOk {
+    fn handle(
+        self,
+        output: PlayUpdate<ListSongID>,
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        PlaylistMessage::HandlePlayUpdate(output)
+    }
+}
+impl TaskHandler<AutoplayUpdate<ListSongID>, Playlist, ArcServer, TaskMetadata>
+    for HandleAutoplayUpdateOk
+{
+    fn handle(
+        self,
+        output: AutoplayUpdate<ListSongID>,
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        PlaylistMessage::HandleAutoplayUpdate(output)
+    }
+}
+impl TaskHandler<DecoderError, Playlist, ArcServer, TaskMetadata> for HandlePlayUpdateError {
+    fn handle(
+        self,
+        output: DecoderError,
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        error!("Error {output} received when trying to decode {:?}", self.0);
+        PlaylistMessage::HandleSetToError(self.0)
+    }
+}
+impl TaskHandler<DownloadProgressUpdate, Playlist, ArcServer, TaskMetadata>
+    for HandleSongDownloadProgressUpdate
+{
+    fn handle(
+        self,
+        output: DownloadProgressUpdate,
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        let DownloadProgressUpdate { kind, id } = output;
+        PlaylistMessage::HandleSongDownloadProgressUpdate { kind, id }
+    }
+}
+impl TaskHandler<anyhow::Error, Playlist, ArcServer, TaskMetadata> for HandleGetSongThumbnailError {
+    fn handle(
+        self,
+        output: anyhow::Error,
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        error!("Error {output} getting album art");
+        // TODO: if GetSongThumbnail error sends back it's ID, one less clone
+        // is required.
+        PlaylistMessage::SetSongThumbnailError(self.0)
+    }
+}
+impl TaskHandler<Option<PausePlayResponse<ListSongID>>, Playlist, ArcServer, TaskMetadata>
+    for HandlePausePlayResponse
+{
+    fn handle(
+        self,
+        output: Option<PausePlayResponse<ListSongID>>,
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        PlaylistMessage::HandlePausePlayResponse(output)
+    }
+}
+impl TaskHandler<SongThumbnail, Playlist, ArcServer, TaskMetadata> for HandleGetSongThumbnailOk {
+    fn handle(
+        self,
+        output: SongThumbnail,
+    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
+        PlaylistMessage::AddSongThumbnail(output)
     }
 }
 impl FrontendMutation<Playlist, ArcServer, TaskMetadata> for PlaylistMessage {
@@ -1140,6 +1203,15 @@ impl FrontendMutation<Playlist, ArcServer, TaskMetadata> for PlaylistMessage {
             PlaylistMessage::StopSongIDIfSomeAndCur(msg) => {
                 target.handle_stopped(msg);
             }
+            PlaylistMessage::HandlePausePlayResponse(msg) => {
+                let Some(response) = msg else {
+                    return AsyncTask::new_no_op();
+                };
+                match response {
+                    PausePlayResponse::Paused(id) => target.handle_paused(id),
+                    PausePlayResponse::Resumed(id) => target.handle_resumed(id),
+                };
+            }
             PlaylistMessage::HandleSetSongPlayProgress(msg) => {
                 let Some(msg) = msg else {
                     return AsyncTask::new_no_op();
@@ -1147,6 +1219,18 @@ impl FrontendMutation<Playlist, ArcServer, TaskMetadata> for PlaylistMessage {
                 return target.handle_set_song_play_progress(msg.duration, msg.identifier);
             }
             PlaylistMessage::HandleVolumeUpdate(msg) => target.handle_volume_update(msg),
+            PlaylistMessage::HandlePlayUpdate(msg) => return target.handle_play_update(msg),
+            PlaylistMessage::HandleAutoplayUpdate(msg) => {
+                return target.handle_autoplay_update(msg);
+            }
+            PlaylistMessage::HandleSetToError(msg) => target.handle_set_to_error(msg),
+            PlaylistMessage::HandleSongDownloadProgressUpdate { kind, id } => {
+                return target.handle_song_download_progress_update(kind, id);
+            }
+            PlaylistMessage::SetSongThumbnailError(msg) => {
+                target.list.set_song_thumbnail_error(msg)
+            }
+            PlaylistMessage::AddSongThumbnail(msg) => target.list.add_song_thumbnail(msg),
         }
         AsyncTask::new_no_op()
     }

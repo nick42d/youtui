@@ -13,6 +13,20 @@ impl<Bkend, T: BackendTask<Bkend, Output = Result<O, E>>, O, E> TryBackendTaskEx
     type Ok = O;
 }
 
+pub trait MapFn<T> {
+    type Output;
+    fn apply(self, input: T) -> Self::Output;
+}
+impl<T, F, O> MapFn<T> for F
+where
+    F: FnOnce(T) -> O,
+{
+    type Output = O;
+    fn apply(self, input: T) -> Self::Output {
+        self(input)
+    }
+}
+
 pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     type Error;
     type Ok;
@@ -20,7 +34,7 @@ pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     where
         Self: Sized,
         S: BackendStreamingTask<Bkend>,
-        F: FnOnce(Self::Ok) -> S,
+        F: MapFn<Self::Ok, Output = S>,
     {
         Map {
             first: self,
@@ -54,6 +68,7 @@ pub trait BackendTaskExt<Bkend>: BackendTask<Bkend> {
     }
 }
 
+#[derive(PartialEq)]
 pub struct Map<T, F, Ty> {
     first: T,
     create_next: F,
@@ -86,7 +101,7 @@ where
     T: BackendTask<Bkend, MetadataType = Ct, Output = std::result::Result<O, E>>,
     S: BackendStreamingTask<Bkend, MetadataType = Ct>,
     Ct: PartialEq,
-    F: FnOnce(O) -> S,
+    F: MapFn<O, Output = S>,
     E: Send + 'static,
     Ty: Send + 'static,
     O: Send,
@@ -106,7 +121,7 @@ where
             let seed = BackendTask::into_future(first, &backend).await;
             match seed {
                 Ok(seed) => {
-                    let mut stream = create_next(seed).into_stream(&backend);
+                    let mut stream = create_next.apply(seed).into_stream(&backend);
                     while let Some(item) = stream.next().await {
                         let _ = tx.send(Ok(item)).await;
                     }

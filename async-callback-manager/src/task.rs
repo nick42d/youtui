@@ -1,4 +1,6 @@
-use crate::task::dyn_task::{FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq};
+use crate::task::dyn_task::{
+    FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq, TryHandler,
+};
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
 use crate::{BackendStreamingTask, BackendTask, Constraint, MaybePartialEq, TaskHandler};
 use std::any::{Any, TypeId, type_name};
@@ -140,6 +142,84 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
             metadata,
         }
     }
+    pub fn new_future_try_eq<R, T, E>(
+        request: R,
+        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + PartialEq + 'static,
+        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + PartialEq + 'static,
+        constraint: Option<Constraint<Md>>,
+    ) -> AsyncTask<Frntend, Bkend, Md>
+    where
+        R: BackendTask<Bkend, MetadataType = Md, Output = Result<T, E>>
+            + Send
+            + Debug
+            + PartialEq
+            + 'static,
+        Bkend: 'static,
+        Frntend: 'static,
+        E: 'static,
+        T: 'static,
+    {
+        let metadata = R::metadata();
+        let type_id = request.type_id();
+        let type_name = type_name::<R>();
+        let type_debug = format!("{request:?}");
+        let task = Box::new(FusedTask::new_future_eq(
+            request,
+            TryHandler {
+                ok_handler,
+                err_handler,
+            },
+        ));
+        let task = FutureTask {
+            task,
+            type_id,
+            type_name,
+            type_debug,
+        };
+        AsyncTask {
+            task: AsyncTaskKind::Future(task),
+            constraint,
+            metadata,
+        }
+    }
+    pub fn new_future_option_eq<R, T, E>(
+        request: R,
+        some_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + PartialEq + 'static,
+        constraint: Option<Constraint<Md>>,
+    ) -> AsyncTask<Frntend, Bkend, Md>
+    where
+        R: BackendTask<Bkend, MetadataType = Md, Output = Option<T>>
+            + Send
+            + Debug
+            + PartialEq
+            + 'static,
+        Bkend: 'static,
+        Frntend: 'static,
+        T: 'static,
+    {
+        let metadata = R::metadata();
+        let type_id = request.type_id();
+        let type_name = type_name::<R>();
+        let type_debug = format!("{request:?}");
+        let task = Box::new(FusedTask::new_future_eq(
+            request,
+            TryHandler {
+                ok_handler,
+                err_handler,
+            },
+        ));
+        let task = FutureTask {
+            task,
+            type_id,
+            type_name,
+            type_debug,
+        };
+        AsyncTask {
+            task: AsyncTaskKind::Future(task),
+            constraint,
+            metadata,
+        }
+    }
     pub fn new_future_with_closure_handler<R>(
         request: R,
         handler: impl FnOnce(&mut Frntend, R::Output) + Send + 'static,
@@ -214,6 +294,45 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_name = type_name::<R>();
         let type_debug = format!("{request:?}");
         let task = Box::new(FusedTask::new_stream_eq(request, handler));
+        let task = StreamTask {
+            task,
+            type_id,
+            type_name,
+            type_debug,
+        };
+        AsyncTask {
+            task: AsyncTaskKind::Stream(task),
+            constraint,
+            metadata,
+        }
+    }
+    pub fn new_stream_try<R, T, E>(
+        request: R,
+        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + 'static,
+        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + Clone + 'static,
+        constraint: Option<Constraint<Md>>,
+    ) -> AsyncTask<Frntend, Bkend, Md>
+    where
+        R: BackendStreamingTask<Bkend, MetadataType = Md, Output = Result<T, E>>
+            + Send
+            + Debug
+            + 'static,
+        Bkend: 'static,
+        Frntend: 'static,
+        E: 'static,
+        T: 'static,
+    {
+        let metadata = R::metadata();
+        let type_id = request.type_id();
+        let type_name = type_name::<R>();
+        let type_debug = format!("{request:?}");
+        let task = Box::new(FusedTask::new_stream(
+            request,
+            TryHandler {
+                ok_handler,
+                err_handler,
+            },
+        ));
         let task = StreamTask {
             task,
             type_id,

@@ -124,7 +124,7 @@ pub enum PausePlayResponse<I> {
     Paused(I),
     Resumed(I),
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum AutoplayUpdate<I>
 where
     I: Debug,
@@ -135,7 +135,7 @@ where
     AutoplayQueued(I),
     Error(String),
 }
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum PlayUpdate<I>
 where
     I: Debug,

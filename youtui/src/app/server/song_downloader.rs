@@ -18,13 +18,13 @@ use ytmapi_rs::common::{VideoID, YoutubeID};
 // updates.
 const MIN_SONG_PROGRESS_INTERVAL: usize = 3;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DownloadProgressUpdate {
     pub kind: DownloadProgressUpdateType,
     pub id: ListSongID,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum DownloadProgressUpdateType {
     Started,
     Downloading(Percentage),

@@ -37,6 +37,7 @@ pub(crate) struct FusedTask<T, H> {
     pub(crate) eq_fn: Option<fn(&Self, &Self) -> bool>,
 }
 
+#[derive(PartialEq, Clone)]
 pub(crate) struct TryHandler<OkH, ErrH> {
     pub(crate) ok_handler: OkH,
     pub(crate) err_handler: ErrH,
@@ -133,6 +134,17 @@ impl<T, H> FusedTask<T, H> {
             task: request,
             handler,
             eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
+        }
+    }
+    pub(crate) fn new_stream<Bkend, Frntend, Md>(request: T, handler: H) -> Self
+    where
+        T: BackendStreamingTask<Bkend>,
+        H: TaskHandler<T::Output, Frntend, Bkend, Md> + Clone,
+    {
+        Self {
+            task: request,
+            handler,
+            eq_fn: None,
         }
     }
 }

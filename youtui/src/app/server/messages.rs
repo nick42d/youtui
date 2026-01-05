@@ -12,7 +12,7 @@ use crate::async_rodio_sink::{
     Resumed, SeekDirection, Stopped, VolumeUpdate,
 };
 use anyhow::{Error, Result};
-use async_callback_manager::{BackendStreamingTask, BackendTask};
+use async_callback_manager::{BackendStreamingTask, BackendTask, MapFn};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
@@ -47,7 +47,7 @@ pub struct GetPlaylistSongs {
     pub max_songs: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 
 // Player Requests documentation:
@@ -87,14 +87,14 @@ pub struct Stop(pub ListSongID);
 /// Stop the player, regardless of what song is playing.
 #[derive(Debug, PartialEq)]
 pub struct StopAll;
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PausePlay(pub ListSongID);
 #[derive(Debug)]
 pub struct Resume(pub ListSongID);
 #[derive(Debug)]
 pub struct Pause(pub ListSongID);
 /// Decode a song into a format that can be played.
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct DecodeSong(pub Arc<InMemSong>);
 /// Play a song, starting from the start, regardless what's queued.
 #[derive(Debug)]
@@ -114,7 +114,7 @@ pub struct QueueSong {
     pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct GetSongThumbnail {
     pub thumbnail_url: String,
     pub thumbnail_id: SongThumbnailID<'static>,
@@ -392,6 +392,19 @@ impl BackendTask<ArcServer> for GetSongThumbnail {
                 .song_thumbnail_downloader
                 .download_song_thumbnail(self.thumbnail_id, self.thumbnail_url)
                 .await
+        }
+    }
+}
+
+#[derive(PartialEq)]
+pub struct PlayDecodedSong(pub ListSongID);
+impl MapFn<DecodedInMemSong> for PlayDecodedSong {
+    type Output = PlaySong;
+    fn apply(self, input: DecodedInMemSong) -> Self::Output {
+        tracing::info!("Song decoded succesfully. {:?}", self.0);
+        PlaySong {
+            song: input,
+            id: self.0,
         }
     }
 }
