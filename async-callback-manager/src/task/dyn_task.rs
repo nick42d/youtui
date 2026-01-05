@@ -43,6 +43,9 @@ pub(crate) struct TryHandler<OkH, ErrH> {
     pub(crate) err_handler: ErrH,
 }
 
+#[derive(PartialEq, Clone)]
+pub(crate) struct OptionHandler<SomeH>(pub(crate) SomeH);
+
 pub(crate) enum Either<L, R> {
     Left(L),
     Right(R),
@@ -63,6 +66,26 @@ where
             Ok(x) => Either::Left(ok_handler.handle(x)),
             Err(e) => Either::Right(err_handler.handle(e)),
         }
+    }
+}
+impl<SomeH, T, Frntend, Bkend, Md> TaskHandler<Option<T>, Frntend, Bkend, Md>
+    for OptionHandler<SomeH>
+where
+    SomeH: TaskHandler<T, Frntend, Bkend, Md>,
+{
+    fn handle(self, output: Option<T>) -> impl FrontendMutation<Frntend, Bkend, Md> {
+        output.map(|output| self.0.handle(output))
+    }
+}
+impl<M, Frntend, Bkend, Md> FrontendMutation<Frntend, Bkend, Md> for Option<M>
+where
+    M: FrontendMutation<Frntend, Bkend, Md>,
+{
+    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
+        let Some(mutation) = self else {
+            return AsyncTask::new_no_op();
+        };
+        mutation.apply(target)
     }
 }
 impl<L, R, Frntend, Bkend, Md> FrontendMutation<Frntend, Bkend, Md> for Either<L, R>

@@ -89,9 +89,9 @@ pub struct Stop(pub ListSongID);
 pub struct StopAll;
 #[derive(Debug, PartialEq)]
 pub struct PausePlay(pub ListSongID);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Resume(pub ListSongID);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Pause(pub ListSongID);
 /// Decode a song into a format that can be played.
 #[derive(PartialEq, Debug)]

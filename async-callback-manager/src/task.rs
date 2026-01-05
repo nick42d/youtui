@@ -1,5 +1,5 @@
 use crate::task::dyn_task::{
-    FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq, TryHandler,
+    FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
 use crate::{BackendStreamingTask, BackendTask, Constraint, MaybePartialEq, TaskHandler};
@@ -182,7 +182,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
             metadata,
         }
     }
-    pub fn new_future_option_eq<R, T, E>(
+    pub fn new_future_option_eq<R, T>(
         request: R,
         some_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + PartialEq + 'static,
         constraint: Option<Constraint<Md>>,
@@ -203,10 +203,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_debug = format!("{request:?}");
         let task = Box::new(FusedTask::new_future_eq(
             request,
-            TryHandler {
-                ok_handler,
-                err_handler,
-            },
+            OptionHandler(some_handler),
         ));
         let task = FutureTask {
             task,

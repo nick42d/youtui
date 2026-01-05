@@ -113,13 +113,13 @@ pub struct Stopped<I>(pub I);
 /// Message to say that playback has stopped - all songs.
 #[derive(Debug, PartialEq)]
 pub struct AllStopped;
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Resumed<I>(pub I);
 #[derive(Debug)]
 pub struct Paused<I>(pub I);
 // This is different to Paused and Resumed, as a PausePlay message could return
 // either.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PausePlayResponse<I> {
     Paused(I),
     Resumed(I),
@@ -145,7 +145,7 @@ where
     DonePlaying(I),
     Error(String),
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum QueueUpdate<I>
 where
     I: Debug,
