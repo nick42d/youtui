@@ -408,3 +408,27 @@ impl MapFn<DecodedInMemSong> for PlayDecodedSong {
         }
     }
 }
+#[derive(PartialEq)]
+pub struct AutoplayDecodedSong(pub ListSongID);
+impl MapFn<DecodedInMemSong> for AutoplayDecodedSong {
+    type Output = AutoplaySong;
+    fn apply(self, input: DecodedInMemSong) -> Self::Output {
+        tracing::info!("Song decoded succesfully. {:?}", self.0);
+        AutoplaySong {
+            song: input,
+            id: self.0,
+        }
+    }
+}
+#[derive(PartialEq)]
+pub struct QueueDecodedSong(pub ListSongID);
+impl MapFn<DecodedInMemSong> for QueueDecodedSong {
+    type Output = QueueSong;
+    fn apply(self, input: DecodedInMemSong) -> Self::Output {
+        tracing::info!("Song decoded succesfully. {:?}", self.0);
+        QueueSong {
+            song: input,
+            id: self.0,
+        }
+    }
+}

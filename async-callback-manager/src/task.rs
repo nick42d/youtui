@@ -303,16 +303,17 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
             metadata,
         }
     }
-    pub fn new_stream_try<R, T, E>(
+    pub fn new_stream_try_eq<R, T, E>(
         request: R,
-        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + 'static,
-        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + Clone + 'static,
+        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + PartialEq + 'static,
+        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + Clone + PartialEq + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
         R: BackendStreamingTask<Bkend, MetadataType = Md, Output = Result<T, E>>
             + Send
             + Debug
+            + PartialEq
             + 'static,
         Bkend: 'static,
         Frntend: 'static,
@@ -323,7 +324,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_id = request.type_id();
         let type_name = type_name::<R>();
         let type_debug = format!("{request:?}");
-        let task = Box::new(FusedTask::new_stream(
+        let task = Box::new(FusedTask::new_stream_eq(
             request,
             TryHandler {
                 ok_handler,

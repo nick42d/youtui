@@ -68,13 +68,22 @@ pub trait BackendTaskExt<Bkend>: BackendTask<Bkend> {
     }
 }
 
-#[derive(PartialEq)]
 pub struct Map<T, F, Ty> {
     first: T,
     create_next: F,
     /// Used for introspection / debugging (ie, consumer can pring output type
     /// name.
     create_next_type: PhantomData<Ty>,
+}
+
+impl<T, F, Ty> PartialEq for Map<T, F, Ty>
+where
+    T: PartialEq,
+    F: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.first == other.first && self.create_next == other.create_next
+    }
 }
 
 impl<T, F, Ty> Debug for Map<T, F, Ty>
@@ -88,7 +97,7 @@ where
             // TODO: we could deduce the type name returned by the closure
             .field(
                 "create_next",
-                &format!("{{{}}}", std::any::type_name::<Ty>()),
+                &format!("{{MapFn}}->{{{}}}", std::any::type_name::<Ty>()),
             )
             .finish()
     }

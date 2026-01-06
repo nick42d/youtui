@@ -5,8 +5,9 @@ use crate::app::component::actionhandler::{
 use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
 use crate::app::server::song_thumbnail_downloader::{SongThumbnail, SongThumbnailID};
 use crate::app::server::{
-    ArcServer, AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause,
-    PausePlay, PlayDecodedSong, QueueSong, Resume, Seek, SeekTo, Stop, StopAll, TaskMetadata,
+    ArcServer, AutoplayDecodedSong, AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail,
+    IncreaseVolume, Pause, PausePlay, PlayDecodedSong, QueueDecodedSong, QueueSong, Resume, Seek,
+    SeekTo, Stop, StopAll, TaskMetadata,
 };
 use crate::app::structures::{
     AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
@@ -290,7 +291,7 @@ impl Playlist {
                 let constraint = Some(Constraint::new_block_matching_metadata(
                     TaskMetadata::PlayingSong,
                 ));
-                let effect = effect.push(AsyncTask::new_stream_try(
+                let effect = effect.push(AsyncTask::new_stream_try_eq(
                     task,
                     HandlePlayUpdateOk,
                     HandlePlayUpdateError(id),
@@ -330,9 +331,8 @@ impl Playlist {
             {
                 // This task has the metadata of both DecodeSong and AutoplaySong and returns
                 // Result<AutoplayUpdate>.
-                let task =
-                    DecodeSong(pointer.clone()).map_stream(move |song| AutoplaySong { song, id });
-                let effect = effect.push(AsyncTask::new_stream_try(
+                let task = DecodeSong(pointer.clone()).map_stream(AutoplayDecodedSong(id));
+                let effect = effect.push(AsyncTask::new_stream_try_eq(
                     task,
                     HandleAutoplayUpdateOk,
                     HandlePlayUpdateError(id),
@@ -937,9 +937,9 @@ impl Playlist {
         {
             // This task has the metadata of both DecodeSong and QueueSong and returns
             // Result<QueueUpdate>.
-            let task = DecodeSong(song.clone()).map_stream(move |song| QueueSong { song, id });
+            let task = DecodeSong(song.clone()).map_stream(QueueDecodedSong(id));
             info!("Queuing up song!");
-            let effect = AsyncTask::new_stream_try(
+            let effect = AsyncTask::new_stream_try_eq(
                 task,
                 HandleQueueUpdateOk,
                 HandlePlayUpdateError(id),
