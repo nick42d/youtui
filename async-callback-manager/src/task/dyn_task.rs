@@ -4,7 +4,7 @@
 //!    need to juggle effects in Either type structs which may cause issues.
 //! 2. Ease of storage in task list due to heap allocation - manager can store
 //!    tasks directly in a Vec as they are all the same size.
-use crate::{AsyncTask, BackendStreamingTask, BackendTask, FrontendMutation, TaskHandler};
+use crate::{AsyncTask, BackendStreamingTask, BackendTask, FrontendEffect, TaskHandler};
 use futures::Stream;
 use std::any::Any;
 use tokio_stream::StreamExt;
@@ -57,7 +57,7 @@ where
     OkH: TaskHandler<T, Frntend, Bkend, Md>,
     ErrH: TaskHandler<E, Frntend, Bkend, Md>,
 {
-    fn handle(self, output: Result<T, E>) -> impl FrontendMutation<Frntend, Bkend, Md> {
+    fn handle(self, output: Result<T, E>) -> impl FrontendEffect<Frntend, Bkend, Md> {
         let Self {
             ok_handler,
             err_handler,
@@ -73,13 +73,13 @@ impl<SomeH, T, Frntend, Bkend, Md> TaskHandler<Option<T>, Frntend, Bkend, Md>
 where
     SomeH: TaskHandler<T, Frntend, Bkend, Md>,
 {
-    fn handle(self, output: Option<T>) -> impl FrontendMutation<Frntend, Bkend, Md> {
+    fn handle(self, output: Option<T>) -> impl FrontendEffect<Frntend, Bkend, Md> {
         output.map(|output| self.0.handle(output))
     }
 }
-impl<M, Frntend, Bkend, Md> FrontendMutation<Frntend, Bkend, Md> for Option<M>
+impl<M, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for Option<M>
 where
-    M: FrontendMutation<Frntend, Bkend, Md>,
+    M: FrontendEffect<Frntend, Bkend, Md>,
 {
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
         let Some(mutation) = self else {
@@ -88,10 +88,10 @@ where
         mutation.apply(target)
     }
 }
-impl<L, R, Frntend, Bkend, Md> FrontendMutation<Frntend, Bkend, Md> for Either<L, R>
+impl<L, R, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for Either<L, R>
 where
-    L: FrontendMutation<Frntend, Bkend, Md>,
-    R: FrontendMutation<Frntend, Bkend, Md>,
+    L: FrontendEffect<Frntend, Bkend, Md>,
+    R: FrontendEffect<Frntend, Bkend, Md>,
 {
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
         match self {

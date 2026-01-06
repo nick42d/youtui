@@ -52,26 +52,26 @@ pub trait BackendStreamingTask<Bkend>: Send + Any {
 }
 
 /// Represents the handler for a task output.
-pub trait TaskHandler<Output, Frntend, Bkend, Md> {
-    fn handle(self, output: Output) -> impl FrontendMutation<Frntend, Bkend, Md>;
+pub trait TaskHandler<Input, Frntend, Bkend, Md> {
+    fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md>;
 }
 
-impl<T, Output, Frntend, Bkend, Md> TaskHandler<Output, Frntend, Bkend, Md> for T
+impl<T, Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for T
 where
-    T: FnOnce(&mut Frntend, Output) -> AsyncTask<Frntend, Bkend, Md> + Send + 'static,
+    T: FnOnce(&mut Frntend, Input) -> AsyncTask<Frntend, Bkend, Md> + Send + 'static,
 {
-    fn handle(self, output: Output) -> impl FrontendMutation<Frntend, Bkend, Md> {
-        |frontend: &mut Frntend| self(frontend, output)
+    fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md> {
+        |frontend: &mut Frntend| self(frontend, input)
     }
 }
 
 /// Represents a mutation that can be applied to some state, returning an
 /// effect.
-pub trait FrontendMutation<Frntend, Bkend, Md> {
+pub trait FrontendEffect<Frntend, Bkend, Md> {
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md>;
 }
 
-impl<T, Frntend, Bkend, Md> FrontendMutation<Frntend, Bkend, Md> for T
+impl<T, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for T
 where
     T: FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md>,
 {

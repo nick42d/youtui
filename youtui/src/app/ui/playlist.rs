@@ -23,7 +23,7 @@ use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::widgets::ScrollingTableState;
 use async_callback_manager::{
-    AsyncTask, Constraint, FrontendMutation, TaskHandler, TryBackendTaskExt,
+    AsyncTask, Constraint, FrontendEffect, TaskHandler, TryBackendTaskExt,
 };
 use ratatui::Frame;
 use ratatui::layout::Rect;
@@ -1068,7 +1068,7 @@ struct HandlePlayUpdateError(ListSongID);
 struct HandleSongDownloadProgressUpdate;
 
 #[derive(Debug, PartialEq)]
-enum PlaylistMessage {
+enum PlaylistEffect {
     SetStatusStoppedIfSome(Option<AllStopped>),
     StopSongIDIfSomeAndCur(Option<Stopped<ListSongID>>),
     HandleSetSongPlayProgress(ProgressUpdate<ListSongID>),
@@ -1087,168 +1087,134 @@ enum PlaylistMessage {
     SetSongThumbnailError(SongThumbnailID<'static>),
     AddSongThumbnail(SongThumbnail),
 }
-
-impl TaskHandler<Option<Stopped<ListSongID>>, Playlist, ArcServer, TaskMetadata> for HandleStopped {
-    fn handle(
-        self,
-        output: Option<Stopped<ListSongID>>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::StopSongIDIfSomeAndCur(output)
+impl_youtui_task_handler!(
+    HandleStopped,
+    Option<Stopped<ListSongID>>,
+    Playlist,
+    |_, input| PlaylistEffect::StopSongIDIfSomeAndCur(input)
+);
+impl_youtui_task_handler!(
+    HandleAllStopped,
+    Option<AllStopped>,
+    Playlist,
+    |_, input| PlaylistEffect::SetStatusStoppedIfSome(input)
+);
+impl_youtui_task_handler!(
+    HandleSetSongPlayProgress,
+    ProgressUpdate<ListSongID>,
+    Playlist,
+    |_, input| PlaylistEffect::HandleSetSongPlayProgress(input)
+);
+impl_youtui_task_handler!(
+    HandleVolumeUpdate,
+    Option<VolumeUpdate>,
+    Playlist,
+    |_, input| PlaylistEffect::HandleVolumeUpdate(input)
+);
+impl_youtui_task_handler!(
+    HandlePlayUpdateOk,
+    PlayUpdate<ListSongID>,
+    Playlist,
+    |_, input| PlaylistEffect::HandlePlayUpdate(input)
+);
+impl_youtui_task_handler!(
+    HandleQueueUpdateOk,
+    QueueUpdate<ListSongID>,
+    Playlist,
+    |_, input| PlaylistEffect::HandleQueueUpdate(input)
+);
+impl_youtui_task_handler!(
+    HandleAutoplayUpdateOk,
+    AutoplayUpdate<ListSongID>,
+    Playlist,
+    |_, input| PlaylistEffect::HandleAutoplayUpdate(input)
+);
+impl_youtui_task_handler!(
+    HandlePlayUpdateError,
+    DecoderError,
+    Playlist,
+    |this: HandlePlayUpdateError, input| {
+        error!("Error {input} received when trying to decode {:?}", this.0);
+        PlaylistEffect::HandleSetToError(this.0)
     }
-}
-impl TaskHandler<Option<AllStopped>, Playlist, ArcServer, TaskMetadata> for HandleAllStopped {
-    fn handle(
-        self,
-        output: Option<AllStopped>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::SetStatusStoppedIfSome(output)
+);
+impl_youtui_task_handler!(
+    HandleSongDownloadProgressUpdate,
+    DownloadProgressUpdate,
+    Playlist,
+    |_, input| {
+        let DownloadProgressUpdate { kind, id } = input;
+        PlaylistEffect::HandleSongDownloadProgressUpdate { kind, id }
     }
-}
-impl TaskHandler<ProgressUpdate<ListSongID>, Playlist, ArcServer, TaskMetadata>
-    for HandleSetSongPlayProgress
-{
-    fn handle(
-        self,
-        output: ProgressUpdate<ListSongID>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandleSetSongPlayProgress(output)
-    }
-}
-impl TaskHandler<Option<VolumeUpdate>, Playlist, ArcServer, TaskMetadata> for HandleVolumeUpdate {
-    fn handle(
-        self,
-        output: Option<VolumeUpdate>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandleVolumeUpdate(output)
-    }
-}
-impl TaskHandler<PlayUpdate<ListSongID>, Playlist, ArcServer, TaskMetadata> for HandlePlayUpdateOk {
-    fn handle(
-        self,
-        output: PlayUpdate<ListSongID>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandlePlayUpdate(output)
-    }
-}
-impl TaskHandler<QueueUpdate<ListSongID>, Playlist, ArcServer, TaskMetadata>
-    for HandleQueueUpdateOk
-{
-    fn handle(
-        self,
-        output: QueueUpdate<ListSongID>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandleQueueUpdate(output)
-    }
-}
-impl TaskHandler<AutoplayUpdate<ListSongID>, Playlist, ArcServer, TaskMetadata>
-    for HandleAutoplayUpdateOk
-{
-    fn handle(
-        self,
-        output: AutoplayUpdate<ListSongID>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandleAutoplayUpdate(output)
-    }
-}
-impl TaskHandler<DecoderError, Playlist, ArcServer, TaskMetadata> for HandlePlayUpdateError {
-    fn handle(
-        self,
-        output: DecoderError,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        error!("Error {output} received when trying to decode {:?}", self.0);
-        PlaylistMessage::HandleSetToError(self.0)
-    }
-}
-impl TaskHandler<DownloadProgressUpdate, Playlist, ArcServer, TaskMetadata>
-    for HandleSongDownloadProgressUpdate
-{
-    fn handle(
-        self,
-        output: DownloadProgressUpdate,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        let DownloadProgressUpdate { kind, id } = output;
-        PlaylistMessage::HandleSongDownloadProgressUpdate { kind, id }
-    }
-}
-impl TaskHandler<anyhow::Error, Playlist, ArcServer, TaskMetadata> for HandleGetSongThumbnailError {
-    fn handle(
-        self,
-        output: anyhow::Error,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        error!("Error {output} getting album art");
+);
+impl_youtui_task_handler!(
+    HandleGetSongThumbnailError,
+    anyhow::Error,
+    Playlist,
+    |this: HandleGetSongThumbnailError, input| {
+        error!("Error {input} getting album art");
         // TODO: if GetSongThumbnail error sends back it's ID, one less clone
         // is required.
-        PlaylistMessage::SetSongThumbnailError(self.0)
+        PlaylistEffect::SetSongThumbnailError(this.0)
     }
-}
-impl TaskHandler<PausePlayResponse<ListSongID>, Playlist, ArcServer, TaskMetadata>
-    for HandlePausePlayResponse
-{
-    fn handle(
-        self,
-        output: PausePlayResponse<ListSongID>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandlePausePlayResponse(output)
-    }
-}
-impl TaskHandler<Resumed<ListSongID>, Playlist, ArcServer, TaskMetadata> for HandleResumeResponse {
-    fn handle(
-        self,
-        output: Resumed<ListSongID>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandleResumed(output.0)
-    }
-}
-impl TaskHandler<Paused<ListSongID>, Playlist, ArcServer, TaskMetadata> for HandlePausedResponse {
-    fn handle(
-        self,
-        output: Paused<ListSongID>,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::HandlePaused(output.0)
-    }
-}
-impl TaskHandler<SongThumbnail, Playlist, ArcServer, TaskMetadata> for HandleGetSongThumbnailOk {
-    fn handle(
-        self,
-        output: SongThumbnail,
-    ) -> impl FrontendMutation<Playlist, ArcServer, TaskMetadata> {
-        PlaylistMessage::AddSongThumbnail(output)
-    }
-}
-impl FrontendMutation<Playlist, ArcServer, TaskMetadata> for PlaylistMessage {
+);
+impl_youtui_task_handler!(
+    HandlePausePlayResponse,
+    PausePlayResponse<ListSongID>,
+    Playlist,
+    |_, input| PlaylistEffect::HandlePausePlayResponse(input)
+);
+impl_youtui_task_handler!(
+    HandleResumeResponse,
+    Resumed<ListSongID>,
+    Playlist,
+    |_, input: Resumed<_>| PlaylistEffect::HandleResumed(input.0)
+);
+impl_youtui_task_handler!(
+    HandlePausedResponse,
+    Paused<ListSongID>,
+    Playlist,
+    |_, input: Paused<_>| PlaylistEffect::HandlePaused(input.0)
+);
+impl_youtui_task_handler!(
+    HandleGetSongThumbnailOk,
+    SongThumbnail,
+    Playlist,
+    |_, input| PlaylistEffect::AddSongThumbnail(input)
+);
+
+impl FrontendEffect<Playlist, ArcServer, TaskMetadata> for PlaylistEffect {
     fn apply(self, target: &mut Playlist) -> ComponentEffect<Playlist> {
         match self {
-            PlaylistMessage::SetStatusStoppedIfSome(msg) => {
+            PlaylistEffect::SetStatusStoppedIfSome(msg) => {
                 target.handle_all_stopped(msg);
             }
-            PlaylistMessage::StopSongIDIfSomeAndCur(msg) => {
+            PlaylistEffect::StopSongIDIfSomeAndCur(msg) => {
                 target.handle_stopped(msg);
             }
-            PlaylistMessage::HandlePausePlayResponse(msg) => {
+            PlaylistEffect::HandlePausePlayResponse(msg) => {
                 match msg {
                     PausePlayResponse::Paused(id) => target.handle_paused(id),
                     PausePlayResponse::Resumed(id) => target.handle_resumed(id),
                 };
             }
-            PlaylistMessage::HandleResumed(msg) => target.handle_resumed(msg),
-            PlaylistMessage::HandlePaused(msg) => target.handle_paused(msg),
-            PlaylistMessage::HandleSetSongPlayProgress(msg) => {
+            PlaylistEffect::HandleResumed(msg) => target.handle_resumed(msg),
+            PlaylistEffect::HandlePaused(msg) => target.handle_paused(msg),
+            PlaylistEffect::HandleSetSongPlayProgress(msg) => {
                 return target.handle_set_song_play_progress(msg.duration, msg.identifier);
             }
-            PlaylistMessage::HandleVolumeUpdate(msg) => target.handle_volume_update(msg),
-            PlaylistMessage::HandleQueueUpdate(msg) => return target.handle_queue_update(msg),
-            PlaylistMessage::HandlePlayUpdate(msg) => return target.handle_play_update(msg),
-            PlaylistMessage::HandleAutoplayUpdate(msg) => {
+            PlaylistEffect::HandleVolumeUpdate(msg) => target.handle_volume_update(msg),
+            PlaylistEffect::HandleQueueUpdate(msg) => return target.handle_queue_update(msg),
+            PlaylistEffect::HandlePlayUpdate(msg) => return target.handle_play_update(msg),
+            PlaylistEffect::HandleAutoplayUpdate(msg) => {
                 return target.handle_autoplay_update(msg);
             }
-            PlaylistMessage::HandleSetToError(msg) => target.handle_set_to_error(msg),
-            PlaylistMessage::HandleSongDownloadProgressUpdate { kind, id } => {
+            PlaylistEffect::HandleSetToError(msg) => target.handle_set_to_error(msg),
+            PlaylistEffect::HandleSongDownloadProgressUpdate { kind, id } => {
                 return target.handle_song_download_progress_update(kind, id);
             }
-            PlaylistMessage::SetSongThumbnailError(msg) => {
-                target.list.set_song_thumbnail_error(msg)
-            }
-            PlaylistMessage::AddSongThumbnail(msg) => target.list.add_song_thumbnail(msg),
+            PlaylistEffect::SetSongThumbnailError(msg) => target.list.set_song_thumbnail_error(msg),
+            PlaylistEffect::AddSongThumbnail(msg) => target.list.add_song_thumbnail(msg),
         }
         AsyncTask::new_no_op()
     }
