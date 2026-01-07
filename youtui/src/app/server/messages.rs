@@ -396,7 +396,7 @@ impl BackendTask<ArcServer> for GetSongThumbnail {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct PlayDecodedSong(pub ListSongID);
 impl MapFn<DecodedInMemSong> for PlayDecodedSong {
     type Output = PlaySong;
@@ -408,7 +408,7 @@ impl MapFn<DecodedInMemSong> for PlayDecodedSong {
         }
     }
 }
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct AutoplayDecodedSong(pub ListSongID);
 impl MapFn<DecodedInMemSong> for AutoplayDecodedSong {
     type Output = AutoplaySong;
@@ -420,7 +420,7 @@ impl MapFn<DecodedInMemSong> for AutoplayDecodedSong {
         }
     }
 }
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub struct QueueDecodedSong(pub ListSongID);
 impl MapFn<DecodedInMemSong> for QueueDecodedSong {
     type Output = QueueSong;

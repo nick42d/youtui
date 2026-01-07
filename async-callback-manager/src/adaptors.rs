@@ -2,17 +2,17 @@ use crate::{
     BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE, PanickingReceiverStream,
 };
 use futures::{Stream, StreamExt};
-use std::any::Any;
 use std::fmt::Debug;
 use std::future::Future;
-use std::marker::PhantomData;
 
 impl<Bkend, T: BackendTask<Bkend>> BackendTaskExt<Bkend> for T {}
 impl<Bkend, T: BackendTask<Bkend, Output = Result<O, E>>, O, E> TryBackendTaskExt<Bkend> for T {
     type Error = E;
     type Ok = O;
 }
-
+/// Local definition of the unstable FnOnce trait, allowing users of this crate
+/// to implement mapping functions that are PartialEq and Debug for
+/// observability purposes.
 pub trait MapFn<T> {
     type Output;
     fn apply(self, input: T) -> Self::Output;
@@ -30,7 +30,7 @@ where
 pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     type Error;
     type Ok;
-    fn map_stream<S, F>(self, create_next: F) -> Map<Self, F, S>
+    fn map_stream<S, F>(self, create_next: F) -> Map<Self, F>
     where
         Self: Sized,
         S: BackendStreamingTask<Bkend>,
@@ -39,7 +39,6 @@ pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
         Map {
             first: self,
             create_next,
-            create_next_type: PhantomData,
         }
     }
 }
@@ -68,15 +67,12 @@ pub trait BackendTaskExt<Bkend>: BackendTask<Bkend> {
     }
 }
 
-pub struct Map<T, F, Ty> {
+pub struct Map<T, F> {
     first: T,
     create_next: F,
-    /// Used for introspection / debugging (ie, consumer can pring output type
-    /// name.
-    create_next_type: PhantomData<Ty>,
 }
 
-impl<T, F, Ty> PartialEq for Map<T, F, Ty>
+impl<T, F> PartialEq for Map<T, F>
 where
     T: PartialEq,
     F: PartialEq,
@@ -86,24 +82,20 @@ where
     }
 }
 
-impl<T, F, Ty> Debug for Map<T, F, Ty>
+impl<T, F> Debug for Map<T, F>
 where
     T: Debug,
-    Ty: Any,
+    F: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Map")
             .field("first", &self.first)
-            // TODO: we could deduce the type name returned by the closure
-            .field(
-                "create_next",
-                &format!("{{MapFn}}->{{{}}}", std::any::type_name::<Ty>()),
-            )
+            .field("create_next", &self.create_next)
             .finish()
     }
 }
 
-impl<Bkend, T, S, F, Ct, O, E, Ty> BackendStreamingTask<Bkend> for Map<T, F, Ty>
+impl<Bkend, T, S, F, Ct, O, E> BackendStreamingTask<Bkend> for Map<T, F>
 where
     Bkend: Clone + Sync + Send + 'static,
     F: Sync + Send + 'static,
@@ -112,7 +104,6 @@ where
     Ct: PartialEq,
     F: MapFn<O, Output = S>,
     E: Send + 'static,
-    Ty: Send + 'static,
     O: Send,
 {
     type Output = std::result::Result<S::Output, E>;
