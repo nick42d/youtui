@@ -2,33 +2,35 @@ use super::action::AppAction;
 use crate::app::component::actionhandler::{
     Action, ActionHandler, ComponentEffect, KeyRouter, Scrollable, TextHandler, YoutuiEffect,
 };
-use crate::app::server::song_downloader::{DownloadProgressUpdate, DownloadProgressUpdateType};
-use crate::app::server::song_thumbnail_downloader::{SongThumbnail, SongThumbnailID};
+use crate::app::server::song_downloader::DownloadProgressUpdateType;
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
 use crate::app::server::{
-    ArcServer, AutoplayDecodedSong, AutoplaySong, DecodeSong, DownloadSong, GetSongThumbnail,
-    IncreaseVolume, Pause, PausePlay, PlayDecodedSong, QueueDecodedSong, QueueSong, Resume, Seek,
-    SeekTo, Stop, StopAll, TaskMetadata,
+    AutoplayDecodedSong, DecodeSong, DownloadSong, GetSongThumbnail, IncreaseVolume, Pause,
+    PausePlay, PlayDecodedSong, QueueDecodedSong, Resume, Seek, SeekTo, Stop, StopAll,
+    TaskMetadata,
 };
 use crate::app::structures::{
     AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
     ListSongID, Percentage, PlayState, SongListComponent,
 };
+use crate::app::ui::playlist::async_effects::{
+    HandleAllStopped, HandleAutoplayUpdateOk, HandleGetSongThumbnailError,
+    HandleGetSongThumbnailOk, HandlePausePlayResponse, HandlePausedResponse, HandlePlayUpdateError,
+    HandlePlayUpdateOk, HandleQueueUpdateOk, HandleResumeResponse, HandleSetSongPlayProgress,
+    HandleSongDownloadProgressUpdate, HandleStopped, HandleVolumeUpdate,
+};
 use crate::app::ui::{AppCallback, WindowContext};
 use crate::app::view::draw::{draw_loadable, draw_panel_mut, draw_table};
 use crate::app::view::{BasicConstraint, DrawableMut, HasTitle, Loadable, TableView};
 use crate::async_rodio_sink::{
-    AllStopped, AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate,
-    Resumed, SeekDirection, Stopped, VolumeUpdate,
+    AllStopped, AutoplayUpdate, PlayUpdate, QueueUpdate, SeekDirection, Stopped, VolumeUpdate,
 };
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::widgets::ScrollingTableState;
-use async_callback_manager::{
-    AsyncTask, Constraint, FrontendEffect, TaskHandler, TryBackendTaskExt,
-};
+use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use ratatui::Frame;
 use ratatui::layout::Rect;
-use rodio::decoder::DecoderError;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -40,6 +42,7 @@ use std::time::Duration;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::Thumbnail;
 
+mod async_effects;
 #[cfg(test)]
 mod tests;
 
@@ -1035,187 +1038,5 @@ impl Playlist {
             return;
         }
         self.play_status = PlayState::Stopped
-    }
-}
-
-#[derive(Debug, PartialEq)]
-struct HandleAllStopped;
-#[derive(Debug, PartialEq)]
-struct HandleStopped;
-#[derive(Debug, PartialEq)]
-struct HandleSetSongPlayProgress;
-#[derive(Debug, PartialEq)]
-struct HandleVolumeUpdate;
-#[derive(Debug, PartialEq)]
-struct HandleGetSongThumbnailOk;
-#[derive(Debug, PartialEq)]
-struct HandlePausePlayResponse;
-#[derive(Debug, PartialEq)]
-struct HandleResumeResponse;
-#[derive(Debug, PartialEq)]
-struct HandlePausedResponse;
-#[derive(Debug, PartialEq)]
-struct HandleGetSongThumbnailError(SongThumbnailID<'static>);
-#[derive(Debug, PartialEq, Clone)]
-struct HandlePlayUpdateOk;
-#[derive(Debug, PartialEq, Clone)]
-struct HandleAutoplayUpdateOk;
-#[derive(Debug, PartialEq, Clone)]
-struct HandleQueueUpdateOk;
-#[derive(Debug, PartialEq, Clone)]
-struct HandlePlayUpdateError(ListSongID);
-#[derive(Debug, PartialEq, Clone)]
-struct HandleSongDownloadProgressUpdate;
-
-#[derive(Debug, PartialEq)]
-enum PlaylistEffect {
-    SetStatusStoppedIfSome(Option<AllStopped>),
-    StopSongIDIfSomeAndCur(Option<Stopped<ListSongID>>),
-    HandleSetSongPlayProgress(ProgressUpdate<ListSongID>),
-    HandleVolumeUpdate(Option<VolumeUpdate>),
-    HandlePausePlayResponse(PausePlayResponse<ListSongID>),
-    HandleResumed(ListSongID),
-    HandlePaused(ListSongID),
-    HandlePlayUpdate(PlayUpdate<ListSongID>),
-    HandleQueueUpdate(QueueUpdate<ListSongID>),
-    HandleAutoplayUpdate(AutoplayUpdate<ListSongID>),
-    HandleSetToError(ListSongID),
-    HandleSongDownloadProgressUpdate {
-        kind: DownloadProgressUpdateType,
-        id: ListSongID,
-    },
-    SetSongThumbnailError(SongThumbnailID<'static>),
-    AddSongThumbnail(SongThumbnail),
-}
-impl_youtui_task_handler!(
-    HandleStopped,
-    Option<Stopped<ListSongID>>,
-    Playlist,
-    |_, input| PlaylistEffect::StopSongIDIfSomeAndCur(input)
-);
-impl_youtui_task_handler!(
-    HandleAllStopped,
-    Option<AllStopped>,
-    Playlist,
-    |_, input| PlaylistEffect::SetStatusStoppedIfSome(input)
-);
-impl_youtui_task_handler!(
-    HandleSetSongPlayProgress,
-    ProgressUpdate<ListSongID>,
-    Playlist,
-    |_, input| PlaylistEffect::HandleSetSongPlayProgress(input)
-);
-impl_youtui_task_handler!(
-    HandleVolumeUpdate,
-    Option<VolumeUpdate>,
-    Playlist,
-    |_, input| PlaylistEffect::HandleVolumeUpdate(input)
-);
-impl_youtui_task_handler!(
-    HandlePlayUpdateOk,
-    PlayUpdate<ListSongID>,
-    Playlist,
-    |_, input| PlaylistEffect::HandlePlayUpdate(input)
-);
-impl_youtui_task_handler!(
-    HandleQueueUpdateOk,
-    QueueUpdate<ListSongID>,
-    Playlist,
-    |_, input| PlaylistEffect::HandleQueueUpdate(input)
-);
-impl_youtui_task_handler!(
-    HandleAutoplayUpdateOk,
-    AutoplayUpdate<ListSongID>,
-    Playlist,
-    |_, input| PlaylistEffect::HandleAutoplayUpdate(input)
-);
-impl_youtui_task_handler!(
-    HandlePlayUpdateError,
-    DecoderError,
-    Playlist,
-    |this: HandlePlayUpdateError, input| {
-        error!("Error {input} received when trying to decode {:?}", this.0);
-        PlaylistEffect::HandleSetToError(this.0)
-    }
-);
-impl_youtui_task_handler!(
-    HandleSongDownloadProgressUpdate,
-    DownloadProgressUpdate,
-    Playlist,
-    |_, input| {
-        let DownloadProgressUpdate { kind, id } = input;
-        PlaylistEffect::HandleSongDownloadProgressUpdate { kind, id }
-    }
-);
-impl_youtui_task_handler!(
-    HandleGetSongThumbnailError,
-    anyhow::Error,
-    Playlist,
-    |this: HandleGetSongThumbnailError, input| {
-        error!("Error {input} getting album art");
-        // TODO: if GetSongThumbnail error sends back it's ID, one less clone
-        // is required.
-        PlaylistEffect::SetSongThumbnailError(this.0)
-    }
-);
-impl_youtui_task_handler!(
-    HandlePausePlayResponse,
-    PausePlayResponse<ListSongID>,
-    Playlist,
-    |_, input| PlaylistEffect::HandlePausePlayResponse(input)
-);
-impl_youtui_task_handler!(
-    HandleResumeResponse,
-    Resumed<ListSongID>,
-    Playlist,
-    |_, input: Resumed<_>| PlaylistEffect::HandleResumed(input.0)
-);
-impl_youtui_task_handler!(
-    HandlePausedResponse,
-    Paused<ListSongID>,
-    Playlist,
-    |_, input: Paused<_>| PlaylistEffect::HandlePaused(input.0)
-);
-impl_youtui_task_handler!(
-    HandleGetSongThumbnailOk,
-    SongThumbnail,
-    Playlist,
-    |_, input| PlaylistEffect::AddSongThumbnail(input)
-);
-
-impl FrontendEffect<Playlist, ArcServer, TaskMetadata> for PlaylistEffect {
-    fn apply(self, target: &mut Playlist) -> ComponentEffect<Playlist> {
-        match self {
-            PlaylistEffect::SetStatusStoppedIfSome(msg) => {
-                target.handle_all_stopped(msg);
-            }
-            PlaylistEffect::StopSongIDIfSomeAndCur(msg) => {
-                target.handle_stopped(msg);
-            }
-            PlaylistEffect::HandlePausePlayResponse(msg) => {
-                match msg {
-                    PausePlayResponse::Paused(id) => target.handle_paused(id),
-                    PausePlayResponse::Resumed(id) => target.handle_resumed(id),
-                };
-            }
-            PlaylistEffect::HandleResumed(msg) => target.handle_resumed(msg),
-            PlaylistEffect::HandlePaused(msg) => target.handle_paused(msg),
-            PlaylistEffect::HandleSetSongPlayProgress(msg) => {
-                return target.handle_set_song_play_progress(msg.duration, msg.identifier);
-            }
-            PlaylistEffect::HandleVolumeUpdate(msg) => target.handle_volume_update(msg),
-            PlaylistEffect::HandleQueueUpdate(msg) => return target.handle_queue_update(msg),
-            PlaylistEffect::HandlePlayUpdate(msg) => return target.handle_play_update(msg),
-            PlaylistEffect::HandleAutoplayUpdate(msg) => {
-                return target.handle_autoplay_update(msg);
-            }
-            PlaylistEffect::HandleSetToError(msg) => target.handle_set_to_error(msg),
-            PlaylistEffect::HandleSongDownloadProgressUpdate { kind, id } => {
-                return target.handle_song_download_progress_update(kind, id);
-            }
-            PlaylistEffect::SetSongThumbnailError(msg) => target.list.set_song_thumbnail_error(msg),
-            PlaylistEffect::AddSongThumbnail(msg) => target.list.add_song_thumbnail(msg),
-        }
-        AsyncTask::new_no_op()
     }
 }

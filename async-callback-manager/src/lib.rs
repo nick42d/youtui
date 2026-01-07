@@ -56,32 +56,17 @@ pub trait TaskHandler<Input, Frntend, Bkend, Md> {
     fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md>;
 }
 
-impl<T, Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for T
-where
-    T: FnOnce(&mut Frntend, Input) -> AsyncTask<Frntend, Bkend, Md> + Send + 'static,
-{
-    fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md> {
-        |frontend: &mut Frntend| self(frontend, input)
-    }
-}
-
 /// Represents a mutation that can be applied to some state, returning an
 /// effect.
 pub trait FrontendEffect<Frntend, Bkend, Md> {
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md>;
 }
 
-impl<T, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for T
-where
-    T: FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md>,
-{
-    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
-        self(target)
-    }
-}
-
-/// Helper trait, representing an equality that is not always able to be
-/// determined.
+/// Helper trait, representing an equality that may be indeterminate for some
+/// values, e,g comparing two closures where equality is indeterminate via
+/// algorithms due to the halting problem.
+///
+/// e.g `(|x| x + 2).maybe_eq(|x| x + 1 + 1) == None`
 pub trait MaybeEq<T> {
     fn maybe_eq(&self, other: &T) -> Option<bool>;
 }

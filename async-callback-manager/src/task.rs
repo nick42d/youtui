@@ -2,7 +2,7 @@ use crate::task::dyn_task::{
     FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
-use crate::{BackendStreamingTask, BackendTask, Constraint, MaybeEq, TaskHandler};
+use crate::{BackendStreamingTask, BackendTask, Constraint, FrontendEffect, MaybeEq, TaskHandler};
 use std::any::{Any, TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
@@ -10,6 +10,8 @@ use std::ops::ControlFlow;
 
 pub mod dyn_task;
 mod map;
+#[cfg(test)]
+mod tests;
 
 /// An asynchrnonous task that can generate state mutations and/or more tasks to
 /// be spawned by an AsyncCallbackManager.
@@ -38,6 +40,7 @@ pub(crate) struct StreamTask<Frntend, Bkend, Md> {
     pub(crate) type_debug: String,
 }
 
+// Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
 impl<Frntend, Bkend, Md> std::fmt::Debug for AsyncTask<Frntend, Bkend, Md>
 where
     Md: std::fmt::Debug,
@@ -50,6 +53,7 @@ where
             .finish()
     }
 }
+// Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
 impl<Frntend, Bkend, Md> std::fmt::Debug for AsyncTaskKind<Frntend, Bkend, Md>
 where
     Md: std::fmt::Debug,
@@ -63,6 +67,7 @@ where
         }
     }
 }
+// Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
 impl<Frntend, Bkend, Md> std::fmt::Debug for FutureTask<Frntend, Bkend, Md> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("FutureTask")
@@ -73,6 +78,7 @@ impl<Frntend, Bkend, Md> std::fmt::Debug for FutureTask<Frntend, Bkend, Md> {
             .finish()
     }
 }
+// Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
 impl<Frntend, Bkend, Md> std::fmt::Debug for StreamTask<Frntend, Bkend, Md> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("StreamTask")
@@ -131,6 +137,21 @@ where
         }
     }
 }
+
+impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
+    for AsyncTask<Frntend, Bkend, Md>
+{
+    fn from_iter<T: IntoIterator<Item = AsyncTask<Frntend, Bkend, Md>>>(iter: T) -> Self {
+        let v = iter.into_iter().collect();
+        // TODO: Better handle constraints / metadata.
+        AsyncTask {
+            task: AsyncTaskKind::Multi(v),
+            constraint: None,
+            metadata: vec![],
+        }
+    }
+}
+
 impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md>
 where
     Md: PartialEq + Debug + 'static,
@@ -166,20 +187,6 @@ where
                 }
             }
             _ => self.maybe_eq(other),
-        }
-    }
-}
-
-impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
-    for AsyncTask<Frntend, Bkend, Md>
-{
-    fn from_iter<T: IntoIterator<Item = AsyncTask<Frntend, Bkend, Md>>>(iter: T) -> Self {
-        let v = iter.into_iter().collect();
-        // TODO: Better handle constraints / metadata.
-        AsyncTask {
-            task: AsyncTaskKind::Multi(v),
-            constraint: None,
-            metadata: vec![],
         }
     }
 }
@@ -605,69 +612,5 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
                 }
             }
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::{AsyncTask, BackendStreamingTask, BackendTask};
-    use futures::StreamExt;
-    #[derive(Debug)]
-    struct Task1;
-    #[derive(Debug)]
-    struct Task2;
-    #[derive(Debug)]
-    struct StreamingTask;
-    impl BackendTask<()> for Task1 {
-        type Output = ();
-        type MetadataType = ();
-        #[allow(clippy::manual_async_fn)]
-        fn into_future(
-            self,
-            _: &(),
-        ) -> impl std::future::Future<Output = Self::Output> + Send + 'static {
-            async {}
-        }
-    }
-    impl BackendTask<()> for Task2 {
-        type Output = ();
-        type MetadataType = ();
-        #[allow(clippy::manual_async_fn)]
-        fn into_future(
-            self,
-            _: &(),
-        ) -> impl std::future::Future<Output = Self::Output> + Send + 'static {
-            async {}
-        }
-    }
-    impl BackendStreamingTask<()> for StreamingTask {
-        type Output = ();
-        type MetadataType = ();
-        fn into_stream(
-            self,
-            _: &(),
-        ) -> impl futures::Stream<Item = Self::Output> + Send + Unpin + 'static {
-            futures::stream::once(async move {}).boxed()
-        }
-    }
-    #[tokio::test]
-    async fn test_recursive_map() {
-        let recursive_task = AsyncTask::new_stream_with_closure_handler_chained(
-            StreamingTask,
-            |_: &mut (), _| {
-                AsyncTask::new_future_with_closure_handler_chained(
-                    Task1,
-                    |_: &mut (), _| {
-                        AsyncTask::new_future_with_closure_handler(Task2, |_: &mut (), _| {}, None)
-                    },
-                    None,
-                )
-            },
-            None,
-        );
-        // Here, it's expected that this is succesful.
-        // TODO: Run the task for an expected outcome.
-        #[allow(unused_must_use)]
-        let _ = recursive_task.map(|tmp: &mut ()| tmp);
     }
 }
