@@ -82,6 +82,6 @@ where
 
 /// Helper trait, representing an equality that is not always able to be
 /// determined.
-pub trait MaybePartialEq<T> {
-    fn maybe_eq(&self, other: T) -> Option<bool>;
+pub trait MaybeEq<T> {
+    fn maybe_eq(&self, other: &T) -> Option<bool>;
 }

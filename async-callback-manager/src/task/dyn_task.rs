@@ -20,10 +20,14 @@ pub(crate) type DynFutureTask<Frntend, Bkend, Md> =
 pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
     Box<dyn FnOnce(&Bkend) -> DynMutationStream<Frntend, Bkend, Md>>;
 
-pub(crate) trait IntoDynFutureTask<Frntend, Bkend, Md>: MaybeDynEq {
+pub(crate) trait IntoDynFutureTask<Frntend, Bkend, Md>:
+    MaybeDynEq + std::fmt::Debug
+{
     fn into_dyn_task(self: Box<Self>) -> DynFutureTask<Frntend, Bkend, Md>;
 }
-pub(crate) trait IntoDynStreamTask<Frntend, Bkend, Md>: MaybeDynEq {
+pub(crate) trait IntoDynStreamTask<Frntend, Bkend, Md>:
+    MaybeDynEq + std::fmt::Debug
+{
     fn into_dyn_stream(self: Box<Self>) -> DynStreamTask<Frntend, Bkend, Md>;
 }
 pub(crate) trait MaybeDynEq: std::any::Any {
@@ -35,15 +39,17 @@ pub(crate) struct FusedTask<T, H> {
     pub(crate) task: T,
     pub(crate) handler: H,
     pub(crate) eq_fn: Option<fn(&Self, &Self) -> bool>,
+    // NOTE: This could be feature gated.
+    pub(crate) debug_fn: fn(&Self, &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>,
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub(crate) struct TryHandler<OkH, ErrH> {
     pub(crate) ok_handler: OkH,
     pub(crate) err_handler: ErrH,
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub(crate) struct OptionHandler<SomeH>(pub(crate) SomeH);
 
 pub(crate) enum Either<L, R> {
@@ -114,19 +120,31 @@ impl<T, H> FusedTask<T, H> {
             task: request,
             handler,
             eq_fn: None,
+            debug_fn: |_, f| {
+                f.debug_struct("FusedTask")
+                    .field("task", &"{{BackendTask}}")
+                    .field("handler", &"{{closure}}")
+                    .finish_non_exhaustive()
+            },
         }
     }
     pub(crate) fn new_future_eq<Bkend, Frntend, Md>(request: T, handler: H) -> Self
     where
         T: BackendTask<Bkend>,
         H: TaskHandler<T::Output, Frntend, Bkend, Md>,
-        T: PartialEq,
-        H: PartialEq,
+        T: PartialEq + std::fmt::Debug,
+        H: PartialEq + std::fmt::Debug,
     {
         Self {
             task: request,
             handler,
             eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
+            debug_fn: |this, f| {
+                f.debug_struct("FusedTask")
+                    .field("task", &this.task)
+                    .field("handler", &this.handler)
+                    .finish_non_exhaustive()
+            },
         }
     }
     pub(crate) fn new_stream_with_closure_handler<Bkend, Frntend, Md>(
@@ -144,19 +162,26 @@ impl<T, H> FusedTask<T, H> {
             task: request,
             handler,
             eq_fn: None,
+            debug_fn: todo!(),
         }
     }
     pub(crate) fn new_stream_eq<Bkend, Frntend, Md>(request: T, handler: H) -> Self
     where
         T: BackendStreamingTask<Bkend>,
         H: TaskHandler<T::Output, Frntend, Bkend, Md> + Clone,
-        T: PartialEq,
-        H: PartialEq,
+        T: PartialEq + std::fmt::Debug,
+        H: PartialEq + std::fmt::Debug,
     {
         Self {
             task: request,
             handler,
             eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
+            debug_fn: |this, f| {
+                f.debug_struct("FusedTask")
+                    .field("task", &this.task)
+                    .field("handler", &this.handler)
+                    .finish_non_exhaustive()
+            },
         }
     }
     pub(crate) fn new_stream<Bkend, Frntend, Md>(request: T, handler: H) -> Self
@@ -168,6 +193,7 @@ impl<T, H> FusedTask<T, H> {
             task: request,
             handler,
             eq_fn: None,
+            debug_fn: todo!(),
         }
     }
 }
@@ -181,6 +207,11 @@ where
         let eq_fn = self.eq_fn?;
         let other = (other as &dyn Any).downcast_ref::<Self>()?;
         Some(eq_fn(self, other))
+    }
+}
+impl<T, H> std::fmt::Debug for FusedTask<T, H> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        (self.debug_fn)(self, f)
     }
 }
 

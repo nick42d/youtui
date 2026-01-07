@@ -2,7 +2,7 @@ use crate::task::dyn_task::{
     FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
-use crate::{BackendStreamingTask, BackendTask, Constraint, MaybePartialEq, TaskHandler};
+use crate::{BackendStreamingTask, BackendTask, Constraint, MaybeEq, TaskHandler};
 use std::any::{Any, TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
@@ -37,14 +37,59 @@ pub(crate) struct StreamTask<Frntend, Bkend, Md> {
     pub(crate) type_debug: String,
 }
 
-impl<Frntend, Bkend, Md> MaybePartialEq<AsyncTask<Frntend, Bkend, Md>>
-    for AsyncTask<Frntend, Bkend, Md>
+impl<Frntend, Bkend, Md> std::fmt::Debug for AsyncTask<Frntend, Bkend, Md>
+where
+    Md: std::fmt::Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AsyncTask")
+            .field("task", &self.task)
+            .field("constraint", &self.constraint)
+            .field("metadata", &self.metadata)
+            .finish()
+    }
+}
+impl<Frntend, Bkend, Md> std::fmt::Debug for AsyncTaskKind<Frntend, Bkend, Md>
+where
+    Md: std::fmt::Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Future(arg0) => f.debug_tuple("Future").field(arg0).finish(),
+            Self::Stream(arg0) => f.debug_tuple("Stream").field(arg0).finish(),
+            Self::Multi(arg0) => f.debug_tuple("Multi").field(arg0).finish(),
+            Self::NoOp => write!(f, "NoOp"),
+        }
+    }
+}
+impl<Frntend, Bkend, Md> std::fmt::Debug for FutureTask<Frntend, Bkend, Md> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("FutureTask")
+            .field("task", &self.task)
+            .field("type_id", &self.type_id)
+            .field("type_name", &self.type_name)
+            .field("type_debug", &self.type_debug)
+            .finish()
+    }
+}
+impl<Frntend, Bkend, Md> std::fmt::Debug for StreamTask<Frntend, Bkend, Md> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("StreamTask")
+            .field("task", &self.task)
+            .field("type_id", &self.type_id)
+            .field("type_name", &self.type_name)
+            .field("type_debug", &self.type_debug)
+            .finish()
+    }
+}
+
+impl<Frntend, Bkend, Md> MaybeEq<AsyncTask<Frntend, Bkend, Md>> for AsyncTask<Frntend, Bkend, Md>
 where
     Md: PartialEq + 'static,
     Frntend: 'static,
     Bkend: 'static,
 {
-    fn maybe_eq(&self, other: AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
+    fn maybe_eq(&self, other: &AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
         let constraint_eq = self.constraint == other.constraint;
         let metadata_eq = self.metadata == other.metadata;
         match (&self.task, &other.task) {
@@ -65,6 +110,23 @@ where
             }
             (AsyncTaskKind::NoOp, AsyncTaskKind::NoOp) => Some(constraint_eq && metadata_eq),
             _ => Some(false),
+        }
+    }
+}
+impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md>
+where
+    Md: PartialEq + 'static,
+    Frntend: 'static,
+    Bkend: 'static,
+{
+    /// Assert that this effect contains at least other effect (it may contain
+    /// multiple effects).
+    fn maybe_contains(&self, other: &AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
+        match &self.task {
+            AsyncTaskKind::Multi(other_tasks) => other_tasks
+                .iter()
+                .any(|other_subtask| self.maybe_eq(other_subtask)),
+            _ => self.maybe_eq(other),
         }
     }
 }
@@ -117,7 +179,11 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_future_eq<R>(
         request: R,
-        handler: impl TaskHandler<R::Output, Frntend, Bkend, Md> + Send + PartialEq + 'static,
+        handler: impl TaskHandler<R::Output, Frntend, Bkend, Md>
+        + Send
+        + PartialEq
+        + std::fmt::Debug
+        + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
@@ -144,8 +210,16 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_future_try_eq<R, T, E>(
         request: R,
-        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + PartialEq + 'static,
-        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + PartialEq + 'static,
+        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md>
+        + Send
+        + PartialEq
+        + std::fmt::Debug
+        + 'static,
+        err_handler: impl TaskHandler<E, Frntend, Bkend, Md>
+        + Send
+        + PartialEq
+        + std::fmt::Debug
+        + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
@@ -184,7 +258,11 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_future_option_eq<R, T>(
         request: R,
-        some_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + PartialEq + 'static,
+        some_handler: impl TaskHandler<T, Frntend, Bkend, Md>
+        + Send
+        + PartialEq
+        + std::fmt::Debug
+        + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
@@ -278,7 +356,12 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     pub fn new_stream_eq<R>(
         request: R,
         // TODO: Review Clone bounds.
-        handler: impl TaskHandler<R::Output, Frntend, Bkend, Md> + Send + PartialEq + Clone + 'static,
+        handler: impl TaskHandler<R::Output, Frntend, Bkend, Md>
+        + Send
+        + PartialEq
+        + Debug
+        + Clone
+        + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
@@ -305,8 +388,13 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_stream_try_eq<R, T, E>(
         request: R,
-        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + PartialEq + 'static,
-        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + Clone + PartialEq + 'static,
+        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + PartialEq + Debug + 'static,
+        err_handler: impl TaskHandler<E, Frntend, Bkend, Md>
+        + Send
+        + Clone
+        + PartialEq
+        + Debug
+        + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where

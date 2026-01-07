@@ -14,6 +14,25 @@ pub struct MapDynStreamTask<Frntend, Bkend, Md, F> {
     pub(crate) task: Box<dyn IntoDynStreamTask<Frntend, Bkend, Md>>,
     pub(crate) map_fn: F,
 }
+
+impl<Frntend, Bkend, Md, F> std::fmt::Debug for MapDynFutureTask<Frntend, Bkend, Md, F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MapDynFutureTask")
+            .field("task", &self.task)
+            .field("map_fn", &"{{closure}}")
+            .finish()
+    }
+}
+
+impl<Frntend, Bkend, Md, F> std::fmt::Debug for MapDynStreamTask<Frntend, Bkend, Md, F> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MapDynStreamTask")
+            .field("task", &self.task)
+            .field("map_fn", &"{{closure}}")
+            .finish()
+    }
+}
+
 impl<Frntend, Bkend, Md, F> MaybeDynEq for MapDynFutureTask<Frntend, Bkend, Md, F>
 where
     F: 'static,

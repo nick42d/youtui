@@ -1038,33 +1038,33 @@ impl Playlist {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandleAllStopped;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandleStopped;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandleSetSongPlayProgress;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandleVolumeUpdate;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandleGetSongThumbnailOk;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandlePausePlayResponse;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandleResumeResponse;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandlePausedResponse;
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct HandleGetSongThumbnailError(SongThumbnailID<'static>);
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct HandlePlayUpdateOk;
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct HandleAutoplayUpdateOk;
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct HandleQueueUpdateOk;
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct HandlePlayUpdateError(ListSongID);
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 struct HandleSongDownloadProgressUpdate;
 
 #[derive(Debug, PartialEq)]
