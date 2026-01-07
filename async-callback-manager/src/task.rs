@@ -6,6 +6,7 @@ use crate::{BackendStreamingTask, BackendTask, Constraint, MaybeEq, TaskHandler}
 use std::any::{Any, TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
+use std::ops::ControlFlow;
 
 pub mod dyn_task;
 mod map;
@@ -103,10 +104,27 @@ where
                     .map(|task_eq| task_eq && attrs_eq)
             }
             (AsyncTaskKind::Stream(self_stream_task), AsyncTaskKind::Stream(other_stream_task)) => {
-                todo!()
+                let attrs_eq = self_stream_task.type_id == other_stream_task.type_id
+                    && self_stream_task.type_name == other_stream_task.type_name
+                    && self_stream_task.type_debug == other_stream_task.type_debug;
+                self_stream_task
+                    .task
+                    .maybe_dyn_eq(other_stream_task.task.as_ref())
+                    .map(|task_eq| task_eq && attrs_eq)
             }
             (AsyncTaskKind::Multi(self_async_tasks), AsyncTaskKind::Multi(other_async_tasks)) => {
-                todo!()
+                let is_indeterminate = self_async_tasks.iter().zip(other_async_tasks).try_for_each(
+                    |(self_e, other_e)| match self_e.maybe_eq(other_e) {
+                        Some(true) => ControlFlow::Continue(()),
+                        Some(false) => ControlFlow::Break(false),
+                        None => ControlFlow::Break(true),
+                    },
+                );
+                match is_indeterminate {
+                    ControlFlow::Continue(()) => Some(true),
+                    ControlFlow::Break(false) => Some(false),
+                    ControlFlow::Break(true) => None,
+                }
             }
             (AsyncTaskKind::NoOp, AsyncTaskKind::NoOp) => Some(constraint_eq && metadata_eq),
             _ => Some(false),
@@ -115,17 +133,38 @@ where
 }
 impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md>
 where
-    Md: PartialEq + 'static,
+    Md: PartialEq + Debug + 'static,
     Frntend: 'static,
     Bkend: 'static,
 {
     /// Assert that this effect contains at least other effect (it may contain
     /// multiple effects).
-    fn maybe_contains(&self, other: &AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
+    pub fn maybe_contains(&self, other: &AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
+        struct ContainsIndeterminate(bool);
         match &self.task {
-            AsyncTaskKind::Multi(other_tasks) => other_tasks
-                .iter()
-                .any(|other_subtask| self.maybe_eq(other_subtask)),
+            AsyncTaskKind::Multi(self_tasks) => {
+                let list_analysis = self_tasks.iter().try_fold(
+                    ContainsIndeterminate(false),
+                    |mut acc, self_task| {
+                        // Use of maybe_contains here handles nested Multi tasks.
+                        match other.maybe_contains(self_task) {
+                            Some(true) => {
+                                return ControlFlow::Break(acc);
+                            }
+                            None => {
+                                acc.0 = true;
+                            }
+                            _ => {}
+                        };
+                        ControlFlow::Continue(acc)
+                    },
+                );
+                match list_analysis {
+                    ControlFlow::Continue(ContainsIndeterminate(true)) => None,
+                    ControlFlow::Continue(ContainsIndeterminate(false)) => Some(false),
+                    ControlFlow::Break(_) => Some(true),
+                }
+            }
             _ => self.maybe_eq(other),
         }
     }

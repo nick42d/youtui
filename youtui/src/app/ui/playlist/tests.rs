@@ -1,9 +1,11 @@
 use super::Playlist;
 use crate::app::server::song_downloader::InMemSong;
-use crate::app::server::{DecodeSong, PlayDecodedSong, Stop, TaskMetadata};
-use crate::app::structures::ListStatus;
+use crate::app::server::song_thumbnail_downloader::SongThumbnailID;
+use crate::app::server::{DecodeSong, GetSongThumbnail, PlayDecodedSong, Stop, TaskMetadata};
+use crate::app::structures::{ListSong, ListStatus, MaybeRc};
 use crate::app::ui::playlist::{
-    HandlePlayUpdateError, HandlePlayUpdateOk, HandleStopped, QueueState,
+    HandleGetSongThumbnailError, HandleGetSongThumbnailOk, HandlePlayUpdateError,
+    HandlePlayUpdateOk, HandleStopped, QueueState,
 };
 use crate::app::ui::{ListSongID, PlayState};
 use crate::async_rodio_sink::{AllStopped, Stopped};
@@ -13,7 +15,7 @@ use std::fmt::Pointer;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 use ytmapi_rs::auth::BrowserToken;
-use ytmapi_rs::common::{AlbumID, YoutubeID};
+use ytmapi_rs::common::{AlbumID, Thumbnail, VideoID, YoutubeID};
 use ytmapi_rs::parse::{GetAlbum, ParsedSongAlbum};
 use ytmapi_rs::query::GetAlbumQuery;
 
@@ -55,13 +57,41 @@ fn get_dummy_playlist() -> Playlist {
     playlist
 }
 #[test]
+fn newly_added_song_downloads_album_art() {
+    let mut p = get_dummy_playlist();
+    let s = p.list.get_list_iter_mut().next().unwrap();
+    s.thumbnails = MaybeRc::Owned(vec![Thumbnail {
+        height: 0,
+        width: 0,
+        url: "dummy_url".to_string(),
+    }]);
+    let dummy_song = s.clone();
+    let thumbnail_id = SongThumbnailID::from(&dummy_song as &ListSong).into_owned();
+    let (_, effect) = p.push_song_list(vec![dummy_song]);
+    let expected_effect = AsyncTask::new_future_try_eq(
+        GetSongThumbnail {
+            thumbnail_url: "dummy_url".to_string(),
+            thumbnail_id: thumbnail_id.clone(),
+        },
+        HandleGetSongThumbnailOk,
+        HandleGetSongThumbnailError(thumbnail_id),
+        None,
+    );
+    assert!(
+        effect
+            .maybe_contains(&expected_effect)
+            .is_some_and(std::convert::identity),
+        "Expected Left to contain Right {}",
+        pretty_assertions::Comparison::new(&effect, &expected_effect)
+    );
+}
+#[test]
 fn downloaded_song_plays_if_buffered() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Buffering(ListSongID(1));
     let dummy_song = Arc::new(InMemSong(vec![1]));
     p.list.get_list_iter_mut().nth(1).unwrap().download_status =
         crate::app::structures::DownloadStatus::Downloaded(dummy_song.clone());
-    assert_eq!(p.list.get_list_iter().nth(1).unwrap().id, ListSongID(1));
     let effect = p.handle_song_downloaded(ListSongID(1));
     assert_eq!(p.play_status, PlayState::Playing(ListSongID(1)));
     let expected_effect = AsyncTask::new_stream_try_eq(
@@ -72,12 +102,11 @@ fn downloaded_song_plays_if_buffered() {
             TaskMetadata::PlayingSong,
         )),
     );
-    // XXX: There are multiple effects. So this won't work.
     assert!(
         effect
-            .maybe_eq(&expected_effect)
+            .maybe_contains(&expected_effect)
             .is_some_and(std::convert::identity),
-        "{}",
+        "Expected Left to contain Right {}",
         pretty_assertions::Comparison::new(&effect, &expected_effect)
     );
 }

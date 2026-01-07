@@ -162,7 +162,12 @@ impl<T, H> FusedTask<T, H> {
             task: request,
             handler,
             eq_fn: None,
-            debug_fn: todo!(),
+            debug_fn: |_, f| {
+                f.debug_struct("FusedTask")
+                    .field("task", &"{{BackendStreamingTask}}")
+                    .field("handler", &"{{closure}}")
+                    .finish_non_exhaustive()
+            },
         }
     }
     pub(crate) fn new_stream_eq<Bkend, Frntend, Md>(request: T, handler: H) -> Self
@@ -193,7 +198,12 @@ impl<T, H> FusedTask<T, H> {
             task: request,
             handler,
             eq_fn: None,
-            debug_fn: todo!(),
+            debug_fn: |_, f| {
+                f.debug_struct("FusedTask")
+                    .field("task", &"{{BackendStreamingTask}}")
+                    .field("handler", &"{{TaskHandler}}")
+                    .finish_non_exhaustive()
+            },
         }
     }
 }
