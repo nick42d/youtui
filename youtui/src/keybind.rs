@@ -71,10 +71,9 @@ impl FromStr for Keybind {
             if let Some((before, Ok(num))) = s
                 .split_once("F")
                 .map(|(before, num)| (before, u8::from_str(num)))
+                && before.is_empty()
             {
-                if before.is_empty() {
-                    return Ok(KeyCode::F(num));
-                }
+                return Ok(KeyCode::F(num));
             }
             Err(s)
         }
@@ -93,19 +92,18 @@ impl FromStr for Keybind {
             return Ok(Keybind::new(code, KeyModifiers::NONE));
         };
         let mut split = s.rsplit("-");
-        if let Some(Ok(code)) = split.next().map(parse_unmodified) {
-            if let Ok(Ok(mut modifiers)) = split
+        if let Some(Ok(code)) = split.next().map(parse_unmodified)
+            && let Ok(Ok(mut modifiers)) = split
                 .map(char::from_str)
                 .map(|res| res.map(parse_modifier))
                 .collect::<Result<Result<KeyModifiers, char>, ParseCharError>>()
-            {
-                // If the keycode is a character, then the shift modifier should be removed. It
-                // will be encoded in the character already.
-                if let KeyCode::Char(_) = code {
-                    modifiers = modifiers.difference(KeyModifiers::SHIFT);
-                }
-                return Ok(Keybind::new(code, modifiers));
+        {
+            // If the keycode is a character, then the shift modifier should be removed. It
+            // will be encoded in the character already.
+            if let KeyCode::Char(_) = code {
+                modifiers = modifiers.difference(KeyModifiers::SHIFT);
             }
+            return Ok(Keybind::new(code, modifiers));
         }
         Err(s.to_string())
     }

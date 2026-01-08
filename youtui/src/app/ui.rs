@@ -465,7 +465,7 @@ impl YoutuiWindow {
     pub fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             IncreaseVolume(inc),
             Self::handle_volume_update,
             Some(Constraint::new_block_same_type()),
@@ -474,7 +474,7 @@ impl YoutuiWindow {
     pub fn handle_set_volume(&mut self, new_vol: u8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.set_volume(new_vol);
-        AsyncTask::new_future(
+        AsyncTask::new_future_with_closure_handler(
             SetVolume(new_vol),
             Self::handle_volume_update,
             Some(Constraint::new_block_same_type()),

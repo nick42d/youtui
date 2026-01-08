@@ -10,6 +10,22 @@ impl<Bkend, T: BackendTask<Bkend, Output = Result<O, E>>, O, E> TryBackendTaskEx
     type Error = E;
     type Ok = O;
 }
+/// Local definition of the unstable FnOnce trait, allowing users of this crate
+/// to implement mapping functions that are PartialEq and Debug for
+/// observability purposes.
+pub trait MapFn<T> {
+    type Output;
+    fn apply(self, input: T) -> Self::Output;
+}
+impl<T, F, O> MapFn<T> for F
+where
+    F: FnOnce(T) -> O,
+{
+    type Output = O;
+    fn apply(self, input: T) -> Self::Output {
+        self(input)
+    }
+}
 
 pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     type Error;
@@ -18,7 +34,7 @@ pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     where
         Self: Sized,
         S: BackendStreamingTask<Bkend>,
-        F: FnOnce(Self::Ok) -> S,
+        F: MapFn<Self::Ok, Output = S>,
     {
         Map {
             first: self,
@@ -56,15 +72,25 @@ pub struct Map<T, F> {
     create_next: F,
 }
 
+impl<T, F> PartialEq for Map<T, F>
+where
+    T: PartialEq,
+    F: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.first == other.first && self.create_next == other.create_next
+    }
+}
+
 impl<T, F> Debug for Map<T, F>
 where
     T: Debug,
+    F: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Map")
             .field("first", &self.first)
-            // TODO: we could deduce the type name returned by the closure
-            .field("create_next", &"..closure..")
+            .field("create_next", &self.create_next)
             .finish()
     }
 }
@@ -76,7 +102,7 @@ where
     T: BackendTask<Bkend, MetadataType = Ct, Output = std::result::Result<O, E>>,
     S: BackendStreamingTask<Bkend, MetadataType = Ct>,
     Ct: PartialEq,
-    F: FnOnce(O) -> S,
+    F: MapFn<O, Output = S>,
     E: Send + 'static,
     O: Send,
 {
@@ -86,14 +112,16 @@ where
         self,
         backend: &Bkend,
     ) -> impl Stream<Item = Self::Output> + Send + Unpin + 'static {
-        let Map { first, create_next } = self;
+        let Map {
+            first, create_next, ..
+        } = self;
         let backend = backend.clone();
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         let handle = tokio::task::spawn(async move {
             let seed = BackendTask::into_future(first, &backend).await;
             match seed {
                 Ok(seed) => {
-                    let mut stream = create_next(seed).into_stream(&backend);
+                    let mut stream = create_next.apply(seed).into_stream(&backend);
                     while let Some(item) = stream.next().await {
                         let _ = tx.send(Ok(item)).await;
                     }

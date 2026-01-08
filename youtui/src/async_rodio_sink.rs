@@ -98,9 +98,9 @@ impl<T> From<RodioOneshot<T>> for oneshot::Sender<T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct VolumeUpdate(pub Percentage);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ProgressUpdate<I> {
     pub duration: Duration,
     pub identifier: I,
@@ -108,23 +108,23 @@ pub struct ProgressUpdate<I> {
 // NOTE: At this stage this difference between DonePlaying and Stopped is
 // very thin. DonePlaying means that the song has been dropped by the player,
 // whereas Stopped simply means that a Stop message to the player was succesful.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Stopped<I>(pub I);
 /// Message to say that playback has stopped - all songs.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct AllStopped;
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Resumed<I>(pub I);
 #[derive(Debug)]
 pub struct Paused<I>(pub I);
 // This is different to Paused and Resumed, as a PausePlay message could return
 // either.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PausePlayResponse<I> {
     Paused(I),
     Resumed(I),
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum AutoplayUpdate<I>
 where
     I: Debug,
@@ -135,7 +135,7 @@ where
     AutoplayQueued(I),
     Error(String),
 }
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub enum PlayUpdate<I>
 where
     I: Debug,
@@ -145,7 +145,7 @@ where
     DonePlaying(I),
     Error(String),
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum QueueUpdate<I>
 where
     I: Debug,

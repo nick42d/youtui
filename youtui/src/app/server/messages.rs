@@ -12,7 +12,7 @@ use crate::async_rodio_sink::{
     Resumed, SeekDirection, Stopped, VolumeUpdate,
 };
 use anyhow::{Error, Result};
-use async_callback_manager::{BackendStreamingTask, BackendTask};
+use async_callback_manager::{BackendStreamingTask, BackendTask, MapFn};
 use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
@@ -47,7 +47,7 @@ pub struct GetPlaylistSongs {
     pub max_songs: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 
 // Player Requests documentation:
@@ -63,18 +63,18 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // Volume will now be 10 - should be 15, should not allow caller to cause this.
 // New note - 2025:
 // SetVolume should be able to kill IncreaseVolume however...
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct IncreaseVolume(pub i8);
 #[derive(Debug)]
 pub struct SetVolume(pub u8);
 /// Seek forwards or backwards a duration in a song.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Seek {
     pub duration: Duration,
     pub direction: SeekDirection,
 }
 /// Seek to a target position in a song.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SeekTo {
     pub position: Duration,
     // Unlike seeking forward or back, it would be odd if user was expecting to seek to pos x in
@@ -82,19 +82,19 @@ pub struct SeekTo {
     pub id: ListSongID,
 }
 /// Stop a song if it is still currently playing.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Stop(pub ListSongID);
 /// Stop the player, regardless of what song is playing.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct StopAll;
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PausePlay(pub ListSongID);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Resume(pub ListSongID);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Pause(pub ListSongID);
 /// Decode a song into a format that can be played.
-#[derive(Debug)]
+#[derive(PartialEq, Debug)]
 pub struct DecodeSong(pub Arc<InMemSong>);
 /// Play a song, starting from the start, regardless what's queued.
 #[derive(Debug)]
@@ -114,7 +114,7 @@ pub struct QueueSong {
     pub song: DecodedInMemSong,
     pub id: ListSongID,
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct GetSongThumbnail {
     pub thumbnail_url: String,
     pub thumbnail_id: SongThumbnailID<'static>,
@@ -392,6 +392,43 @@ impl BackendTask<ArcServer> for GetSongThumbnail {
                 .song_thumbnail_downloader
                 .download_song_thumbnail(self.thumbnail_id, self.thumbnail_url)
                 .await
+        }
+    }
+}
+
+#[derive(PartialEq, Debug)]
+pub struct PlayDecodedSong(pub ListSongID);
+impl MapFn<DecodedInMemSong> for PlayDecodedSong {
+    type Output = PlaySong;
+    fn apply(self, input: DecodedInMemSong) -> Self::Output {
+        tracing::info!("Song decoded succesfully. {:?}", self.0);
+        PlaySong {
+            song: input,
+            id: self.0,
+        }
+    }
+}
+#[derive(PartialEq, Debug)]
+pub struct AutoplayDecodedSong(pub ListSongID);
+impl MapFn<DecodedInMemSong> for AutoplayDecodedSong {
+    type Output = AutoplaySong;
+    fn apply(self, input: DecodedInMemSong) -> Self::Output {
+        tracing::info!("Song decoded succesfully. {:?}", self.0);
+        AutoplaySong {
+            song: input,
+            id: self.0,
+        }
+    }
+}
+#[derive(PartialEq, Debug)]
+pub struct QueueDecodedSong(pub ListSongID);
+impl MapFn<DecodedInMemSong> for QueueDecodedSong {
+    type Output = QueueSong;
+    fn apply(self, input: DecodedInMemSong) -> Self::Output {
+        tracing::info!("Song decoded succesfully. {:?}", self.0);
+        QueueSong {
+            song: input,
+            id: self.0,
         }
     }
 }

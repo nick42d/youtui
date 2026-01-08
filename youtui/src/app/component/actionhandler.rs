@@ -25,6 +25,34 @@ macro_rules! impl_youtui_component {
         }
     };
 }
+/// Macro to generate the boilerplate implementation of TaskHandler used in this
+/// app.
+/// usage example (note, last parameter is a closure):
+/// `impl_youtui_task_handler!(HandleStopped, Option<Stopped<ListSongID>>,
+/// Playlist, |_, input| PlaylistMessage::StopSongIDIfSomeAndCur(input))`
+macro_rules! impl_youtui_task_handler {
+    ($t:ty,$input:ty,$frntend:ty,$fn:expr) => {
+        impl
+            async_callback_manager::TaskHandler<
+                $input,
+                $frntend,
+                crate::app::server::ArcServer,
+                crate::app::server::TaskMetadata,
+            > for $t
+        {
+            fn handle(
+                self,
+                input: $input,
+            ) -> impl async_callback_manager::FrontendEffect<
+                $frntend,
+                crate::app::server::ArcServer,
+                crate::app::server::TaskMetadata,
+            > {
+                $fn(self, input)
+            }
+        }
+    };
+}
 
 /// Intended to encapsulate all possible effect types Youtui components can
 /// generate.
