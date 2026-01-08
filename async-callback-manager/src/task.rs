@@ -234,6 +234,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
         R: BackendTask<Bkend, MetadataType = Md> + Send + Debug + PartialEq + 'static,
+        R: PartialEq,
         Bkend: 'static,
         Frntend: 'static,
     {

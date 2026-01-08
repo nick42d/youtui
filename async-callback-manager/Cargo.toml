@@ -28,5 +28,11 @@ reqwest = { version = "0.12.12", features = [
   "rustls-tls"
 ] }
 
+[features]
+# Adds restrictions on AsyncTask creation that allow AsyncTasks to be PartialEq.
+task-equality = []
+# Adds restrictions on AsyncTask creation that allow AsyncTasks to be Debug.
+task-debug = []
+
 [lints]
 workspace = true

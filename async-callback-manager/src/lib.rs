@@ -1,5 +1,7 @@
 use futures::{Future, Stream};
 use std::any::Any;
+#[cfg(feature = "task-debug")]
+use std::fmt::Debug;
 
 mod adaptors;
 mod constraint;
@@ -23,7 +25,7 @@ pub(crate) const DEFAULT_STREAM_CHANNEL_SIZE: usize = 20;
 /// A task of kind T that can be run on a backend, returning a future of output
 /// Output. The type must implement Any, as the
 /// TypeId is used as part of the task management process.
-pub trait BackendTask<Bkend>: Send + Any {
+pub trait BackendTask<Bkend>: Send + Any + OptPartialEq + OptDebug {
     type Output: Send;
     type MetadataType: PartialEq;
     fn into_future(self, backend: &Bkend) -> impl Future<Output = Self::Output> + Send + 'static;
@@ -37,7 +39,7 @@ pub trait BackendTask<Bkend>: Send + Any {
 /// A task of kind T that can be run on a backend, returning a stream of outputs
 /// Output. The type must implement Any, as the TypeId is used as part of the
 /// task management process.
-pub trait BackendStreamingTask<Bkend>: Send + Any {
+pub trait BackendStreamingTask<Bkend>: Send + Any + OptPartialEq + OptDebug {
     type Output: Send;
     type MetadataType: PartialEq;
     fn into_stream(
@@ -70,3 +72,23 @@ pub trait FrontendEffect<Frntend, Bkend, Md> {
 pub trait MaybeEq<T> {
     fn maybe_eq(&self, other: &T) -> Option<bool>;
 }
+
+/// feature(where_clauses) on nightly would prevent this.
+#[cfg(not(feature = "task-equality"))]
+pub trait OptPartialEq {}
+#[cfg(feature = "task-equality")]
+pub trait OptPartialEq: PartialEq {}
+#[cfg(not(feature = "task-debug"))]
+pub trait OptDebug {}
+#[cfg(feature = "task-debug")]
+pub trait OptDebug: Debug {}
+
+// Blanket implementations
+#[cfg(feature = "task-debug")]
+impl<T: Debug> OptDebug for T {}
+#[cfg(not(feature = "task-debug"))]
+impl<T> OptDebug for T {}
+#[cfg(feature = "task-equality")]
+impl<T: PartialEq> OptPartialEq for T {}
+#[cfg(not(feature = "task-equality"))]
+impl<T> OptPartialEq for T {}
