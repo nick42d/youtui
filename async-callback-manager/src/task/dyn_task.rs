@@ -4,7 +4,7 @@
 //!    need to juggle effects in Either type structs which may cause issues.
 //! 2. Ease of storage in task list due to heap allocation - manager can store
 //!    tasks directly in a Vec as they are all the same size.
-use crate::{AsyncTask, BackendStreamingTask, BackendTask, FrontendEffect, TaskHandler};
+use crate::{AsyncTask, BackendStreamingTask, BackendTask, FrontendEffect, OptDebug, TaskHandler};
 use futures::Stream;
 use std::any::Any;
 use tokio_stream::StreamExt;
@@ -21,20 +21,25 @@ pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
     Box<dyn FnOnce(&Bkend) -> DynMutationStream<Frntend, Bkend, Md>>;
 
 /// Type erasure helper trait
-pub(crate) trait IntoDynFutureTask<Frntend, Bkend, Md>:
-    MaybeDynEq + std::fmt::Debug
-{
+pub(crate) trait IntoDynFutureTask<Frntend, Bkend, Md>: DynPartialEq + OptDebug {
     fn into_dyn_task(self: Box<Self>) -> DynFutureTask<Frntend, Bkend, Md>;
 }
 /// Type erasure helper trait
-pub(crate) trait IntoDynStreamTask<Frntend, Bkend, Md>:
-    MaybeDynEq + std::fmt::Debug
-{
+pub(crate) trait IntoDynStreamTask<Frntend, Bkend, Md>: OptDynPartialEq + OptDebug {
     fn into_dyn_stream(self: Box<Self>) -> DynStreamTask<Frntend, Bkend, Md>;
 }
+/// feature(where_clauses) on nightly would prevent this.
+#[cfg(not(feature = "task-equality"))]
+pub trait OptaDynPartialEq {}
+#[cfg(feature = "task-equality")]
+pub trait OptDynPartialEq: DynPartialEq {}
+#[cfg(feature = "task-equality")]
+impl<T: DynPartialEq> OptDynPartialEq for T {}
+#[cfg(not(feature = "task-equality"))]
+impl<T> OptDynPartialEq for T {}
 /// Type erasure helper trait
-pub(crate) trait MaybeDynEq: std::any::Any {
-    fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool>;
+pub(crate) trait DynPartialEq: std::any::Any {
+    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool;
 }
 
 /// Allow closures to be accepted as TaskHandlers - at least for now.
@@ -138,12 +143,12 @@ pub(crate) struct FusedTask<T, H> {
     pub(crate) debug_fn: fn(&Self, &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>,
 }
 
-impl<T, H> MaybeDynEq for FusedTask<T, H>
+impl<T, H> DynPartialEq for FusedTask<T, H>
 where
     T: 'static,
     H: 'static,
 {
-    fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool> {
+    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> Option<bool> {
         let eq_fn = self.eq_fn?;
         let other = (other as &dyn Any).downcast_ref::<Self>()?;
         Some(eq_fn(self, other))
@@ -223,12 +228,10 @@ impl<T, H> FusedTask<T, H> {
             },
         }
     }
-    pub(crate) fn new_future_eq<Bkend, Frntend, Md>(request: T, handler: H) -> Self
+    pub(crate) fn new_future<Bkend, Frntend, Md>(request: T, handler: H) -> Self
     where
         T: BackendTask<Bkend>,
         H: TaskHandler<T::Output, Frntend, Bkend, Md>,
-        T: PartialEq + std::fmt::Debug,
-        H: PartialEq + std::fmt::Debug,
     {
         Self {
             task: request,

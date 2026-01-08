@@ -54,23 +54,14 @@ pub trait BackendStreamingTask<Bkend>: Send + Any + OptPartialEq + OptDebug {
 }
 
 /// Represents the handler for a task output.
-pub trait TaskHandler<Input, Frntend, Bkend, Md> {
+pub trait TaskHandler<Input, Frntend, Bkend, Md>: OptPartialEq + OptDebug {
     fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md>;
 }
 
 /// Represents a mutation that can be applied to some state, returning an
 /// effect.
-pub trait FrontendEffect<Frntend, Bkend, Md> {
+pub trait FrontendEffect<Frntend, Bkend, Md>: OptPartialEq + OptDebug {
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md>;
-}
-
-/// Helper trait, representing an equality that may be indeterminate for some
-/// values, e,g comparing two closures where equality is indeterminate via
-/// algorithms due to the halting problem.
-///
-/// e.g `(|x| x + 2).maybe_eq(|x| x + 1 + 1) == None`
-pub trait MaybeEq<T> {
-    fn maybe_eq(&self, other: &T) -> Option<bool>;
 }
 
 /// feature(where_clauses) on nightly would prevent this.

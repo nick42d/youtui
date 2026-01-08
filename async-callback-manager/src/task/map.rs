@@ -1,6 +1,6 @@
 use crate::task::dyn_task::{
-    self, DynFutureTask, DynMutationFuture, DynMutationStream, DynStateMutation, DynStreamTask,
-    IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq,
+    self, DynFutureTask, DynMutationFuture, DynMutationStream, DynPartialEq, DynStateMutation,
+    DynStreamTask, IntoDynFutureTask, IntoDynStreamTask,
 };
 use futures::FutureExt;
 use std::any::Any;
@@ -33,32 +33,32 @@ impl<Frntend, Bkend, Md, F> std::fmt::Debug for MapDynStreamTask<Frntend, Bkend,
     }
 }
 
-impl<Frntend, Bkend, Md, F> MaybeDynEq for MapDynFutureTask<Frntend, Bkend, Md, F>
+impl<Frntend, Bkend, Md, F> DynPartialEq for MapDynFutureTask<Frntend, Bkend, Md, F>
 where
     F: 'static,
     Md: 'static,
     Frntend: 'static,
     Bkend: 'static,
 {
-    fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool> {
+    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> Option<bool> {
         // Note - map function is not checked. It's assumed that this doesn't change the
         // equality in any meaningful way.
         let other = (other as &dyn Any).downcast_ref::<Self>()?;
-        self.task.maybe_dyn_eq(other.task.as_ref())
+        self.task.dyn_partial_eq(other.task.as_ref())
     }
 }
-impl<Frntend, Bkend, Md, F> MaybeDynEq for MapDynStreamTask<Frntend, Bkend, Md, F>
+impl<Frntend, Bkend, Md, F> DynPartialEq for MapDynStreamTask<Frntend, Bkend, Md, F>
 where
     F: 'static,
     Md: 'static,
     Frntend: 'static,
     Bkend: 'static,
 {
-    fn maybe_dyn_eq(&self, other: &dyn MaybeDynEq) -> Option<bool> {
+    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> Option<bool> {
         // Note - map function is not checked. It's assumed that this doesn't change the
         // equality in any meaningful way.
         let other = (other as &dyn Any).downcast_ref::<Self>()?;
-        self.task.maybe_dyn_eq(other.task.as_ref())
+        self.task.dyn_partial_eq(other.task.as_ref())
     }
 }
 impl<F, Frntend, NewFrntend, Bkend, Md> IntoDynFutureTask<NewFrntend, Bkend, Md>
