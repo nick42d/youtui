@@ -57,6 +57,7 @@ where
     }
 }
 
+/// Helper handler for a task that returns a Result<T,E>
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) struct TryHandler<OkH, ErrH> {
     pub(crate) ok_handler: OkH,
@@ -81,6 +82,8 @@ where
     }
 }
 
+/// Helper to utilise static dispatch when returning different types of impl
+/// Trait.
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) enum Either<L, R> {
     Left(L),
@@ -100,6 +103,7 @@ where
     }
 }
 
+/// Helper handler for a task that returns Option<T>
 #[derive(PartialEq, Clone, Debug)]
 pub(crate) struct OptionHandler<SomeH>(pub(crate) SomeH);
 
@@ -124,7 +128,8 @@ where
     }
 }
 
-/// Combination of Task and Handler.
+/// Combination of Task and Handler, which can then have task and handler types
+/// erased into an IntoDyn{Future/Stream}Task<Frntend, Bkend, Md>.
 pub(crate) struct FusedTask<T, H> {
     pub(crate) task: T,
     pub(crate) handler: H,

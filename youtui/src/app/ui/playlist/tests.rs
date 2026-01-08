@@ -11,11 +11,10 @@ use crate::app::ui::{ListSongID, PlayState};
 use crate::async_rodio_sink::{AllStopped, Stopped};
 use async_callback_manager::{AsyncTask, Constraint, MaybeEq, TryBackendTaskExt};
 use pretty_assertions::assert_eq;
-use std::fmt::Pointer;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
 use ytmapi_rs::auth::BrowserToken;
-use ytmapi_rs::common::{AlbumID, Thumbnail, VideoID, YoutubeID};
+use ytmapi_rs::common::{AlbumID, Thumbnail, YoutubeID};
 use ytmapi_rs::parse::{GetAlbum, ParsedSongAlbum};
 use ytmapi_rs::query::GetAlbumQuery;
 

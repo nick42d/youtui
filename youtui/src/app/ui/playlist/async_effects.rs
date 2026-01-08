@@ -124,6 +124,12 @@ impl_youtui_task_handler!(
     }
 );
 impl_youtui_task_handler!(
+    HandleGetSongThumbnailOk,
+    SongThumbnail,
+    Playlist,
+    |_, input| PlaylistEffect::AddSongThumbnail(input)
+);
+impl_youtui_task_handler!(
     HandleGetSongThumbnailError,
     anyhow::Error,
     Playlist,
@@ -152,12 +158,6 @@ impl_youtui_task_handler!(
     Playlist,
     |_, input: Paused<_>| PlaylistEffect::HandlePaused(input.0)
 );
-impl_youtui_task_handler!(
-    HandleGetSongThumbnailOk,
-    SongThumbnail,
-    Playlist,
-    |_, input| PlaylistEffect::AddSongThumbnail(input)
-);
 
 impl FrontendEffect<Playlist, ArcServer, TaskMetadata> for PlaylistEffect {
     fn apply(self, target: &mut Playlist) -> ComponentEffect<Playlist> {
@@ -169,6 +169,7 @@ impl FrontendEffect<Playlist, ArcServer, TaskMetadata> for PlaylistEffect {
                 target.handle_stopped(msg);
             }
             PlaylistEffect::HandlePausePlayResponse(msg) => {
+                // Logic could go in handler instead.
                 match msg {
                     PausePlayResponse::Paused(id) => target.handle_paused(id),
                     PausePlayResponse::Resumed(id) => target.handle_resumed(id),
