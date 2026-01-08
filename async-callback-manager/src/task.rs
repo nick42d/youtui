@@ -1,9 +1,9 @@
 use crate::task::dyn_task::{
-    FusedTask, IntoDynFutureTask, IntoDynStreamTask, MaybeDynEq, OptionHandler, TryHandler,
+    FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
-use crate::{BackendStreamingTask, BackendTask, Constraint, FrontendEffect, MaybeEq, TaskHandler};
-use std::any::{Any, TypeId, type_name};
+use crate::{BackendStreamingTask, BackendTask, Constraint, MaybeEq, TaskHandler};
+use std::any::{TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
 use std::ops::ControlFlow;
