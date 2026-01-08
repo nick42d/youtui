@@ -196,15 +196,12 @@ pub fn draw_footer(
                                 ratatui_image::Resize::Fit(None),
                             )
                             .unwrap();
-                        f.render_widget(Image::new(&image), album_art_chunk);
                     }
                     AlbumArtState::Error => {
                         let fallback_album_widget = Paragraph::new("").centered();
-                        f.render_widget(fallback_album_widget, middle_of_rect(album_art_chunk));
                     }
                     AlbumArtState::Init => {
                         let fallback_album_widget = Paragraph::new("").centered();
-                        f.render_widget(fallback_album_widget, middle_of_rect(album_art_chunk));
                     }
                     AlbumArtState::None => {
                         unreachable!("This arm is covered by the earlier match statement")
@@ -216,7 +213,7 @@ pub fn draw_footer(
     f.render_widget(bar, progress_bar_chunk);
     f.render_widget(left_arrow, left_arrow_chunk);
     f.render_widget(right_arrow, right_arrow_chunk);
-    f.render_widget(block, chunk);
+    //f.render_widget(block, chunk);
     f.render_widget(footer, song_text_chunk);
     f.render_widget(vol_bar, vol_bar_chunk);
 }
