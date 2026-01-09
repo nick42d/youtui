@@ -1,6 +1,6 @@
 use crate::app::structures::{AlbumArtState, PlayState};
 use crate::drawutils::{
-    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR, middle_of_rect,
+    BUTTON_BG_COLOUR, BUTTON_FG_COLOUR, PROGRESS_BG_COLOUR, PROGRESS_FG_COLOUR,
 };
 use itertools::Itertools;
 use ratatui::Frame;
@@ -9,7 +9,6 @@ use ratatui::prelude::Alignment;
 use ratatui::style::{Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Gauge, Paragraph};
-use ratatui_image::Image;
 use ratatui_image::picker::Picker;
 use std::time::Duration;
 
@@ -40,7 +39,7 @@ pub fn draw_footer(
     f: &mut Frame,
     w: &mut super::YoutuiWindow,
     chunk: Rect,
-    terminal_image_capabilities: &Picker,
+    _terminal_image_capabilities: &Picker,
 ) {
     let mut duration = 0;
     let mut progress = Duration::default();
@@ -166,7 +165,7 @@ pub fn draw_footer(
                 get_progress_bar_and_text_layout(album_art_and_progress_bar_chunk)
             }
             Some(album_art) => {
-                let [album_art_chunk, _, progress_bar_chunk] = Layout::default()
+                let [_album_art_chunk, _, progress_bar_chunk] = Layout::default()
                     .direction(Direction::Horizontal)
                     .constraints([
                         Constraint::Length(ALBUM_ART_WIDTH),
@@ -175,7 +174,7 @@ pub fn draw_footer(
                     ])
                     .areas(album_art_and_progress_bar_chunk);
                 match album_art {
-                    AlbumArtState::Downloaded(album_art) => {
+                    AlbumArtState::Downloaded(_album_art) => {
                         // TODO: consider hoist ability to panic here up to album_art_downloader
                         // server call.
                         // Since album art is fixed size, no
@@ -184,24 +183,24 @@ pub fn draw_footer(
                         // sized image.
                         // Benefit: This includes an encoding step and so would be good to do that
                         // on the backend.
-                        let image = terminal_image_capabilities
-                            .new_protocol(
-                                album_art.in_mem_image.clone(),
-                                Rect {
-                                    x: 0,
-                                    y: 0,
-                                    width: ALBUM_ART_WIDTH,
-                                    height: ALBUM_ART_WIDTH,
-                                },
-                                ratatui_image::Resize::Fit(None),
-                            )
-                            .unwrap();
+                        // let _image = terminal_image_capabilities
+                        //     .new_protocol(
+                        //         album_art.in_mem_image.clone(),
+                        //         Rect {
+                        //             x: 0,
+                        //             y: 0,
+                        //             width: ALBUM_ART_WIDTH,
+                        //             height: ALBUM_ART_WIDTH,
+                        //         },
+                        //         ratatui_image::Resize::Fit(None),
+                        //     )
+                        //     .unwrap();
                     }
                     AlbumArtState::Error => {
-                        let fallback_album_widget = Paragraph::new("").centered();
+                        let _fallback_album_widget = Paragraph::new("").centered();
                     }
                     AlbumArtState::Init => {
-                        let fallback_album_widget = Paragraph::new("").centered();
+                        let _fallback_album_widget = Paragraph::new("").centered();
                     }
                     AlbumArtState::None => {
                         unreachable!("This arm is covered by the earlier match statement")
@@ -213,7 +212,7 @@ pub fn draw_footer(
     f.render_widget(bar, progress_bar_chunk);
     f.render_widget(left_arrow, left_arrow_chunk);
     f.render_widget(right_arrow, right_arrow_chunk);
-    //f.render_widget(block, chunk);
+    f.render_widget(block, chunk);
     f.render_widget(footer, song_text_chunk);
     f.render_widget(vol_bar, vol_bar_chunk);
 }
