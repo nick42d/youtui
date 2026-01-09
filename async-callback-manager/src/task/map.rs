@@ -52,6 +52,7 @@ where
     Md: 'static,
     Frntend: 'static,
     Bkend: 'static,
+    dyn IntoDynFutureTask<Frntend, Bkend, Md>: DynPartialEq,
 {
     fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool {
         // Note - map function is not checked. It's assumed that this doesn't change the
@@ -69,6 +70,7 @@ where
     Md: 'static,
     Frntend: 'static,
     Bkend: 'static,
+    for<'a> &'a dyn IntoDynStreamTask<Frntend, Bkend, Md>: DynPartialEq,
 {
     fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool {
         // Note - map function is not checked. It's assumed that this doesn't change the
@@ -76,7 +78,7 @@ where
         let Some(other) = (other as &dyn Any).downcast_ref::<Self>() else {
             return false;
         };
-        self.task.dyn_partial_eq(other.task.as_ref())
+        self.task.as_ref().dyn_partial_eq(other.task.as_ref())
     }
 }
 impl<F, Frntend, NewFrntend, Bkend, Md> IntoDynFutureTask<NewFrntend, Bkend, Md>
