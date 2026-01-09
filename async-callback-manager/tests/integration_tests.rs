@@ -1,5 +1,7 @@
 //! Integration tests for async-callback-manager.
 
+#[cfg(all(feature = "task-debug", feature = "task-equality"))
+use async_callback_manager::{FrontendEffect, TaskHandler};
 use async_callback_manager::{
     AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, Constraint,
 };
@@ -9,18 +11,18 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct TextTask(String);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct DelayedBackendMutatingRequest(String);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct StreamingCounterTask(usize);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct PanickingStreamingCounterTask {
     count: usize,
     panic_on: usize,
 }
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct DelayedBackendMutatingStreamingCounterTask(usize);
 #[derive(Default)]
 struct MockMutatingBackend {
@@ -144,11 +146,28 @@ where
 async fn test_mutate_once() {
     let mut state = String::new();
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_future_with_closure_handler(
-        TextTask("Hello from the future".to_string()),
-        |state, new| *state = new,
-        None,
-    );
+
+    struct Handler;
+    struct Effect(String);
+    impl TaskHandler<String, String, (), ()> for Handler {
+        fn handle(self, input: String) -> impl async_callback_manager::FrontendEffect<String, (), ()> {
+            Effect(input)
+        }
+    } 
+    impl FrontendEffect<String, (), ()> for Effect {
+        fn apply(self, target: &mut String) -> AsyncTask<String, (), ()> {
+            *target = self.0
+        }
+    }
+
+
+    #[cfg(not(any(feature = "task-debug", feature = "task-equality")))]
+    let handler = |state: &mut String, new| *state = new;
+
+    #[cfg(all(feature = "task-debug", feature = "task-equality"))]
+    let handler = Handler;
+
+    let task = AsyncTask::new_future(TextTask("Hello from the future".to_string()), handler, None);
     manager.spawn_task(&(), task);
     drain_manager(manager, &mut state, &()).await.unwrap();
     assert_eq!(state, "Hello from the future".to_string());
@@ -158,13 +177,13 @@ async fn test_mutate_once() {
 async fn test_mutate_twice() {
     let mut state = Vec::new();
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_future_with_closure_handler(
+    let task = AsyncTask::new_future(
         TextTask("Message 1".to_string()),
         |state: &mut Vec<_>, new| state.push(new),
         None,
     );
     manager.spawn_task(&(), task);
-    let task = AsyncTask::new_future_with_closure_handler(
+    let task = AsyncTask::new_future(
         TextTask("Message 2".to_string()),
         |state: &mut Vec<_>, new| state.push(new),
         None,
@@ -181,7 +200,7 @@ async fn test_mutate_twice() {
 async fn test_mutate_stream() {
     let mut state = Vec::new();
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         StreamingCounterTask(10),
         |state: &mut Vec<_>, new| state.push(new),
         None,
@@ -195,7 +214,7 @@ async fn test_mutate_stream() {
 async fn test_panicking_stream() {
     let mut state = Vec::new();
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         PanickingStreamingCounterTask {
             count: 10,
             panic_on: 5,
@@ -214,13 +233,13 @@ async fn test_mutate_stream_twice() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = Vec::new();
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         DelayedBackendMutatingStreamingCounterTask(5),
         |state: &mut Vec<_>, new| state.push(new),
         None,
     );
     manager.spawn_task(&backend, task);
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         DelayedBackendMutatingStreamingCounterTask(5),
         |state: &mut Vec<_>, new| state.push(new),
         None,
@@ -239,13 +258,13 @@ async fn test_block_constraint() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = vec![];
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_future_with_closure_handler(
+    let task = AsyncTask::new_future(
         DelayedBackendMutatingRequest("This message should get blocked!".to_string()),
         |state: &mut Vec<_>, new| state.push(new),
         None,
     );
     manager.spawn_task(&backend, task);
-    let task = AsyncTask::new_future_with_closure_handler(
+    let task = AsyncTask::new_future(
         DelayedBackendMutatingRequest("Message 2".to_string()),
         |state: &mut Vec<_>, new| state.push(new),
         Some(Constraint::new_block_same_type()),
@@ -262,13 +281,13 @@ async fn test_kill_constraint() {
     let mut state = vec![];
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_future_with_closure_handler(
+    let task = AsyncTask::new_future(
         DelayedBackendMutatingRequest("This message should get killed!".to_string()),
         |state: &mut Vec<_>, new| state.push(new),
         None,
     );
     manager.spawn_task(&backend, task);
-    let task = AsyncTask::new_future_with_closure_handler(
+    let task = AsyncTask::new_future(
         DelayedBackendMutatingRequest("Message 2".to_string()),
         |state: &mut Vec<_>, new| state.push(new),
         Some(Constraint::new_kill_same_type()),
@@ -285,13 +304,13 @@ async fn test_block_constraint_stream() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = vec![];
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         DelayedBackendMutatingStreamingCounterTask(5),
         |state: &mut Vec<_>, new| state.push(new),
         None,
     );
     manager.spawn_task(&backend, task);
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         DelayedBackendMutatingStreamingCounterTask(5),
         |state: &mut Vec<_>, new| state.push(new),
         Some(Constraint::new_block_same_type()),
@@ -308,13 +327,13 @@ async fn test_kill_constraint_stream() {
     let backend = Arc::new(Mutex::new(MockMutatingBackend::default()));
     let mut state = vec![];
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         DelayedBackendMutatingStreamingCounterTask(5),
         |state: &mut Vec<_>, new| state.push(new),
         None,
     );
     manager.spawn_task(&backend, task);
-    let task = AsyncTask::new_stream_with_closure_handler(
+    let task = AsyncTask::new_stream(
         DelayedBackendMutatingStreamingCounterTask(5),
         |state: &mut Vec<_>, new| state.push(new),
         Some(Constraint::new_kill_same_type()),
@@ -333,7 +352,7 @@ async fn test_task_spawn_callback() {
     let mut manager = AsyncCallbackManager::new().with_on_task_spawn_callback(move |_| {
         *task_received_clone.lock().unwrap() = true;
     });
-    let task = AsyncTask::new_future_with_closure_handler(
+    let task = AsyncTask::new_future(
         TextTask("Hello from the future".to_string()),
         |_: &mut (), _| {},
         None,
@@ -346,11 +365,11 @@ async fn test_task_spawn_callback() {
 async fn test_task_spawns_task() {
     let mut state: Vec<String> = vec![];
     let mut manager = AsyncCallbackManager::new();
-    let task = AsyncTask::new_future_with_closure_handler_chained(
+    let task = AsyncTask::new_future(
         TextTask("Hello".to_string()),
         |state: &mut Vec<_>, output| {
             state.push(output);
-            AsyncTask::new_future_with_closure_handler(
+            AsyncTask::new_future(
                 TextTask("World".to_string()),
                 |state: &mut Vec<String>, output| state.push(output),
                 None,

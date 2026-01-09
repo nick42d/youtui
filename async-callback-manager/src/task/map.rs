@@ -40,10 +40,12 @@ where
     Frntend: 'static,
     Bkend: 'static,
 {
-    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> Option<bool> {
+    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool {
         // Note - map function is not checked. It's assumed that this doesn't change the
         // equality in any meaningful way.
-        let other = (other as &dyn Any).downcast_ref::<Self>()?;
+        let Some(other) = (other as &dyn Any).downcast_ref::<Self>() else {
+            return false;
+        };
         self.task.dyn_partial_eq(other.task.as_ref())
     }
 }
@@ -54,10 +56,12 @@ where
     Frntend: 'static,
     Bkend: 'static,
 {
-    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> Option<bool> {
+    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool {
         // Note - map function is not checked. It's assumed that this doesn't change the
         // equality in any meaningful way.
-        let other = (other as &dyn Any).downcast_ref::<Self>()?;
+        let Some(other) = (other as &dyn Any).downcast_ref::<Self>() else {
+            return false;
+        };
         self.task.dyn_partial_eq(other.task.as_ref())
     }
 }

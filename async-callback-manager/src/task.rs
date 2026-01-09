@@ -1,12 +1,11 @@
 use crate::task::dyn_task::{
-    DynPartialEq, FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
+    FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
-use crate::{BackendStreamingTask, BackendTask, Constraint, MaybeEq, TaskHandler};
+use crate::{BackendStreamingTask, BackendTask, Constraint, TaskHandler};
 use std::any::{TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
-use std::ops::ControlFlow;
 
 pub mod dyn_task;
 mod map;
@@ -41,9 +40,9 @@ pub(crate) struct StreamTask<Frntend, Bkend, Md> {
 }
 
 // Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
-impl<Frntend, Bkend, Md> std::fmt::Debug for AsyncTask<Frntend, Bkend, Md>
+impl<Frntend, Bkend, Md> Debug for AsyncTask<Frntend, Bkend, Md>
 where
-    Md: std::fmt::Debug,
+    Md: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AsyncTask")
@@ -54,9 +53,9 @@ where
     }
 }
 // Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
-impl<Frntend, Bkend, Md> std::fmt::Debug for AsyncTaskKind<Frntend, Bkend, Md>
+impl<Frntend, Bkend, Md> Debug for AsyncTaskKind<Frntend, Bkend, Md>
 where
-    Md: std::fmt::Debug,
+    Md: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -68,7 +67,7 @@ where
     }
 }
 // Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
-impl<Frntend, Bkend, Md> std::fmt::Debug for FutureTask<Frntend, Bkend, Md> {
+impl<Frntend, Bkend, Md> Debug for FutureTask<Frntend, Bkend, Md> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("FutureTask")
             .field("task", &self.task)
@@ -79,7 +78,7 @@ impl<Frntend, Bkend, Md> std::fmt::Debug for FutureTask<Frntend, Bkend, Md> {
     }
 }
 // Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
-impl<Frntend, Bkend, Md> std::fmt::Debug for StreamTask<Frntend, Bkend, Md> {
+impl<Frntend, Bkend, Md> Debug for StreamTask<Frntend, Bkend, Md> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("StreamTask")
             .field("task", &self.task)
@@ -169,42 +168,20 @@ impl<Frntend, Bkend, Md> FromIterator<AsyncTask<Frntend, Bkend, Md>>
 
 impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md>
 where
-    Md: PartialEq + Debug + 'static,
+    Md: PartialEq + 'static,
     Frntend: 'static,
     Bkend: 'static,
 {
     /// Assert that this effect contains at least other effect (it may contain
     /// multiple effects).
-    pub fn maybe_contains(&self, other: &AsyncTask<Frntend, Bkend, Md>) -> Option<bool> {
-        todo!()
-        // struct ContainsIndeterminate(bool);
-        // match &self.task {
-        //     AsyncTaskKind::Multi(self_tasks) => {
-        //         let list_analysis = self_tasks.iter().try_fold(
-        //             ContainsIndeterminate(false),
-        //             |mut acc, self_task| {
-        //                 // Use of maybe_contains here handles nested Multi
-        // tasks.                 match other.maybe_contains(self_task)
-        // {                     Some(true) => {
-        //                         return ControlFlow::Break(acc);
-        //                     }
-        //                     None => {
-        //                         acc.0 = true;
-        //                     }
-        //                     _ => {}
-        //                 };
-        //                 ControlFlow::Continue(acc)
-        //             },
-        //         );
-        //         match list_analysis {
-        //             ControlFlow::Continue(ContainsIndeterminate(true)) =>
-        // None,
-        // ControlFlow::Continue(ContainsIndeterminate(false)) => Some(false),
-        //             ControlFlow::Break(_) => Some(true),
-        //         }
-        //     }
-        //     _ => self.maybe_eq(other),
-        // }
+    pub fn contains(&self, other: &AsyncTask<Frntend, Bkend, Md>) -> bool {
+        match &self.task {
+            AsyncTaskKind::Multi(self_tasks) => {
+                // Contains is used here to guard against nested multi tasks
+                self_tasks.iter().any(|self_task| self_task.contains(other))
+            }
+            _ => self == other,
+        }
     }
 }
 
@@ -246,8 +223,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
-        R: BackendTask<Bkend, MetadataType = Md> + Send + Debug + PartialEq + 'static,
-        R: PartialEq,
+        R: BackendTask<Bkend, MetadataType = Md> + Send + Debug + 'static,
         Bkend: 'static,
         Frntend: 'static,
     {
@@ -270,24 +246,12 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_future_try<R, T, E>(
         request: R,
-        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md>
-        + Send
-        + PartialEq
-        + std::fmt::Debug
-        + 'static,
-        err_handler: impl TaskHandler<E, Frntend, Bkend, Md>
-        + Send
-        + PartialEq
-        + std::fmt::Debug
-        + 'static,
+        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + 'static,
+        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
-        R: BackendTask<Bkend, MetadataType = Md, Output = Result<T, E>>
-            + Send
-            + Debug
-            + PartialEq
-            + 'static,
+        R: BackendTask<Bkend, MetadataType = Md, Output = Result<T, E>> + Send + Debug + 'static,
         Bkend: 'static,
         Frntend: 'static,
         E: 'static,
@@ -318,19 +282,11 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_future_option<R, T>(
         request: R,
-        some_handler: impl TaskHandler<T, Frntend, Bkend, Md>
-        + Send
-        + PartialEq
-        + std::fmt::Debug
-        + 'static,
+        some_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
-        R: BackendTask<Bkend, MetadataType = Md, Output = Option<T>>
-            + Send
-            + Debug
-            + PartialEq
-            + 'static,
+        R: BackendTask<Bkend, MetadataType = Md, Output = Option<T>> + Send + Debug + 'static,
         Bkend: 'static,
         Frntend: 'static,
         T: 'static,
@@ -355,16 +311,11 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     pub fn new_stream<R>(
         request: R,
         // TODO: Review Clone bounds.
-        handler: impl TaskHandler<R::Output, Frntend, Bkend, Md>
-        + Send
-        + PartialEq
-        + Debug
-        + Clone
-        + 'static,
+        handler: impl TaskHandler<R::Output, Frntend, Bkend, Md> + Send + Clone + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
-        R: BackendStreamingTask<Bkend, MetadataType = Md> + Send + Debug + PartialEq + 'static,
+        R: BackendStreamingTask<Bkend, MetadataType = Md> + Send + Debug + 'static,
         Bkend: 'static,
         Frntend: 'static,
     {
@@ -372,7 +323,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_id = request.type_id();
         let type_name = type_name::<R>();
         let type_debug = format!("{request:?}");
-        let task = Box::new(FusedTask::new_stream_eq(request, handler));
+        let task = Box::new(FusedTask::new_stream(request, handler));
         let task = StreamTask {
             task,
             type_id,
@@ -387,20 +338,14 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_stream_try<R, T, E>(
         request: R,
-        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + PartialEq + Debug + 'static,
-        err_handler: impl TaskHandler<E, Frntend, Bkend, Md>
-        + Send
-        + Clone
-        + PartialEq
-        + Debug
-        + 'static,
+        ok_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + 'static,
+        err_handler: impl TaskHandler<E, Frntend, Bkend, Md> + Send + Clone + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
         R: BackendStreamingTask<Bkend, MetadataType = Md, Output = Result<T, E>>
             + Send
             + Debug
-            + PartialEq
             + 'static,
         Bkend: 'static,
         Frntend: 'static,
@@ -411,7 +356,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_id = request.type_id();
         let type_name = type_name::<R>();
         let type_debug = format!("{request:?}");
-        let task = Box::new(FusedTask::new_stream_eq(
+        let task = Box::new(FusedTask::new_stream(
             request,
             TryHandler {
                 ok_handler,
@@ -432,19 +377,13 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     }
     pub fn new_stream_option<R, T>(
         request: R,
-        some_handler: impl TaskHandler<T, Frntend, Bkend, Md>
-        + Send
-        + Clone
-        + PartialEq
-        + Debug
-        + 'static,
+        some_handler: impl TaskHandler<T, Frntend, Bkend, Md> + Send + Clone + 'static,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
         R: BackendStreamingTask<Bkend, MetadataType = Md, Output = Option<T>>
             + Send
             + Debug
-            + PartialEq
             + 'static,
         Bkend: 'static,
         Frntend: 'static,
@@ -454,10 +393,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
         let type_id = request.type_id();
         let type_name = type_name::<R>();
         let type_debug = format!("{request:?}");
-        let task = Box::new(FusedTask::new_stream_eq(
-            request,
-            OptionHandler(some_handler),
-        ));
+        let task = Box::new(FusedTask::new_stream(request, OptionHandler(some_handler)));
         let task = StreamTask {
             task,
             type_id,

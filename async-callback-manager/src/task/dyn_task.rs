@@ -30,7 +30,7 @@ pub(crate) trait IntoDynStreamTask<Frntend, Bkend, Md>: OptDynPartialEq + OptDeb
 }
 /// feature(where_clauses) on nightly would prevent this.
 #[cfg(not(feature = "task-equality"))]
-pub trait OptaDynPartialEq {}
+pub trait OptDynPartialEq {}
 #[cfg(feature = "task-equality")]
 pub trait OptDynPartialEq: DynPartialEq {}
 #[cfg(feature = "task-equality")]
@@ -42,17 +42,22 @@ pub(crate) trait DynPartialEq: std::any::Any {
     fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool;
 }
 
-/// Allow closures to be accepted as TaskHandlers - at least for now.
-impl<T, Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for T
+/// Allow closures to be accepted as TaskHandlers if equality and debug features
+/// are not required.
+#[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
+impl<T, F, Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for T
 where
-    T: FnOnce(&mut Frntend, Input) -> AsyncTask<Frntend, Bkend, Md> + Send + 'static,
+    T: FnOnce(Input) -> F,
+    F: FrontendEffect<Frntend, Bkend, Md> + Send + 'static,
 {
     fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md> {
-        |frontend: &mut Frntend| self(frontend, input)
+        self(input)
     }
 }
 
-/// Allow closures to be accepted as TaskHandlers - at least for now.
+/// Allow closures to be accepted as TaskHandlers if equality and debug features
+/// are not required.
+#[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
 impl<T, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for T
 where
     T: FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md>,
@@ -135,31 +140,34 @@ where
 
 /// Combination of Task and Handler, which can then have task and handler types
 /// erased into an IntoDyn{Future/Stream}Task<Frntend, Bkend, Md>.
+#[derive(PartialEq, Debug)]
 pub(crate) struct FusedTask<T, H> {
     pub(crate) task: T,
     pub(crate) handler: H,
-    pub(crate) eq_fn: Option<fn(&Self, &Self) -> bool>,
+    // pub(crate) eq_fn: Option<fn(&Self, &Self) -> bool>,
     // NOTE: This could be feature gated.
-    pub(crate) debug_fn: fn(&Self, &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>,
+    // pub(crate) debug_fn: fn(&Self, &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>,
 }
 
 impl<T, H> DynPartialEq for FusedTask<T, H>
 where
-    T: 'static,
-    H: 'static,
+    T: PartialEq + 'static,
+    H: PartialEq + 'static,
 {
-    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> Option<bool> {
-        let eq_fn = self.eq_fn?;
-        let other = (other as &dyn Any).downcast_ref::<Self>()?;
-        Some(eq_fn(self, other))
+    fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool {
+        // let eq_fn = self.eq_fn?;
+        let Some(other) = (other as &dyn Any).downcast_ref::<Self>() else {
+            return false;
+        };
+        self == other
     }
 }
 
-impl<T, H> std::fmt::Debug for FusedTask<T, H> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        (self.debug_fn)(self, f)
-    }
-}
+// impl<T, H> std::fmt::Debug for FusedTask<T, H> {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         (self.debug_fn)(self, f)
+//     }
+// }
 
 impl<T, H, Bkend, Frntend> IntoDynFutureTask<Frntend, Bkend, T::MetadataType> for FusedTask<T, H>
 where
@@ -208,26 +216,6 @@ where
 }
 
 impl<T, H> FusedTask<T, H> {
-    pub(crate) fn new_future_with_closure_handler<Bkend, Frntend, Md>(
-        request: T,
-        handler: H,
-    ) -> Self
-    where
-        T: BackendTask<Bkend>,
-        H: FnOnce(&mut Frntend, T::Output) -> AsyncTask<Frntend, Bkend, Md> + Send + 'static,
-    {
-        Self {
-            task: request,
-            handler,
-            eq_fn: None,
-            debug_fn: |_, f| {
-                f.debug_struct("FusedTask")
-                    .field("task", &"{{BackendTask}}")
-                    .field("handler", &"{{closure}}")
-                    .finish_non_exhaustive()
-            },
-        }
-    }
     pub(crate) fn new_future<Bkend, Frntend, Md>(request: T, handler: H) -> Self
     where
         T: BackendTask<Bkend>,
@@ -236,55 +224,13 @@ impl<T, H> FusedTask<T, H> {
         Self {
             task: request,
             handler,
-            eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
-            debug_fn: |this, f| {
-                f.debug_struct("FusedTask")
-                    .field("task", &this.task)
-                    .field("handler", &this.handler)
-                    .finish_non_exhaustive()
-            },
-        }
-    }
-    pub(crate) fn new_stream_with_closure_handler<Bkend, Frntend, Md>(
-        request: T,
-        handler: H,
-    ) -> Self
-    where
-        T: BackendStreamingTask<Bkend>,
-        H: FnOnce(&mut Frntend, T::Output) -> AsyncTask<Frntend, Bkend, Md>
-            + Clone
-            + Send
-            + 'static,
-    {
-        Self {
-            task: request,
-            handler,
-            eq_fn: None,
-            debug_fn: |_, f| {
-                f.debug_struct("FusedTask")
-                    .field("task", &"{{BackendStreamingTask}}")
-                    .field("handler", &"{{closure}}")
-                    .finish_non_exhaustive()
-            },
-        }
-    }
-    pub(crate) fn new_stream_eq<Bkend, Frntend, Md>(request: T, handler: H) -> Self
-    where
-        T: BackendStreamingTask<Bkend>,
-        H: TaskHandler<T::Output, Frntend, Bkend, Md> + Clone,
-        T: PartialEq + std::fmt::Debug,
-        H: PartialEq + std::fmt::Debug,
-    {
-        Self {
-            task: request,
-            handler,
-            eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
-            debug_fn: |this, f| {
-                f.debug_struct("FusedTask")
-                    .field("task", &this.task)
-                    .field("handler", &this.handler)
-                    .finish_non_exhaustive()
-            },
+            // eq_fn: Some(|t1, t2| t1.task == t2.task && t1.handler == t2.handler),
+            // debug_fn: |this, f| {
+            //     f.debug_struct("FusedTask")
+            //         .field("task", &this.task)
+            //         .field("handler", &this.handler)
+            //         .finish_non_exhaustive()
+            // },
         }
     }
     pub(crate) fn new_stream<Bkend, Frntend, Md>(request: T, handler: H) -> Self
@@ -295,13 +241,13 @@ impl<T, H> FusedTask<T, H> {
         Self {
             task: request,
             handler,
-            eq_fn: None,
-            debug_fn: |_, f| {
-                f.debug_struct("FusedTask")
-                    .field("task", &"{{BackendStreamingTask}}")
-                    .field("handler", &"{{TaskHandler}}")
-                    .finish_non_exhaustive()
-            },
+            // eq_fn: None,
+            // debug_fn: |_, f| {
+            //     f.debug_struct("FusedTask")
+            //         .field("task", &"{{BackendStreamingTask}}")
+            //         .field("handler", &"{{TaskHandler}}")
+            //         .finish_non_exhaustive()
+            // },
         }
     }
 }
