@@ -102,11 +102,11 @@ impl TextHandler for PlaylistSearchBrowser {
             InputRouting::Playlist => self
                 .playlist_search_panel
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.playlist_search_panel)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.playlist_search_panel)),
             InputRouting::Song => self
                 .playlist_songs_panel
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.playlist_songs_panel)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.playlist_songs_panel)),
         }
     }
 }

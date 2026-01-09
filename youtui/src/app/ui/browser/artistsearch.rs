@@ -101,11 +101,11 @@ impl TextHandler for ArtistSearchBrowser {
             InputRouting::Artist => self
                 .artist_search_panel
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.artist_search_panel)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.artist_search_panel)),
             InputRouting::Song => self
                 .album_songs_panel
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.album_songs_panel)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.album_songs_panel)),
         }
     }
 }

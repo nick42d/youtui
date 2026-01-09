@@ -245,7 +245,7 @@ impl TextHandler for AlbumSongsPanel {
     ) -> Option<ComponentEffect<Self>> {
         self.filter
             .handle_text_event_impl(event)
-            .map(|effect| effect.map(|this: &mut AlbumSongsPanel| &mut this.filter))
+            .map(|effect| effect.map_frontend(|this: &mut AlbumSongsPanel| &mut this.filter))
     }
 }
 

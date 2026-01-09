@@ -31,17 +31,17 @@ pub struct HandleApiError {
     pub message: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct GetSearchSuggestions(pub String);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SearchArtists(pub String);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SearchSongs(pub String);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SearchPlaylists(pub String);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct GetArtistSongs(pub ArtistChannelID<'static>);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct GetPlaylistSongs {
     pub playlist_id: PlaylistID<'static>,
     pub max_songs: usize,

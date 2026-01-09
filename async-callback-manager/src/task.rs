@@ -1,8 +1,8 @@
 use crate::task::dyn_task::{
-    FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
+    DynPartialEq, FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
-use crate::{BackendStreamingTask, BackendTask, Constraint, TaskHandler};
+use crate::{BackendStreamingTask, BackendTask, Constraint, MapFn, TaskHandler};
 use std::any::{TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
@@ -39,10 +39,18 @@ pub(crate) struct StreamTask<Frntend, Bkend, Md> {
     pub(crate) type_debug: String,
 }
 
+// Allow conversion of () into no-op Task.
+impl<Frntend, Bkend, Md> From<()> for AsyncTask<Frntend, Bkend, Md> {
+    fn from(_: ()) -> Self {
+        AsyncTask::new_no_op()
+    }
+}
+
 // Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
 impl<Frntend, Bkend, Md> Debug for AsyncTask<Frntend, Bkend, Md>
 where
     Md: Debug,
+    AsyncTaskKind<Frntend, Bkend, Md>: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AsyncTask")
@@ -56,6 +64,8 @@ where
 impl<Frntend, Bkend, Md> Debug for AsyncTaskKind<Frntend, Bkend, Md>
 where
     Md: Debug,
+    FutureTask<Frntend, Bkend, Md>: Debug,
+    StreamTask<Frntend, Bkend, Md>: Debug,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -67,7 +77,10 @@ where
     }
 }
 // Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
-impl<Frntend, Bkend, Md> Debug for FutureTask<Frntend, Bkend, Md> {
+impl<Frntend, Bkend, Md> Debug for FutureTask<Frntend, Bkend, Md>
+where
+    dyn IntoDynFutureTask<Frntend, Bkend, Md>: Debug,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("FutureTask")
             .field("task", &self.task)
@@ -78,7 +91,10 @@ impl<Frntend, Bkend, Md> Debug for FutureTask<Frntend, Bkend, Md> {
     }
 }
 // Debug must be implemented manually to remove Frntend, Bkend Debug bounds.
-impl<Frntend, Bkend, Md> Debug for StreamTask<Frntend, Bkend, Md> {
+impl<Frntend, Bkend, Md> Debug for StreamTask<Frntend, Bkend, Md>
+where
+    dyn IntoDynStreamTask<Frntend, Bkend, Md>: Debug,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("StreamTask")
             .field("task", &self.task)
@@ -96,6 +112,7 @@ where
     Md: PartialEq + 'static,
     Frntend: 'static,
     Bkend: 'static,
+    AsyncTaskKind<Frntend, Bkend, Md>: PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.task == other.task
@@ -110,6 +127,8 @@ where
     Md: PartialEq + 'static,
     Frntend: 'static,
     Bkend: 'static,
+    FutureTask<Frntend, Bkend, Md>: PartialEq,
+    StreamTask<Frntend, Bkend, Md>: PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
@@ -128,6 +147,7 @@ where
     Frntend: 'static,
     Bkend: 'static,
     Md: 'static,
+    dyn IntoDynFutureTask<Frntend, Bkend, Md>: DynPartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.task.dyn_partial_eq(other.task.as_ref())
@@ -143,6 +163,7 @@ where
     Frntend: 'static,
     Bkend: 'static,
     Md: 'static,
+    dyn IntoDynStreamTask<Frntend, Bkend, Md>: DynPartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.task.dyn_partial_eq(other.task.as_ref())
@@ -171,6 +192,7 @@ where
     Md: PartialEq + 'static,
     Frntend: 'static,
     Bkend: 'static,
+    Self: PartialEq,
 {
     /// Assert that this effect contains at least other effect (it may contain
     /// multiple effects).
@@ -409,9 +431,9 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     /// # Warning
     /// This is recursive, if you have set up a cycle of AsyncTasks, map may
     /// overflow.
-    pub fn map<NewFrntend>(
+    pub fn map_frontend<NewFrntend>(
         self,
-        f: impl Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
+        f: impl for<'a> MapFn<&'a mut NewFrntend, Output = &'a mut Frntend> + Clone + Send + 'static,
     ) -> AsyncTask<NewFrntend, Bkend, Md>
     where
         Bkend: 'static,
@@ -470,7 +492,10 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
                 metadata,
             },
             AsyncTaskKind::Multi(v) => {
-                let mapped = v.into_iter().map(|task| task.map(f.clone())).collect();
+                let mapped = v
+                    .into_iter()
+                    .map(|task| task.map_frontend(f.clone()))
+                    .collect();
                 AsyncTask {
                     task: AsyncTaskKind::Multi(mapped),
                     constraint,

@@ -151,11 +151,11 @@ impl TextHandler for SongSearchBrowser {
             InputRouting::Search => self
                 .search
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.search)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.search)),
             InputRouting::Filter => self
                 .filter
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.filter)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.filter)),
             InputRouting::List => None,
             InputRouting::Sort => None,
         }

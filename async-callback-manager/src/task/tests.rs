@@ -84,5 +84,5 @@ async fn test_recursive_map() {
     // Here, it's expected that this is succesful.
     // TODO: Run the task for an expected outcome.
     #[allow(unused_must_use)]
-    let _ = recursive_task.map(|tmp: &mut ()| tmp);
+    let _ = recursive_task.map_frontend(|tmp: &mut ()| tmp);
 }

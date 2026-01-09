@@ -21,7 +21,7 @@ pub(crate) type DynStreamTask<Frntend, Bkend, Md> =
     Box<dyn FnOnce(&Bkend) -> DynMutationStream<Frntend, Bkend, Md>>;
 
 /// Type erasure helper trait
-pub(crate) trait IntoDynFutureTask<Frntend, Bkend, Md>: DynPartialEq + OptDebug {
+pub(crate) trait IntoDynFutureTask<Frntend, Bkend, Md>: OptDynPartialEq + OptDebug {
     fn into_dyn_task(self: Box<Self>) -> DynFutureTask<Frntend, Bkend, Md>;
 }
 /// Type erasure helper trait
@@ -58,12 +58,13 @@ where
 /// Allow closures to be accepted as TaskHandlers if equality and debug features
 /// are not required.
 #[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
-impl<T, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for T
+impl<F, T, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for F
 where
-    T: FnOnce(&mut Frntend) -> AsyncTask<Frntend, Bkend, Md>,
+    F: FnOnce(&mut Frntend) -> T,
+    T: Into<AsyncTask<Frntend, Bkend, Md>>,
 {
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
-        self(target)
+        self(target).into()
     }
 }
 

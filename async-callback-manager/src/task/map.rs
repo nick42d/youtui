@@ -1,9 +1,11 @@
+use crate::MapFn;
 use crate::task::dyn_task::{
     self, DynFutureTask, DynMutationFuture, DynMutationStream, DynPartialEq, DynStateMutation,
     DynStreamTask, IntoDynFutureTask, IntoDynStreamTask,
 };
 use futures::FutureExt;
 use std::any::Any;
+use std::fmt::Debug;
 use tokio_stream::StreamExt;
 
 pub struct MapDynFutureTask<Frntend, Bkend, Md, F> {
@@ -15,24 +17,35 @@ pub struct MapDynStreamTask<Frntend, Bkend, Md, F> {
     pub(crate) map_fn: F,
 }
 
-impl<Frntend, Bkend, Md, F> std::fmt::Debug for MapDynFutureTask<Frntend, Bkend, Md, F> {
+#[cfg(feature = "task-debug")]
+impl<Frntend, Bkend, Md, F> Debug for MapDynFutureTask<Frntend, Bkend, Md, F>
+where
+    // dyn IntoDynFutureTask<Frntend, Bkend, Md>: Debug,
+    F: Debug,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("MapDynFutureTask")
             .field("task", &self.task)
-            .field("map_fn", &"{{closure}}")
+            .field("map_fn", &self.map_fn)
             .finish()
     }
 }
 
-impl<Frntend, Bkend, Md, F> std::fmt::Debug for MapDynStreamTask<Frntend, Bkend, Md, F> {
+#[cfg(feature = "task-debug")]
+impl<Frntend, Bkend, Md, F> Debug for MapDynStreamTask<Frntend, Bkend, Md, F>
+where
+    dyn IntoDynStreamTask<Frntend, Bkend, Md>: Debug,
+    F: Debug,
+{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("MapDynStreamTask")
             .field("task", &self.task)
-            .field("map_fn", &"{{closure}}")
+            .field("map_fn", &self.map_fn)
             .finish()
     }
 }
 
+#[cfg(feature = "task-equality")]
 impl<Frntend, Bkend, Md, F> DynPartialEq for MapDynFutureTask<Frntend, Bkend, Md, F>
 where
     F: 'static,
@@ -49,6 +62,7 @@ where
         self.task.dyn_partial_eq(other.task.as_ref())
     }
 }
+
 impl<Frntend, Bkend, Md, F> DynPartialEq for MapDynStreamTask<Frntend, Bkend, Md, F>
 where
     F: 'static,
@@ -68,7 +82,7 @@ where
 impl<F, Frntend, NewFrntend, Bkend, Md> IntoDynFutureTask<NewFrntend, Bkend, Md>
     for MapDynFutureTask<Frntend, Bkend, Md, F>
 where
-    F: Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
+    F: for<'a> MapFn<&'a mut NewFrntend, Output = &'a mut Frntend> + Clone + Send + 'static,
     Md: 'static,
     Frntend: 'static,
     Bkend: 'static,
@@ -82,7 +96,7 @@ where
 impl<F, Frntend, NewFrntend, Bkend, Md> IntoDynStreamTask<NewFrntend, Bkend, Md>
     for MapDynStreamTask<Frntend, Bkend, Md, F>
 where
-    F: Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
+    F: for<'a> MapFn<&'a mut NewFrntend, Output = &'a mut Frntend> + Clone + Send + 'static,
     Md: 'static,
     Frntend: 'static,
     Bkend: 'static,
@@ -96,7 +110,7 @@ where
 
 pub(crate) fn map_dyn_stream_task<NewFrntend, Frntend, Bkend, Md>(
     task: DynStreamTask<Frntend, Bkend, Md>,
-    f: impl Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
+    f: impl for<'a> MapFn<&'a mut NewFrntend, Output = &'a mut Frntend> + Clone + Send + 'static,
 ) -> DynStreamTask<NewFrntend, Bkend, Md>
 where
     Frntend: 'static,
@@ -108,8 +122,9 @@ where
         Box::new({
             stream.map(move |output| {
                 let f = f.clone();
-                Box::new(move |frontend: &mut NewFrntend| output(f(frontend)).map(f))
-                    as DynStateMutation<NewFrntend, Bkend, Md>
+                Box::new(move |frontend: &mut NewFrntend| {
+                    output(f.clone().apply(frontend)).map_frontend(f)
+                }) as DynStateMutation<NewFrntend, Bkend, Md>
             })
         }) as DynMutationStream<NewFrntend, Bkend, Md>
     }) as DynStreamTask<NewFrntend, Bkend, Md>
@@ -117,7 +132,7 @@ where
 
 pub(crate) fn map_dyn_future_task<NewFrntend, Frntend, Bkend, Md>(
     task: DynFutureTask<Frntend, Bkend, Md>,
-    f: impl Fn(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
+    f: impl for<'a> MapFn<&'a mut NewFrntend, Output = &'a mut Frntend> + Clone + Send + 'static,
 ) -> DynFutureTask<NewFrntend, Bkend, Md>
 where
     Frntend: 'static,
@@ -128,8 +143,9 @@ where
         let task = task(b);
         Box::new({
             task.map(move |output| {
-                Box::new(move |frontend: &mut NewFrntend| output(f(frontend)).map(f))
-                    as DynStateMutation<NewFrntend, Bkend, Md>
+                Box::new(move |frontend: &mut NewFrntend| {
+                    output(f.clone().apply(frontend)).map_frontend(f)
+                }) as DynStateMutation<NewFrntend, Bkend, Md>
             })
         }) as DynMutationFuture<NewFrntend, Bkend, Md>
     }) as DynFutureTask<NewFrntend, Bkend, Md>
