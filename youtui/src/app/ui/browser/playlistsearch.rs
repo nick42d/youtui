@@ -102,11 +102,16 @@ impl TextHandler for PlaylistSearchBrowser {
             InputRouting::Playlist => self
                 .playlist_search_panel
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.playlist_search_panel)),
-            InputRouting::Song => self
-                .playlist_songs_panel
-                .handle_text_event_impl(event)
-                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.playlist_songs_panel)),
+                .map(|effect| {
+                    effect.map_frontend(|this: &mut Self| &mut this.playlist_search_panel)
+                }),
+            InputRouting::Song => {
+                self.playlist_songs_panel
+                    .handle_text_event_impl(event)
+                    .map(|effect| {
+                        effect.map_frontend(|this: &mut Self| &mut this.playlist_songs_panel)
+                    })
+            }
         }
     }
 }
@@ -257,7 +262,7 @@ impl PlaylistSearchBrowser {
                 this.replace_playlist_list(artists);
                 AsyncTask::new_no_op()
             }
-            Err(error) => AsyncTask::new_future_with_closure_handler(
+            Err(error) => AsyncTask::new_future(
                 HandleApiError {
                     error,
                     // To avoid needing to clone search query to use in the error message, this
@@ -268,7 +273,7 @@ impl PlaylistSearchBrowser {
                 None,
             ),
         };
-        AsyncTask::new_future_with_closure_handler_chained(
+        AsyncTask::new_future(
             SearchPlaylists(search_query),
             handler,
             Some(Constraint::new_kill_same_type()),
@@ -304,7 +309,7 @@ impl PlaylistSearchBrowser {
             AsyncTask::new_no_op()
         };
 
-        AsyncTask::new_stream_with_closure_handler_chained(
+        AsyncTask::new_stream(
             GetPlaylistSongs {
                 playlist_id: cur_playlist_id,
                 max_songs: MAX_PLAYLIST_SONGS,
@@ -373,7 +378,7 @@ impl PlaylistSearchBrowser {
         error: anyhow::Error,
     ) -> ComponentEffect<Self> {
         self.playlist_songs_panel.list.state = ListStatus::Error;
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future(
             HandleApiError {
                 error,
                 message: format!("Error searching for playlist {playlist_id:?} tracks"),

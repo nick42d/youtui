@@ -255,7 +255,7 @@ impl ArtistSearchBrowser {
                 this.replace_artist_list(artists);
                 AsyncTask::new_no_op()
             }
-            Err(error) => AsyncTask::new_future_with_closure_handler(
+            Err(error) => AsyncTask::new_future(
                 HandleApiError {
                     error,
                     // To avoid needing to clone search query to use in the error message, this
@@ -266,7 +266,7 @@ impl ArtistSearchBrowser {
                 None,
             ),
         };
-        AsyncTask::new_future_with_closure_handler_chained(
+        AsyncTask::new_future(
             SearchArtists(search_query),
             handler,
             Some(Constraint::new_kill_same_type()),
@@ -311,7 +311,7 @@ impl ArtistSearchBrowser {
             AsyncTask::new_no_op()
         };
 
-        AsyncTask::new_stream_with_closure_handler_chained(
+        AsyncTask::new_stream(
             GetArtistSongs(cur_artist_id),
             handler,
             Some(Constraint::new_kill_same_type()),
@@ -438,7 +438,7 @@ impl ArtistSearchBrowser {
         error: anyhow::Error,
     ) -> ComponentEffect<Self> {
         self.album_songs_panel.list.state = ListStatus::Error;
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future(
             HandleApiError {
                 error,
                 message: format!("Error searching for artist {artist_id:?} albums"),
@@ -457,7 +457,7 @@ impl ArtistSearchBrowser {
         warn!(
             "Received a get_album_songs_error. This will be logged but is not visible in the main ui!"
         );
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future(
             HandleApiError {
                 error,
                 message: format!(

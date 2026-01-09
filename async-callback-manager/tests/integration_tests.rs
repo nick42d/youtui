@@ -1,9 +1,7 @@
 //! Integration tests for async-callback-manager.
-
-#[cfg(all(feature = "task-debug", feature = "task-equality"))
-use async_callback_manager::{FrontendEffect, TaskHandler};
 use async_callback_manager::{
-    AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, Constraint,
+    AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, Constraint, FrontendEffect,
+    TaskHandler,
 };
 use futures::{FutureExt, StreamExt};
 use std::future::Future;
@@ -150,16 +148,18 @@ async fn test_mutate_once() {
     struct Handler;
     struct Effect(String);
     impl TaskHandler<String, String, (), ()> for Handler {
-        fn handle(self, input: String) -> impl async_callback_manager::FrontendEffect<String, (), ()> {
+        fn handle(
+            self,
+            input: String,
+        ) -> impl async_callback_manager::FrontendEffect<String, (), ()> {
             Effect(input)
         }
-    } 
+    }
     impl FrontendEffect<String, (), ()> for Effect {
         fn apply(self, target: &mut String) -> AsyncTask<String, (), ()> {
             *target = self.0
         }
     }
-
 
     #[cfg(not(any(feature = "task-debug", feature = "task-equality")))]
     let handler = |state: &mut String, new| *state = new;

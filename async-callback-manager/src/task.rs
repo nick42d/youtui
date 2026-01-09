@@ -1,5 +1,5 @@
 use crate::task::dyn_task::{
-    DynPartialEq, FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
+    FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
 use crate::{BackendStreamingTask, BackendTask, Constraint, MapFn, TaskHandler};
@@ -142,12 +142,12 @@ where
 }
 // PartialEq must be implemented manually to remove Frntend, Bkend PartialEq
 // bounds and use dyn_partial_eq function.
+#[cfg(feature = "task-equality")]
 impl<Frntend, Bkend, Md> PartialEq for FutureTask<Frntend, Bkend, Md>
 where
     Frntend: 'static,
     Bkend: 'static,
     Md: 'static,
-    dyn IntoDynFutureTask<Frntend, Bkend, Md>: DynPartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.task.dyn_partial_eq(other.task.as_ref())
@@ -158,12 +158,12 @@ where
 }
 // PartialEq must be implemented manually to remove Frntend, Bkend PartialEq
 // bounds and use dyn_partial_eq function.
+#[cfg(feature = "task-equality")]
 impl<Frntend, Bkend, Md> PartialEq for StreamTask<Frntend, Bkend, Md>
 where
     Frntend: 'static,
     Bkend: 'static,
     Md: 'static,
-    dyn IntoDynStreamTask<Frntend, Bkend, Md>: DynPartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.task.dyn_partial_eq(other.task.as_ref())
@@ -433,7 +433,7 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
     /// overflow.
     pub fn map_frontend<NewFrntend>(
         self,
-        f: impl for<'a> MapFn<&'a mut NewFrntend, Output = &'a mut Frntend> + Clone + Send + 'static,
+        f: impl FnOnce(&mut NewFrntend) -> &mut Frntend + Clone + Send + 'static,
     ) -> AsyncTask<NewFrntend, Bkend, Md>
     where
         Bkend: 'static,

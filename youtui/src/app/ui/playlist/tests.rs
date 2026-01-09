@@ -9,7 +9,7 @@ use crate::app::ui::playlist::{
 };
 use crate::app::ui::{ListSongID, PlayState};
 use crate::async_rodio_sink::{AllStopped, Stopped};
-use async_callback_manager::{AsyncTask, Constraint, MaybeEq, TryBackendTaskExt};
+use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use pretty_assertions::assert_eq;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
@@ -78,7 +78,7 @@ fn newly_added_song_downloads_album_art() {
     );
     assert!(
         effect
-            .maybe_contains(&expected_effect)
+            .contains(&expected_effect)
             .is_some_and(std::convert::identity),
         "Expected Left to contain Right {}",
         pretty_assertions::Comparison::new(&effect, &expected_effect)

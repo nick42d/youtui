@@ -19,7 +19,7 @@ pub trait MapFn<T>: OptPartialEq + OptDebug {
     fn apply(self, input: T) -> Self::Output;
 }
 #[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
-impl<T, F, O> MapFn<T> for F
+impl<T, F> MapFn<T> for F
 where
     F: FnOnce(T) -> O,
 {
@@ -32,7 +32,7 @@ where
 pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     type Error;
     type Ok;
-    fn map_stream<S, F>(self, create_next: F) -> Map<Self, F>
+    fn map_stream<'a, S, F>(self, create_next: F) -> Map<Self, F>
     where
         Self: Sized,
         S: BackendStreamingTask<Bkend>,

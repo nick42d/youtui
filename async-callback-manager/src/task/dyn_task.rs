@@ -38,6 +38,7 @@ impl<T: DynPartialEq> OptDynPartialEq for T {}
 #[cfg(not(feature = "task-equality"))]
 impl<T> OptDynPartialEq for T {}
 /// Type erasure helper trait
+#[cfg(feature = "task-equality")]
 pub(crate) trait DynPartialEq: std::any::Any {
     fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool;
 }
@@ -45,13 +46,13 @@ pub(crate) trait DynPartialEq: std::any::Any {
 /// Allow closures to be accepted as TaskHandlers if equality and debug features
 /// are not required.
 #[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
-impl<T, F, Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for T
+impl<T, F, Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for F
 where
-    T: FnOnce(Input) -> F,
-    F: FrontendEffect<Frntend, Bkend, Md> + Send + 'static,
+    F: FnOnce(&mut Frntend, Input) -> T,
+    T: Into<AsyncTask<Frntend, Bkend, Md>>,
 {
     fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md> {
-        self(input)
+        |this: &mut Frntend| self(this, input)
     }
 }
 
@@ -150,6 +151,7 @@ pub(crate) struct FusedTask<T, H> {
     // pub(crate) debug_fn: fn(&Self, &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>,
 }
 
+#[cfg(feature = "task-equality")]
 impl<T, H> DynPartialEq for FusedTask<T, H>
 where
     T: PartialEq + 'static,
@@ -163,12 +165,6 @@ where
         self == other
     }
 }
-
-// impl<T, H> std::fmt::Debug for FusedTask<T, H> {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         (self.debug_fn)(self, f)
-//     }
-// }
 
 impl<T, H, Bkend, Frntend> IntoDynFutureTask<Frntend, Bkend, T::MetadataType> for FusedTask<T, H>
 where
