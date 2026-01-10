@@ -120,24 +120,28 @@ pub struct GetSongThumbnail {
     pub thumbnail_id: SongThumbnailID<'static>,
 }
 
+#[cfg(test)]
 impl PartialEq for HandleApiError {
     fn eq(&self, other: &Self) -> bool {
-        todo!()
+        panic!("Unable to compare HandleApiError");
     }
 }
+#[cfg(test)]
 impl PartialEq for PlaySong {
     fn eq(&self, other: &Self) -> bool {
-        todo!()
+        panic!("Unable to compare PlaySong");
     }
 }
+#[cfg(test)]
 impl PartialEq for AutoplaySong {
     fn eq(&self, other: &Self) -> bool {
-        todo!()
+        panic!("Unable to compare AutoplaySong");
     }
 }
+#[cfg(test)]
 impl PartialEq for QueueSong {
     fn eq(&self, other: &Self) -> bool {
-        todo!()
+        panic!("Unable to compare QueueSong");
     }
 }
 
