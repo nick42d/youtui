@@ -203,7 +203,7 @@ impl SearchBlock {
                     // error message is minimal.
                     message: "Error recieved getting search suggestions".to_string(),
                 },
-                |_, _| {},
+                |_: &mut SearchBlock, _| {},
                 None,
             ),
         };

@@ -269,7 +269,7 @@ impl PlaylistSearchBrowser {
                     // error message is minimal.
                     message: "Error recieved getting artists".to_string(),
                 },
-                |_, _| {},
+                |_: &mut PlaylistSearchBrowser, _| {},
                 None,
             ),
         };
@@ -383,7 +383,7 @@ impl PlaylistSearchBrowser {
                 error,
                 message: format!("Error searching for playlist {playlist_id:?} tracks"),
             },
-            |_, _| {},
+            |_: &mut PlaylistSearchBrowser, _| {},
             None,
         )
     }

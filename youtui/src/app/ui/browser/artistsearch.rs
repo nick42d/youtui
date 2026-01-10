@@ -262,7 +262,7 @@ impl ArtistSearchBrowser {
                     // error message is minimal.
                     message: "Error recieved getting artists".to_string(),
                 },
-                |_, _| {},
+                |_: &mut ArtistSearchBrowser, _| {},
                 None,
             ),
         };
@@ -443,7 +443,7 @@ impl ArtistSearchBrowser {
                 error,
                 message: format!("Error searching for artist {artist_id:?} albums"),
             },
-            |_, _| {},
+            |_: &mut ArtistSearchBrowser, _| {},
             None,
         )
     }
@@ -464,7 +464,7 @@ impl ArtistSearchBrowser {
                     "Error getting songs for album {album_id:?}, artist {artist_id:?}"
                 ),
             },
-            |_, _| {},
+            |_: &mut ArtistSearchBrowser, _| {},
             None,
         )
     }

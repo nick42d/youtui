@@ -543,7 +543,7 @@ impl SongSearchBrowser {
                     // error message is minimal.
                     message: "Error recieved searching songs".to_string(),
                 },
-                |_, _| {},
+                |_: &mut SongSearchBrowser, _| {},
                 None,
             ),
         };
