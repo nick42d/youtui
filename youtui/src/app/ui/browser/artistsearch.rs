@@ -495,12 +495,7 @@ impl_youtui_task_handler!(
     HandleSearchArtistsOk,
     Vec<SearchResultArtist>,
     ArtistSearchBrowser,
-    |_, input| {
-        |this: &mut ArtistSearchBrowser| {
-            this.replace_artist_list(input);
-            AsyncTask::new_no_op()
-        }
-    }
+    |_, input| { |this: &mut ArtistSearchBrowser| this.replace_artist_list(input) }
 );
 impl_youtui_task_handler!(
     HandleSearchArtistsError,

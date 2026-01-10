@@ -17,12 +17,12 @@ use crate::app::ui::browser::playlistsearch::songs_panel::{
 use crate::app::view::{ListView, TableView};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
-use async_callback_manager::{AsyncTask, Constraint};
+use async_callback_manager::{AsyncTask, Constraint, NoOpHandler};
 use itertools::Either;
 use std::mem;
 use tracing::error;
 use ytmapi_rs::common::PlaylistID;
-use ytmapi_rs::parse::{PlaylistItem, SearchResultPlaylist};
+use ytmapi_rs::parse::{PlaylistItem, PlaylistUploadSong, SearchResultPlaylist};
 
 /// Maximum number of playlist songs to download / stream in a single viewing.
 const MAX_PLAYLIST_SONGS: usize = 1000;
@@ -257,25 +257,10 @@ impl PlaylistSearchBrowser {
         };
         self.playlist_search_panel.clear_text();
 
-        let handler = |this: &mut Self, results| match results {
-            Ok(artists) => {
-                this.replace_playlist_list(artists);
-                AsyncTask::new_no_op()
-            }
-            Err(error) => AsyncTask::new_future(
-                HandleApiError {
-                    error,
-                    // To avoid needing to clone search query to use in the error message, this
-                    // error message is minimal.
-                    message: "Error recieved getting artists".to_string(),
-                },
-                |_: &mut PlaylistSearchBrowser, _| {},
-                None,
-            ),
-        };
-        AsyncTask::new_future(
+        AsyncTask::new_future_try(
             SearchPlaylists(search_query),
-            handler,
+            HandleSearchPlaylistsOk,
+            HandleSearchPlaylistsErr,
             Some(Constraint::new_kill_same_type()),
         )
     }
@@ -295,26 +280,12 @@ impl PlaylistSearchBrowser {
             return AsyncTask::new_no_op();
         };
 
-        let handler = |this: &mut Self, item| {
-            match item {
-                GetPlaylistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
-                GetPlaylistSongsProgressUpdate::Songs(playlist_items) => {
-                    this.handle_append_song_list(playlist_items)
-                }
-                GetPlaylistSongsProgressUpdate::GetPlaylistSongsError { playlist_id, error } => {
-                    return this.handle_search_playlist_error(playlist_id, error);
-                }
-                GetPlaylistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
-            }
-            AsyncTask::new_no_op()
-        };
-
         AsyncTask::new_stream(
             GetPlaylistSongs {
                 playlist_id: cur_playlist_id,
                 max_songs: MAX_PLAYLIST_SONGS,
             },
-            handler,
+            HandleGetPlaylistSongs,
             Some(Constraint::new_kill_same_type()),
         )
     }
@@ -383,7 +354,7 @@ impl PlaylistSearchBrowser {
                 error,
                 message: format!("Error searching for playlist {playlist_id:?} tracks"),
             },
-            |_: &mut PlaylistSearchBrowser, _| {},
+            NoOpHandler,
             None,
         )
     }
@@ -431,3 +402,50 @@ impl PlaylistSearchBrowser {
         self.prev_input_routing = mem::replace(&mut self.input_routing, input_routing);
     }
 }
+
+#[derive(Debug, PartialEq)]
+struct HandleSearchPlaylistsOk;
+#[derive(Debug, PartialEq)]
+struct HandleSearchPlaylistsErr;
+#[derive(Debug, PartialEq, Clone)]
+struct HandleGetPlaylistSongs;
+
+impl_youtui_task_handler!(
+    HandleSearchPlaylistsOk,
+    Vec<SearchResultPlaylist>,
+    PlaylistSearchBrowser,
+    |_, playlists| |this: &mut PlaylistSearchBrowser| this.replace_playlist_list(playlists)
+);
+impl_youtui_task_handler!(
+    HandleSearchPlaylistsErr,
+    anyhow::Error,
+    PlaylistSearchBrowser,
+    |_, error| |_: &mut PlaylistSearchBrowser| AsyncTask::new_future(
+        HandleApiError {
+            error,
+            // To avoid needing to clone search query to use in the error message, this
+            // error message is minimal.
+            message: "Error recieved getting playlists".to_string(),
+        },
+        NoOpHandler,
+        None,
+    )
+);
+impl_youtui_task_handler!(
+    HandleGetPlaylistSongs,
+    GetPlaylistSongsProgressUpdate,
+    PlaylistSearchBrowser,
+    |_, item| |this: &mut PlaylistSearchBrowser| {
+        match item {
+            GetPlaylistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
+            GetPlaylistSongsProgressUpdate::Songs(playlist_items) => {
+                this.handle_append_song_list(playlist_items)
+            }
+            GetPlaylistSongsProgressUpdate::GetPlaylistSongsError { playlist_id, error } => {
+                return this.handle_search_playlist_error(playlist_id, error);
+            }
+            GetPlaylistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
+        }
+        AsyncTask::new_no_op()
+    }
+);

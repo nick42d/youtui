@@ -311,7 +311,10 @@ impl YoutuiWindow {
             help: HelpMenu::new(),
             tick: 0,
         };
-        (this, task.map_frontend(|this: &mut Self| &mut this.playlist))
+        (
+            this,
+            task.map_frontend(|this: &mut Self| &mut this.playlist),
+        )
     }
     pub fn get_help_list_items(&self) -> impl Iterator<Item = DisplayableKeyAction<'_>> {
         match self.context {
@@ -465,18 +468,18 @@ impl YoutuiWindow {
     pub fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        AsyncTask::new_future(
+        AsyncTask::new_future_option(
             IncreaseVolume(inc),
-            Self::handle_volume_update,
+            HandleVolumeUpdate,
             Some(Constraint::new_block_same_type()),
         )
     }
     pub fn handle_set_volume(&mut self, new_vol: u8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.set_volume(new_vol);
-        AsyncTask::new_future(
+        AsyncTask::new_future_option(
             SetVolume(new_vol),
-            Self::handle_volume_update,
+            HandleVolumeUpdate,
             Some(Constraint::new_block_same_type()),
         )
     }
@@ -494,7 +497,7 @@ impl YoutuiWindow {
             .handle_seek_to(position)
             .map_frontend(|this: &mut Self| &mut this.playlist)
     }
-    pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
+    pub fn handle_volume_update(&mut self, update: VolumeUpdate) {
         self.playlist.handle_volume_update(update)
     }
     pub fn handle_add_songs_to_playlist(
@@ -580,3 +583,16 @@ impl YoutuiWindow {
         })
     }
 }
+
+#[derive(Debug, PartialEq)]
+struct HandleVolumeUpdate;
+
+impl_youtui_task_handler!(
+    HandleVolumeUpdate,
+    VolumeUpdate,
+    YoutuiWindow,
+    |_, update| |this: &mut YoutuiWindow| {
+        YoutuiWindow::handle_volume_update(this, update);
+        AsyncTask::new_no_op()
+    }
+);

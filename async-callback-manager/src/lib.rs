@@ -63,7 +63,7 @@ pub trait TaskHandler<Input, Frntend, Bkend, Md>: OptPartialEq + OptDebug {
 pub trait FrontendEffect<Frntend, Bkend, Md> {
     // TODO: Consider impl Into<AsyncTask<_>> + OptPartialEq + OptDebug to allow
     // return of ().
-    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md>;
+    fn apply(self, target: &mut Frntend) -> impl Into<AsyncTask<Frntend, Bkend, Md>>;
 }
 
 /// feature(where_clauses) on nightly would prevent this.

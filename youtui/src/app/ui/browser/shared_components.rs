@@ -1,8 +1,9 @@
 use crate::app::component::actionhandler::{Action, ComponentEffect, Suggestable, TextHandler};
 use crate::app::server::{GetSearchSuggestions, HandleApiError};
+use crate::app::ui::browser::shared_components;
 use crate::app::view::{TableFilterCommand, TableSortCommand};
 use anyhow::Context;
-use async_callback_manager::{AsyncTask, Constraint};
+use async_callback_manager::{AsyncTask, Constraint, NoOpHandler};
 use rat_text::text_input::{TextInputState, handle_events};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
@@ -191,25 +192,10 @@ impl SearchBlock {
             self.search_suggestions.clear();
             return AsyncTask::new_no_op();
         }
-        let handler = |this: &mut Self, results| match results {
-            Ok((suggestions, text)) => {
-                this.replace_search_suggestions(suggestions, text);
-                AsyncTask::new_no_op()
-            }
-            Err(error) => AsyncTask::new_future(
-                HandleApiError {
-                    error,
-                    // To avoid needing to clone search query to use in the error message, this
-                    // error message is minimal.
-                    message: "Error recieved getting search suggestions".to_string(),
-                },
-                |_: &mut SearchBlock, _| {},
-                None,
-            ),
-        };
-        AsyncTask::new_future(
+        AsyncTask::new_future_try(
             GetSearchSuggestions(self.search_contents.text().to_owned()),
-            handler,
+            HandleSearchSuggestionsOk,
+            HandleSearchSuggestionsErr,
             Some(Constraint::new_kill_same_type()),
         )
     }
@@ -242,6 +228,33 @@ impl SearchBlock {
         }
     }
 }
+
+#[derive(PartialEq, Debug)]
+struct HandleSearchSuggestionsOk;
+#[derive(PartialEq, Debug)]
+struct HandleSearchSuggestionsErr;
+impl_youtui_task_handler!(
+    HandleSearchSuggestionsOk,
+    (Vec<SearchSuggestion>, String),
+    SearchBlock,
+    |_, (suggestions, text)| |this: &mut SearchBlock| this
+        .replace_search_suggestions(suggestions, text)
+);
+impl_youtui_task_handler!(
+    HandleSearchSuggestionsErr,
+    anyhow::Error,
+    SearchBlock,
+    |_, error| |_: &mut SearchBlock| AsyncTask::new_future(
+        HandleApiError {
+            error,
+            // To avoid needing to clone search query to use in the error message, this
+            // error message is minimal.
+            message: "Error recieved getting search suggestions".to_string(),
+        },
+        NoOpHandler,
+        None,
+    )
+);
 
 /// A table may display columns in a different order, adjust the index to a new
 /// index based on a list of correct indexes.

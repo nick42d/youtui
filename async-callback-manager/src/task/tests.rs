@@ -59,12 +59,12 @@ async fn test_recursive_map() {
         }
     }
     impl FrontendEffect<(), (), ()> for Effect1 {
-        fn apply(self, _: &mut ()) -> AsyncTask<(), (), ()> {
+        fn apply(self, _: &mut ()) -> impl Into<AsyncTask<(), (), ()>> {
             AsyncTask::new_future(Task2, Handler2, None)
         }
     }
     impl FrontendEffect<(), (), ()> for Effect2 {
-        fn apply(self, _: &mut ()) -> AsyncTask<(), (), ()> {
+        fn apply(self, _: &mut ()) -> impl Into<AsyncTask<(), (), ()>> {
             AsyncTask::new_no_op()
         }
     }

@@ -242,7 +242,7 @@ impl Playlist {
     /// When creating a Playlist, an effect is also created.
     pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
-        let task = AsyncTask::new_future(
+        let task = AsyncTask::new_future_option(
             // Since IncreaseVolume responds back with player volume after change, this is a
             // neat hack.
             IncreaseVolume(0),
@@ -865,10 +865,8 @@ impl Playlist {
         AsyncTask::new_no_op()
     }
     /// Handle volume message from server
-    pub fn handle_volume_update(&mut self, response: Option<VolumeUpdate>) {
-        if let Some(v) = response {
-            self.volume = Percentage(v.0.into())
-        }
+    pub fn handle_volume_update(&mut self, response: VolumeUpdate) {
+        self.volume = Percentage(response.0.into())
     }
     pub fn handle_play_update(&mut self, update: PlayUpdate<ListSongID>) -> ComponentEffect<Self> {
         match update {

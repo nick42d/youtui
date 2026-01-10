@@ -48,7 +48,7 @@ enum PlaylistEffect {
     SetStatusStoppedIfSome(Option<AllStopped>),
     StopSongIDIfSomeAndCur(Option<Stopped<ListSongID>>),
     HandleSetSongPlayProgress(ProgressUpdate<ListSongID>),
-    HandleVolumeUpdate(Option<VolumeUpdate>),
+    HandleVolumeUpdate(VolumeUpdate),
     HandlePausePlayResponse(PausePlayResponse<ListSongID>),
     HandleResumed(ListSongID),
     HandlePaused(ListSongID),
@@ -81,12 +81,9 @@ impl_youtui_task_handler!(
     Playlist,
     |_, input| PlaylistEffect::HandleSetSongPlayProgress(input)
 );
-impl_youtui_task_handler!(
-    HandleVolumeUpdate,
-    Option<VolumeUpdate>,
-    Playlist,
-    |_, input| PlaylistEffect::HandleVolumeUpdate(input)
-);
+impl_youtui_task_handler!(HandleVolumeUpdate, VolumeUpdate, Playlist, |_, input| {
+    PlaylistEffect::HandleVolumeUpdate(input)
+});
 impl_youtui_task_handler!(
     HandlePlayUpdateOk,
     PlayUpdate<ListSongID>,
@@ -160,7 +157,7 @@ impl_youtui_task_handler!(
 );
 
 impl FrontendEffect<Playlist, ArcServer, TaskMetadata> for PlaylistEffect {
-    fn apply(self, target: &mut Playlist) -> ComponentEffect<Playlist> {
+    fn apply(self, target: &mut Playlist) -> impl Into<ComponentEffect<Playlist>> {
         match self {
             PlaylistEffect::SetStatusStoppedIfSome(msg) => {
                 target.handle_all_stopped(msg);

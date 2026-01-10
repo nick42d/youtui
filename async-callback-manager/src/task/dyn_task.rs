@@ -64,7 +64,7 @@ where
     F: FnOnce(&mut Frntend) -> T,
     T: Into<AsyncTask<Frntend, Bkend, Md>>,
 {
-    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
+    fn apply(self, target: &mut Frntend) -> impl Into<AsyncTask<Frntend, Bkend, Md>> {
         self(target).into()
     }
 }
@@ -107,10 +107,10 @@ where
     L: FrontendEffect<Frntend, Bkend, Md>,
     R: FrontendEffect<Frntend, Bkend, Md>,
 {
-    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
+    fn apply(self, target: &mut Frntend) -> impl std::convert::Into<AsyncTask<Frntend, Bkend, Md>> {
         match self {
-            Either::Left(x) => x.apply(target),
-            Either::Right(x) => x.apply(target),
+            Either::Left(x) => x.apply(target).into(),
+            Either::Right(x) => x.apply(target).into(),
         }
     }
 }
@@ -132,11 +132,11 @@ impl<M, Frntend, Bkend, Md> FrontendEffect<Frntend, Bkend, Md> for Option<M>
 where
     M: FrontendEffect<Frntend, Bkend, Md>,
 {
-    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md> {
+    fn apply(self, target: &mut Frntend) -> impl std::convert::Into<AsyncTask<Frntend, Bkend, Md>> {
         let Some(mutation) = self else {
             return AsyncTask::new_no_op();
         };
-        mutation.apply(target)
+        mutation.apply(target).into()
     }
 }
 
@@ -181,8 +181,9 @@ where
                 let future = task.into_future(b);
                 Box::pin(async move {
                     let output = future.await;
-                    Box::new(move |frontend: &mut Frntend| handler.handle(output).apply(frontend))
-                        as DynStateMutation<Frntend, Bkend, T::MetadataType>
+                    Box::new(move |frontend: &mut Frntend| {
+                        handler.handle(output).apply(frontend).into()
+                    }) as DynStateMutation<Frntend, Bkend, T::MetadataType>
                 })
             }) as DynMutationFuture<Frntend, Bkend, T::MetadataType>
         }) as DynFutureTask<Frntend, Bkend, T::MetadataType>
@@ -204,7 +205,9 @@ where
                 stream.map(move |output| {
                     Box::new({
                         let handler = handler.clone();
-                        move |frontend: &mut Frntend| handler.clone().handle(output).apply(frontend)
+                        move |frontend: &mut Frntend| {
+                            handler.clone().handle(output).apply(frontend).into()
+                        }
                     }) as DynStateMutation<Frntend, Bkend, T::MetadataType>
                 })
             }) as DynMutationStream<Frntend, Bkend, T::MetadataType>
