@@ -77,9 +77,7 @@ fn newly_added_song_downloads_album_art() {
         None,
     );
     assert!(
-        effect
-            .contains(&expected_effect)
-            .is_some_and(std::convert::identity),
+        effect.contains(&expected_effect),
         "Expected Left to contain Right {}",
         pretty_assertions::Comparison::new(&effect, &expected_effect)
     );
@@ -102,9 +100,7 @@ fn downloaded_song_plays_if_buffered() {
         )),
     );
     assert!(
-        effect
-            .maybe_contains(&expected_effect)
-            .is_some_and(std::convert::identity),
+        effect.contains(&expected_effect),
         "Expected Left to contain Right {}",
         pretty_assertions::Comparison::new(&effect, &expected_effect)
     );
@@ -121,13 +117,13 @@ fn test_reset_when_playing_stops_song_id() {
             TaskMetadata::PlayPause,
         )),
     );
-    assert_eq!(effect.maybe_eq(&expected_effect), Some(true));
+    assert_eq!(effect, expected_effect);
 }
 #[test]
 fn test_reset_when_not_playing_has_no_effect() {
     let mut p = get_dummy_playlist();
     let effect = p.reset();
-    assert_eq!(effect.maybe_eq(&AsyncTask::new_no_op()), Some(true));
+    assert!(effect.is_no_op());
 }
 #[test]
 fn test_handle_autoplay_queued_when_other_queued() {
