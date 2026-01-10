@@ -48,10 +48,11 @@ pub(crate) trait DynPartialEq: std::any::Any {
 #[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
 impl<T, F, Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for F
 where
-    F: FnOnce(&mut Frntend, Input) -> T,
+    F: FnOnce(&mut Frntend, Input) -> T + 'static,
     T: Into<AsyncTask<Frntend, Bkend, Md>>,
+    Input: 'static,
 {
-    fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md> {
+    fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md> + 'static {
         |this: &mut Frntend| self(this, input)
     }
 }

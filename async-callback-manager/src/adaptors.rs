@@ -19,7 +19,7 @@ pub trait MapFn<T>: OptPartialEq + OptDebug {
     fn apply(self, input: T) -> Self::Output;
 }
 #[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
-impl<T, F> MapFn<T> for F
+impl<T, F, O> MapFn<T> for F
 where
     F: FnOnce(T) -> O,
 {

@@ -239,12 +239,13 @@ impl<Frntend, Bkend, Md> AsyncTask<Frntend, Bkend, Md> {
             metadata: vec![],
         }
     }
-    pub fn new_future<R>(
+    pub fn new_future<R, H>(
         request: R,
-        handler: impl TaskHandler<R::Output, Frntend, Bkend, Md> + Send + 'static,
+        handler: H,
         constraint: Option<Constraint<Md>>,
     ) -> AsyncTask<Frntend, Bkend, Md>
     where
+        H: for<'a> TaskHandler<R::Output, Frntend, Bkend, Md> + Send + 'static,
         R: BackendTask<Bkend, MetadataType = Md> + Send + Debug + 'static,
         Bkend: 'static,
         Frntend: 'static,
