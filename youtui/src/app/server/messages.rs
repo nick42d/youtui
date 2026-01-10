@@ -120,24 +120,32 @@ pub struct GetSongThumbnail {
     pub thumbnail_id: SongThumbnailID<'static>,
 }
 
+// It's not possible to compare this type due to the underlying type, but
+// comparison is only used for testing.
 #[cfg(test)]
 impl PartialEq for HandleApiError {
     fn eq(&self, other: &Self) -> bool {
         panic!("Unable to compare HandleApiError");
     }
 }
+// It's not possible to compare this type due to the underlying type, but
+// comparison is only used for testing.
 #[cfg(test)]
 impl PartialEq for PlaySong {
     fn eq(&self, other: &Self) -> bool {
         panic!("Unable to compare PlaySong");
     }
 }
+// It's not possible to compare this type due to the underlying type, but
+// comparison is only used for testing.
 #[cfg(test)]
 impl PartialEq for AutoplaySong {
     fn eq(&self, other: &Self) -> bool {
         panic!("Unable to compare AutoplaySong");
     }
 }
+// It's not possible to compare this type due to the underlying type, but
+// comparison is only used for testing.
 #[cfg(test)]
 impl PartialEq for QueueSong {
     fn eq(&self, other: &Self) -> bool {
