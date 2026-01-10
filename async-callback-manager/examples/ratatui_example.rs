@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used)]
 
 use async_callback_manager::{
-    AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, TaskOutcome,
+    AsyncCallbackManager, AsyncTask, BackendStreamingTask, BackendTask, TaskHandler, TaskOutcome,
 };
 use crossterm::event::{Event, EventStream, KeyCode, KeyEvent, KeyEventKind};
 use futures::{FutureExt, stream};
@@ -72,19 +72,43 @@ impl State {
     }
     async fn handle_get_word(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.word = "Loading".to_string();
-        AsyncTask::new_future(
-            GetWordRequest,
-            |state: &mut Self, word| state.word = word,
-            (&self.mode).into(),
-        )
+        #[derive(Debug, PartialEq)]
+        struct Handler;
+        impl TaskHandler<String, State, reqwest::Client, ()> for Handler {
+            fn handle(
+                self,
+                input: String,
+            ) -> impl async_callback_manager::FrontendEffect<State, reqwest::Client, ()>
+            {
+                |state: &mut State| state.word = input
+            }
+        }
+        #[cfg(not(any(feature = "task-equality", feature = "task-debug")))]
+        let handler = |state: &mut Self, word| state.word = word;
+        #[cfg(any(feature = "task-equality", feature = "task-debug"))]
+        let handler = Handler;
+
+        AsyncTask::new_future(GetWordRequest, handler, (&self.mode).into())
     }
     async fn handle_start_counter(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.number = "Loading".to_string();
-        AsyncTask::new_stream(
-            CounterStream,
-            |state: &mut Self, num| state.number = num,
-            (&self.mode).into(),
-        )
+        #[derive(Debug, PartialEq, Clone)]
+        struct Handler;
+        impl TaskHandler<String, State, reqwest::Client, ()> for Handler {
+            fn handle(
+                self,
+                input: String,
+            ) -> impl async_callback_manager::FrontendEffect<State, reqwest::Client, ()>
+            {
+                |state: &mut State| state.number = input
+            }
+        }
+        #[cfg(not(any(feature = "task-equality", feature = "task-debug")))]
+        let handler = |state: &mut Self, num| state.number = num;
+        #[cfg(any(feature = "task-equality", feature = "task-debug"))]
+        let handler = Handler;
+
+        AsyncTask::new_stream(CounterStream, handler, (&self.mode).into())
     }
 }
 
@@ -125,7 +149,7 @@ async fn main() {
     ratatui::restore();
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct GetWordRequest;
 impl BackendTask<reqwest::Client> for GetWordRequest {
     type MetadataType = ();
@@ -148,7 +172,7 @@ impl BackendTask<reqwest::Client> for GetWordRequest {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct CounterStream;
 impl<T> BackendStreamingTask<T> for CounterStream {
     type Output = String;

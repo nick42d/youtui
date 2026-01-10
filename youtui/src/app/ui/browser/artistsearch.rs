@@ -11,7 +11,7 @@ use crate::app::ui::action::{AppAction, TextEntryAction};
 use crate::app::view::{ListView, TableView};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
-use async_callback_manager::{AsyncTask, Constraint};
+use async_callback_manager::{AsyncTask, Constraint, NoOpHandler};
 use itertools::Either;
 use search_panel::{ArtistSearchPanel, BrowserArtistsAction};
 use songs_panel::{AlbumSongsPanel, BrowserArtistSongsAction};
@@ -250,25 +250,10 @@ impl ArtistSearchBrowser {
         };
         self.artist_search_panel.clear_text();
 
-        let handler = |this: &mut Self, results| match results {
-            Ok(artists) => {
-                this.replace_artist_list(artists);
-                AsyncTask::new_no_op()
-            }
-            Err(error) => AsyncTask::new_future(
-                HandleApiError {
-                    error,
-                    // To avoid needing to clone search query to use in the error message, this
-                    // error message is minimal.
-                    message: "Error recieved getting artists".to_string(),
-                },
-                |_: &mut ArtistSearchBrowser, _| {},
-                None,
-            ),
-        };
-        AsyncTask::new_future(
+        AsyncTask::new_future_try(
             SearchArtists(search_query),
-            handler,
+            HandleSearchArtistsOk,
+            HandleSearchArtistsError,
             Some(Constraint::new_kill_same_type()),
         )
     }
@@ -288,32 +273,10 @@ impl ArtistSearchBrowser {
             return AsyncTask::new_no_op();
         };
         let cur_artist_id_clone = cur_artist_id.clone();
-        let handler = |this: &mut Self, item| {
-            match item {
-                GetArtistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
-                GetArtistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
-                GetArtistSongsProgressUpdate::GetArtistAlbumsError(e) => {
-                    return this.handle_search_artist_error(cur_artist_id_clone, e);
-                }
-                GetArtistSongsProgressUpdate::GetAlbumsSongsError { album_id, error } => {
-                    return this.handle_get_album_songs_error(cur_artist_id_clone, album_id, error);
-                }
-                GetArtistSongsProgressUpdate::SongsFound => this.handle_songs_found(),
-                GetArtistSongsProgressUpdate::Songs {
-                    song_list,
-                    album,
-                    year,
-                    artists,
-                    thumbnails,
-                } => this.handle_append_song_list(song_list, album, year, artists, thumbnails),
-                GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
-            }
-            AsyncTask::new_no_op()
-        };
 
         AsyncTask::new_stream(
             GetArtistSongs(cur_artist_id),
-            handler,
+            HandleGetArtistSongsProgressUpdate(cur_artist_id_clone),
             Some(Constraint::new_kill_same_type()),
         )
     }
@@ -371,7 +334,7 @@ impl ArtistSearchBrowser {
         }
         (AsyncTask::new_no_op(), None)
     }
-    pub fn add_album_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
+    pub fn add_album_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
@@ -429,7 +392,6 @@ impl ArtistSearchBrowser {
             AsyncTask::new_no_op(),
             Some(AppCallback::AddSongsToPlaylistAndPlay(song_list)),
         )
-
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     pub fn handle_search_artist_error(
@@ -443,7 +405,7 @@ impl ArtistSearchBrowser {
                 error,
                 message: format!("Error searching for artist {artist_id:?} albums"),
             },
-            |_: &mut ArtistSearchBrowser, _| {},
+            NoOpHandler,
             None,
         )
     }
@@ -464,7 +426,7 @@ impl ArtistSearchBrowser {
                     "Error getting songs for album {album_id:?}, artist {artist_id:?}"
                 ),
             },
-            |_: &mut ArtistSearchBrowser, _| {},
+            NoOpHandler,
             None,
         )
     }
@@ -521,3 +483,70 @@ impl ArtistSearchBrowser {
         self.prev_input_routing = mem::replace(&mut self.input_routing, input_routing);
     }
 }
+
+#[derive(PartialEq, Debug)]
+pub struct HandleSearchArtistsOk;
+#[derive(PartialEq, Debug)]
+pub struct HandleSearchArtistsError;
+#[derive(PartialEq, Debug, Clone)]
+pub struct HandleGetArtistSongsProgressUpdate(ArtistChannelID<'static>);
+
+impl_youtui_task_handler!(
+    HandleSearchArtistsOk,
+    Vec<SearchResultArtist>,
+    ArtistSearchBrowser,
+    |_, input| {
+        |this: &mut ArtistSearchBrowser| {
+            this.replace_artist_list(input);
+            AsyncTask::new_no_op()
+        }
+    }
+);
+impl_youtui_task_handler!(
+    HandleSearchArtistsError,
+    anyhow::Error,
+    ArtistSearchBrowser,
+    |_, error| {
+        |_: &mut ArtistSearchBrowser| {
+            AsyncTask::new_future(
+                HandleApiError {
+                    error,
+                    // To avoid needing to clone search query to use in the error message, this
+                    // error message is minimal.
+                    message: "Error recieved getting artists".to_string(),
+                },
+                NoOpHandler,
+                None,
+            )
+        }
+    }
+);
+impl_youtui_task_handler!(
+    HandleGetArtistSongsProgressUpdate,
+    GetArtistSongsProgressUpdate,
+    ArtistSearchBrowser,
+    |HandleGetArtistSongsProgressUpdate(cur_artist_id), input| {
+        |this: &mut ArtistSearchBrowser| {
+            match input {
+                GetArtistSongsProgressUpdate::Loading => this.handle_song_list_loading(),
+                GetArtistSongsProgressUpdate::NoSongsFound => this.handle_no_songs_found(),
+                GetArtistSongsProgressUpdate::GetArtistAlbumsError(e) => {
+                    return this.handle_search_artist_error(cur_artist_id, e);
+                }
+                GetArtistSongsProgressUpdate::GetAlbumsSongsError { album_id, error } => {
+                    return this.handle_get_album_songs_error(cur_artist_id, album_id, error);
+                }
+                GetArtistSongsProgressUpdate::SongsFound => this.handle_songs_found(),
+                GetArtistSongsProgressUpdate::Songs {
+                    song_list,
+                    album,
+                    year,
+                    artists,
+                    thumbnails,
+                } => this.handle_append_song_list(song_list, album, year, artists, thumbnails),
+                GetArtistSongsProgressUpdate::AllSongsSent => this.handle_song_list_loaded(),
+            }
+            AsyncTask::new_no_op()
+        }
+    }
+);

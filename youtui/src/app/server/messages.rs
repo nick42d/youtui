@@ -65,7 +65,7 @@ pub struct DownloadSong(pub VideoID<'static>, pub ListSongID);
 // SetVolume should be able to kill IncreaseVolume however...
 #[derive(PartialEq, Debug)]
 pub struct IncreaseVolume(pub i8);
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SetVolume(pub u8);
 /// Seek forwards or backwards a duration in a song.
 #[derive(Debug, PartialEq)]
@@ -118,6 +118,27 @@ pub struct QueueSong {
 pub struct GetSongThumbnail {
     pub thumbnail_url: String,
     pub thumbnail_id: SongThumbnailID<'static>,
+}
+
+impl PartialEq for HandleApiError {
+    fn eq(&self, other: &Self) -> bool {
+        todo!()
+    }
+}
+impl PartialEq for PlaySong {
+    fn eq(&self, other: &Self) -> bool {
+        todo!()
+    }
+}
+impl PartialEq for AutoplaySong {
+    fn eq(&self, other: &Self) -> bool {
+        todo!()
+    }
+}
+impl PartialEq for QueueSong {
+    fn eq(&self, other: &Self) -> bool {
+        todo!()
+    }
 }
 
 impl BackendTask<ArcServer> for HandleApiError {

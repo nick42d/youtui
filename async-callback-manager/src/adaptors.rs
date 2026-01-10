@@ -32,7 +32,7 @@ where
 pub trait TryBackendTaskExt<Bkend>: BackendTask<Bkend> {
     type Error;
     type Ok;
-    fn map_stream<'a, S, F>(self, create_next: F) -> Map<Self, F>
+    fn map_stream<S, F>(self, create_next: F) -> Map<Self, F>
     where
         Self: Sized,
         S: BackendStreamingTask<Bkend>,

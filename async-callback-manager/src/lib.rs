@@ -60,7 +60,9 @@ pub trait TaskHandler<Input, Frntend, Bkend, Md>: OptPartialEq + OptDebug {
 
 /// Represents a mutation that can be applied to some state, returning an
 /// effect.
-pub trait FrontendEffect<Frntend, Bkend, Md>: OptPartialEq + OptDebug {
+pub trait FrontendEffect<Frntend, Bkend, Md> {
+    // TODO: Consider impl Into<AsyncTask<_>> + OptPartialEq + OptDebug to allow
+    // return of ().
     fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md>;
 }
 
@@ -83,3 +85,11 @@ impl<T> OptDebug for T {}
 impl<T: PartialEq> OptPartialEq for T {}
 #[cfg(not(feature = "task-equality"))]
 impl<T> OptPartialEq for T {}
+
+#[derive(PartialEq, Clone, Copy, Debug)]
+pub struct NoOpHandler;
+impl<Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for NoOpHandler {
+    fn handle(self, _: Input) -> impl FrontendEffect<Frntend, Bkend, Md> {
+        |_: &mut Frntend| AsyncTask::new_no_op()
+    }
+}
