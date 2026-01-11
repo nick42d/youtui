@@ -22,7 +22,7 @@ use crate::config::keymap::Keymap;
 use crate::drawutils::get_offset_after_list_resize;
 use crate::widgets::ScrollingTableState;
 use anyhow::{Result, bail};
-use async_callback_manager::{AsyncTask, Constraint};
+use async_callback_manager::{AsyncTask, Constraint, NoOpHandler};
 use itertools::Either;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
@@ -151,11 +151,11 @@ impl TextHandler for SongSearchBrowser {
             InputRouting::Search => self
                 .search
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.search)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.search)),
             InputRouting::Filter => self
                 .filter
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut Self| &mut this.filter)),
+                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.filter)),
             InputRouting::List => None,
             InputRouting::Sort => None,
         }
@@ -531,25 +531,10 @@ impl SongSearchBrowser {
         };
         self.search.clear_text();
 
-        let handler = |this: &mut Self, results| match results {
-            Ok(songs) => {
-                this.replace_song_list(songs);
-                AsyncTask::new_no_op()
-            }
-            Err(error) => AsyncTask::new_future_with_closure_handler(
-                HandleApiError {
-                    error,
-                    // To avoid needing to clone search query to use in the error message, this
-                    // error message is minimal.
-                    message: "Error recieved searching songs".to_string(),
-                },
-                |_, _| {},
-                None,
-            ),
-        };
-        AsyncTask::new_future_with_closure_handler_chained(
+        AsyncTask::new_future_try(
             SearchSongs(search_query),
-            handler,
+            HandleSearchSongsOk,
+            HandleSearchSongsErr,
             Some(Constraint::new_kill_same_type()),
         )
     }
@@ -609,3 +594,30 @@ impl SongSearchBrowser {
         };
     }
 }
+
+#[derive(Debug, PartialEq)]
+struct HandleSearchSongsOk;
+#[derive(Debug, PartialEq)]
+struct HandleSearchSongsErr;
+
+impl_youtui_task_handler!(
+    HandleSearchSongsOk,
+    Vec<SearchResultSong>,
+    SongSearchBrowser,
+    |_, songs| |this: &mut SongSearchBrowser| { this.replace_song_list(songs) }
+);
+impl_youtui_task_handler!(
+    HandleSearchSongsErr,
+    anyhow::Error,
+    SongSearchBrowser,
+    |_, error| |_: &mut SongSearchBrowser| AsyncTask::new_future(
+        HandleApiError {
+            error,
+            // To avoid needing to clone search query to use in the error message, this
+            // error message is minimal.
+            message: "Error recieved getting songs".to_string(),
+        },
+        NoOpHandler,
+        None,
+    )
+);

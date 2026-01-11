@@ -9,7 +9,7 @@ use crate::app::ui::playlist::{
 };
 use crate::app::ui::{ListSongID, PlayState};
 use crate::async_rodio_sink::{AllStopped, Stopped};
-use async_callback_manager::{AsyncTask, Constraint, MaybeEq, TryBackendTaskExt};
+use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
 use pretty_assertions::assert_eq;
 use std::sync::{Arc, OnceLock};
 use std::time::Duration;
@@ -67,7 +67,7 @@ fn newly_added_song_downloads_album_art() {
     let dummy_song = s.clone();
     let thumbnail_id = SongThumbnailID::from(&dummy_song as &ListSong).into_owned();
     let (_, effect) = p.push_song_list(vec![dummy_song]);
-    let expected_effect = AsyncTask::new_future_try_eq(
+    let expected_effect = AsyncTask::new_future_try(
         GetSongThumbnail {
             thumbnail_url: "dummy_url".to_string(),
             thumbnail_id: thumbnail_id.clone(),
@@ -77,9 +77,7 @@ fn newly_added_song_downloads_album_art() {
         None,
     );
     assert!(
-        effect
-            .maybe_contains(&expected_effect)
-            .is_some_and(std::convert::identity),
+        effect.contains(&expected_effect),
         "Expected Left to contain Right {}",
         pretty_assertions::Comparison::new(&effect, &expected_effect)
     );
@@ -93,7 +91,7 @@ fn downloaded_song_plays_if_buffered() {
         crate::app::structures::DownloadStatus::Downloaded(dummy_song.clone());
     let effect = p.handle_song_downloaded(ListSongID(1));
     assert_eq!(p.play_status, PlayState::Playing(ListSongID(1)));
-    let expected_effect = AsyncTask::new_stream_try_eq(
+    let expected_effect = AsyncTask::new_stream_try(
         DecodeSong(dummy_song.clone()).map_stream(PlayDecodedSong(ListSongID(1))),
         HandlePlayUpdateOk,
         HandlePlayUpdateError(ListSongID(1)),
@@ -102,9 +100,7 @@ fn downloaded_song_plays_if_buffered() {
         )),
     );
     assert!(
-        effect
-            .maybe_contains(&expected_effect)
-            .is_some_and(std::convert::identity),
+        effect.contains(&expected_effect),
         "Expected Left to contain Right {}",
         pretty_assertions::Comparison::new(&effect, &expected_effect)
     );
@@ -114,20 +110,20 @@ fn test_reset_when_playing_stops_song_id() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Playing(ListSongID(1));
     let effect = p.reset();
-    let expected_effect = AsyncTask::new_future_eq(
+    let expected_effect = AsyncTask::new_future_option(
         Stop(ListSongID(1)),
         HandleStopped,
         Some(Constraint::new_block_matching_metadata(
             TaskMetadata::PlayPause,
         )),
     );
-    assert_eq!(effect.maybe_eq(&expected_effect), Some(true));
+    assert_eq!(effect, expected_effect);
 }
 #[test]
 fn test_reset_when_not_playing_has_no_effect() {
     let mut p = get_dummy_playlist();
     let effect = p.reset();
-    assert_eq!(effect.maybe_eq(&AsyncTask::new_no_op()), Some(true));
+    assert!(effect.is_no_op());
 }
 #[test]
 fn test_handle_autoplay_queued_when_other_queued() {
@@ -269,16 +265,10 @@ fn test_handle_paused_when_other_state() {
     assert_eq!(p, expected_p);
 }
 #[test]
-fn test_handle_stopped_none() {
-    let mut p = get_dummy_playlist();
-    p.handle_stopped(None);
-    assert_eq!(p, get_dummy_playlist());
-}
-#[test]
 fn test_handle_stopped_when_playing_id() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Playing(ListSongID(0));
-    p.handle_stopped(Some(Stopped(ListSongID(0))));
+    p.handle_stopped(Stopped(ListSongID(0)));
     let mut expected_p = get_dummy_playlist();
     expected_p.play_status = PlayState::Stopped;
     assert_eq!(p, expected_p);
@@ -288,20 +278,14 @@ fn test_handle_stopped_when_not_playing_id() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Playing(ListSongID(1));
     let expected_p = p.clone();
-    p.handle_stopped(Some(Stopped(ListSongID(0))));
+    p.handle_stopped(Stopped(ListSongID(0)));
     assert_eq!(p, expected_p);
-}
-#[test]
-fn test_handle_all_stopped_none() {
-    let mut p = get_dummy_playlist();
-    p.handle_all_stopped(None);
-    assert_eq!(p, get_dummy_playlist());
 }
 #[test]
 fn test_handle_all_stopped_when_playing() {
     let mut p = get_dummy_playlist();
     p.play_status = PlayState::Playing(ListSongID(0));
-    p.handle_all_stopped(Some(AllStopped));
+    p.handle_all_stopped(AllStopped);
     let mut expected_p = get_dummy_playlist();
     expected_p.play_status = PlayState::Stopped;
     assert_eq!(p, expected_p);

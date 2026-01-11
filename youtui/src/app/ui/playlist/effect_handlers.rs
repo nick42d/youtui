@@ -11,7 +11,6 @@ use crate::async_rodio_sink::{
 use async_callback_manager::{AsyncTask, FrontendEffect};
 use rodio::decoder::DecoderError;
 use std::fmt::Debug;
-use std::option::Option;
 use tracing::error;
 
 #[derive(Debug, PartialEq)]
@@ -45,10 +44,10 @@ pub struct HandleSongDownloadProgressUpdate;
 
 #[derive(Debug, PartialEq)]
 enum PlaylistEffect {
-    SetStatusStoppedIfSome(Option<AllStopped>),
-    StopSongIDIfSomeAndCur(Option<Stopped<ListSongID>>),
+    SetStatusStopped(AllStopped),
+    StopSongID(Stopped<ListSongID>),
     HandleSetSongPlayProgress(ProgressUpdate<ListSongID>),
-    HandleVolumeUpdate(Option<VolumeUpdate>),
+    HandleVolumeUpdate(VolumeUpdate),
     HandlePausePlayResponse(PausePlayResponse<ListSongID>),
     HandleResumed(ListSongID),
     HandlePaused(ListSongID),
@@ -63,30 +62,21 @@ enum PlaylistEffect {
     SetSongThumbnailError(SongThumbnailID<'static>),
     AddSongThumbnail(SongThumbnail),
 }
-impl_youtui_task_handler!(
-    HandleStopped,
-    Option<Stopped<ListSongID>>,
-    Playlist,
-    |_, input| PlaylistEffect::StopSongIDIfSomeAndCur(input)
-);
-impl_youtui_task_handler!(
-    HandleAllStopped,
-    Option<AllStopped>,
-    Playlist,
-    |_, input| PlaylistEffect::SetStatusStoppedIfSome(input)
-);
+impl_youtui_task_handler!(HandleStopped, Stopped<ListSongID>, Playlist, |_, input| {
+    PlaylistEffect::StopSongID(input)
+});
+impl_youtui_task_handler!(HandleAllStopped, AllStopped, Playlist, |_, input| {
+    PlaylistEffect::SetStatusStopped(input)
+});
 impl_youtui_task_handler!(
     HandleSetSongPlayProgress,
     ProgressUpdate<ListSongID>,
     Playlist,
     |_, input| PlaylistEffect::HandleSetSongPlayProgress(input)
 );
-impl_youtui_task_handler!(
-    HandleVolumeUpdate,
-    Option<VolumeUpdate>,
-    Playlist,
-    |_, input| PlaylistEffect::HandleVolumeUpdate(input)
-);
+impl_youtui_task_handler!(HandleVolumeUpdate, VolumeUpdate, Playlist, |_, input| {
+    PlaylistEffect::HandleVolumeUpdate(input)
+});
 impl_youtui_task_handler!(
     HandlePlayUpdateOk,
     PlayUpdate<ListSongID>,
@@ -160,12 +150,12 @@ impl_youtui_task_handler!(
 );
 
 impl FrontendEffect<Playlist, ArcServer, TaskMetadata> for PlaylistEffect {
-    fn apply(self, target: &mut Playlist) -> ComponentEffect<Playlist> {
+    fn apply(self, target: &mut Playlist) -> impl Into<ComponentEffect<Playlist>> {
         match self {
-            PlaylistEffect::SetStatusStoppedIfSome(msg) => {
+            PlaylistEffect::SetStatusStopped(msg) => {
                 target.handle_all_stopped(msg);
             }
-            PlaylistEffect::StopSongIDIfSomeAndCur(msg) => {
+            PlaylistEffect::StopSongID(msg) => {
                 target.handle_stopped(msg);
             }
             PlaylistEffect::HandlePausePlayResponse(msg) => {

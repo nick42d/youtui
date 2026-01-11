@@ -1,10 +1,10 @@
-use crate::{AsyncTask, BackendStreamingTask, BackendTask};
+use crate::{AsyncTask, BackendStreamingTask, BackendTask, FrontendEffect, TaskHandler};
 use futures::StreamExt;
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct Task1;
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct Task2;
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct StreamingTask;
 impl BackendTask<()> for Task1 {
     type Output = ();
@@ -40,21 +40,39 @@ impl BackendStreamingTask<()> for StreamingTask {
 }
 #[tokio::test]
 async fn test_recursive_map() {
-    let recursive_task = AsyncTask::new_stream_with_closure_handler_chained(
-        StreamingTask,
-        |_: &mut (), _| {
-            AsyncTask::new_future_with_closure_handler_chained(
-                Task1,
-                |_: &mut (), _| {
-                    AsyncTask::new_future_with_closure_handler(Task2, |_: &mut (), _| {}, None)
-                },
-                None,
-            )
-        },
-        None,
-    );
+    #[derive(PartialEq, Debug, Clone)]
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
+    struct Handler1;
+    #[derive(PartialEq, Debug, Clone)]
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
+    struct Handler2;
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
+    impl TaskHandler<(), (), (), ()> for Handler1 {
+        fn handle(self, _: ()) -> impl crate::FrontendEffect<(), (), ()> {
+            |_: &mut ()| AsyncTask::new_future(Task1, Handler2, None)
+        }
+    }
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
+    impl TaskHandler<(), (), (), ()> for Handler2 {
+        fn handle(self, _: ()) -> impl crate::FrontendEffect<(), (), ()> {
+            |_: &mut ()| AsyncTask::new_future(Task2, crate::NoOpHandler, None)
+        }
+    }
+
+    #[cfg(not(any(feature = "task-equality", feature = "task-debug")))]
+    let handler = |_: &mut (), _| {
+        AsyncTask::new_future(
+            Task1,
+            |_: &mut (), _| AsyncTask::new_future(Task2, |_: &mut (), _| {}, None),
+            None,
+        )
+    };
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
+    let handler = Handler1;
+
+    let recursive_task = AsyncTask::new_stream(StreamingTask, handler, None);
     // Here, it's expected that this is succesful.
     // TODO: Run the task for an expected outcome.
     #[allow(unused_must_use)]
-    let _ = recursive_task.map(|tmp: &mut ()| tmp);
+    let _ = recursive_task.map_frontend(|tmp: &mut ()| tmp);
 }

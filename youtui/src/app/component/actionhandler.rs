@@ -76,7 +76,7 @@ impl<C: Component> YoutuiEffect<C> {
         C::Md: 'static,
     {
         let YoutuiEffect { effect, callback } = self;
-        let effect = effect.map(f);
+        let effect = effect.map_frontend(f);
         YoutuiEffect { effect, callback }
     }
 }

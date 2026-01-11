@@ -217,15 +217,15 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Browser => self
                 .browser
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.browser)),
+                .map(|effect| effect.map_frontend(|this: &mut YoutuiWindow| &mut this.browser)),
             WindowContext::Playlist => self
                 .playlist
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.playlist)),
+                .map(|effect| effect.map_frontend(|this: &mut YoutuiWindow| &mut this.playlist)),
             WindowContext::Logs => self
                 .logger
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map(|this: &mut YoutuiWindow| &mut this.logger)),
+                .map(|effect| effect.map_frontend(|this: &mut YoutuiWindow| &mut this.logger)),
         }
     }
 }
@@ -311,7 +311,10 @@ impl YoutuiWindow {
             help: HelpMenu::new(),
             tick: 0,
         };
-        (this, task.map(|this: &mut Self| &mut this.playlist))
+        (
+            this,
+            task.map_frontend(|this: &mut Self| &mut this.playlist),
+        )
     }
     pub fn get_help_list_items(&self) -> impl Iterator<Item = DisplayableKeyAction<'_>> {
         match self.context {
@@ -427,7 +430,7 @@ impl YoutuiWindow {
             WindowContext::Browser => self
                 .browser
                 .handle_text_entry_action(action)
-                .map(|this: &mut Self| &mut this.browser),
+                .map_frontend(|this: &mut Self| &mut this.browser),
             WindowContext::Playlist => AsyncTask::new_no_op(),
             WindowContext::Logs => AsyncTask::new_no_op(),
         }
@@ -435,48 +438,48 @@ impl YoutuiWindow {
     pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .pauseplay()
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn resume(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .resume()
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn pause(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .pause()
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn stop(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .stop()
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_next(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .handle_next()
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_prev(&mut self) -> ComponentEffect<Self> {
         self.playlist
             .handle_previous()
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_increase_volume(&mut self, inc: i8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.increase_volume(inc);
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future_option(
             IncreaseVolume(inc),
-            Self::handle_volume_update,
+            HandleVolumeUpdate,
             Some(Constraint::new_block_same_type()),
         )
     }
     pub fn handle_set_volume(&mut self, new_vol: u8) -> ComponentEffect<Self> {
         // Visually update the state first for instant feedback.
         self.set_volume(new_vol);
-        AsyncTask::new_future_with_closure_handler(
+        AsyncTask::new_future_option(
             SetVolume(new_vol),
-            Self::handle_volume_update,
+            HandleVolumeUpdate,
             Some(Constraint::new_block_same_type()),
         )
     }
@@ -487,14 +490,14 @@ impl YoutuiWindow {
     ) -> ComponentEffect<Self> {
         self.playlist
             .handle_seek(duration, direction)
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_seek_to(&mut self, position: Duration) -> ComponentEffect<Self> {
         self.playlist
             .handle_seek_to(position)
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
-    pub fn handle_volume_update(&mut self, update: Option<VolumeUpdate>) {
+    pub fn handle_volume_update(&mut self, update: VolumeUpdate) {
         self.playlist.handle_volume_update(update)
     }
     pub fn handle_add_songs_to_playlist(
@@ -502,7 +505,7 @@ impl YoutuiWindow {
         song_list: Vec<ListSong>,
     ) -> ComponentEffect<Self> {
         let (_, effect) = self.playlist.push_song_list(song_list);
-        effect.map(|this: &mut Self| &mut this.playlist)
+        effect.map_frontend(|this: &mut Self| &mut this.playlist)
     }
     pub fn handle_add_songs_to_playlist_and_play(
         &mut self,
@@ -513,7 +516,7 @@ impl YoutuiWindow {
         effect
             .push(next_effect)
             .push(self.playlist.play_song_id(id))
-            .map(|this: &mut Self| &mut this.playlist)
+            .map_frontend(|this: &mut Self| &mut this.playlist)
     }
     fn global_handle_key_stack(&mut self) -> YoutuiEffect<Self> {
         match handle_key_stack(self.get_active_keybinds(&self.config), &self.key_stack) {
@@ -580,3 +583,16 @@ impl YoutuiWindow {
         })
     }
 }
+
+#[derive(Debug, PartialEq)]
+struct HandleVolumeUpdate;
+
+impl_youtui_task_handler!(
+    HandleVolumeUpdate,
+    VolumeUpdate,
+    YoutuiWindow,
+    |_, update| |this: &mut YoutuiWindow| {
+        YoutuiWindow::handle_volume_update(this, update);
+        AsyncTask::new_no_op()
+    }
+);

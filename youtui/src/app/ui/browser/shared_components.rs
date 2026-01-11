@@ -2,7 +2,7 @@ use crate::app::component::actionhandler::{Action, ComponentEffect, Suggestable,
 use crate::app::server::{GetSearchSuggestions, HandleApiError};
 use crate::app::view::{TableFilterCommand, TableSortCommand};
 use anyhow::Context;
-use async_callback_manager::{AsyncTask, Constraint};
+use async_callback_manager::{AsyncTask, Constraint, NoOpHandler};
 use rat_text::text_input::{TextInputState, handle_events};
 use ratatui::widgets::ListState;
 use serde::{Deserialize, Serialize};
@@ -191,25 +191,10 @@ impl SearchBlock {
             self.search_suggestions.clear();
             return AsyncTask::new_no_op();
         }
-        let handler = |this: &mut Self, results| match results {
-            Ok((suggestions, text)) => {
-                this.replace_search_suggestions(suggestions, text);
-                AsyncTask::new_no_op()
-            }
-            Err(error) => AsyncTask::new_future_with_closure_handler(
-                HandleApiError {
-                    error,
-                    // To avoid needing to clone search query to use in the error message, this
-                    // error message is minimal.
-                    message: "Error recieved getting search suggestions".to_string(),
-                },
-                |_, _| {},
-                None,
-            ),
-        };
-        AsyncTask::new_future_with_closure_handler_chained(
+        AsyncTask::new_future_try(
             GetSearchSuggestions(self.search_contents.text().to_owned()),
-            handler,
+            HandleSearchSuggestionsOk,
+            HandleSearchSuggestionsErr,
             Some(Constraint::new_kill_same_type()),
         )
     }
@@ -243,6 +228,33 @@ impl SearchBlock {
     }
 }
 
+#[derive(PartialEq, Debug)]
+struct HandleSearchSuggestionsOk;
+#[derive(PartialEq, Debug)]
+struct HandleSearchSuggestionsErr;
+impl_youtui_task_handler!(
+    HandleSearchSuggestionsOk,
+    (Vec<SearchSuggestion>, String),
+    SearchBlock,
+    |_, (suggestions, text)| |this: &mut SearchBlock| this
+        .replace_search_suggestions(suggestions, text)
+);
+impl_youtui_task_handler!(
+    HandleSearchSuggestionsErr,
+    anyhow::Error,
+    SearchBlock,
+    |_, error| |_: &mut SearchBlock| AsyncTask::new_future(
+        HandleApiError {
+            error,
+            // To avoid needing to clone search query to use in the error message, this
+            // error message is minimal.
+            message: "Error recieved getting search suggestions".to_string(),
+        },
+        NoOpHandler,
+        None,
+    )
+);
+
 /// A table may display columns in a different order, adjust the index to a new
 /// index based on a list of correct indexes.
 pub fn get_adjusted_list_column<T: Copy, const N: usize>(
@@ -259,7 +271,12 @@ pub fn get_adjusted_list_column<T: Copy, const N: usize>(
 
 #[cfg(test)]
 mod tests {
-    use crate::app::ui::browser::shared_components::get_adjusted_list_column;
+    use crate::app::server::GetSearchSuggestions;
+    use crate::app::ui::browser::shared_components::{
+        HandleSearchSuggestionsErr, HandleSearchSuggestionsOk, SearchBlock,
+        get_adjusted_list_column,
+    };
+    use async_callback_manager::{AsyncTask, Constraint};
     #[test]
     fn test_get_adjusted_list_column() {
         assert_eq!(get_adjusted_list_column(2, [3, 1, 2]).unwrap(), 2);
@@ -269,5 +286,24 @@ mod tests {
     #[test]
     fn test_get_adjusted_list_column_out_of_bounds() {
         assert!(get_adjusted_list_column(3, [3, 1, 2]).is_err())
+    }
+    #[test]
+    fn test_dont_fetch_search_suggestions_when_empty() {
+        let mut b = SearchBlock::default();
+        let effect = b.fetch_search_suggestions();
+        assert!(effect.is_no_op());
+    }
+    #[test]
+    fn test_search_suggestions_fetch_effect() {
+        let mut b = SearchBlock::default();
+        b.search_contents.set_text("The beatles");
+        let effect = b.fetch_search_suggestions();
+        let expected_effect = AsyncTask::new_future_try(
+            GetSearchSuggestions("The beatles".to_string()),
+            HandleSearchSuggestionsOk,
+            HandleSearchSuggestionsErr,
+            Some(Constraint::new_kill_same_type()),
+        );
+        assert_eq!(effect, expected_effect);
     }
 }

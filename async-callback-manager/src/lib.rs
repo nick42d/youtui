@@ -1,5 +1,7 @@
 use futures::{Future, Stream};
 use std::any::Any;
+#[cfg(feature = "task-debug")]
+use std::fmt::Debug;
 
 mod adaptors;
 mod constraint;
@@ -15,6 +17,7 @@ pub use manager::task_list::{TaskInformation, TaskOutcome};
 pub use manager::*;
 pub use panicking_receiver_stream::*;
 pub use task::AsyncTask;
+pub use task::dyn_task::NoOpHandler;
 
 // Size of the channel used for each stream task.
 // In future, this could be settable.
@@ -23,7 +26,7 @@ pub(crate) const DEFAULT_STREAM_CHANNEL_SIZE: usize = 20;
 /// A task of kind T that can be run on a backend, returning a future of output
 /// Output. The type must implement Any, as the
 /// TypeId is used as part of the task management process.
-pub trait BackendTask<Bkend>: Send + Any {
+pub trait BackendTask<Bkend>: Send + Any + OptPartialEq + OptDebug {
     type Output: Send;
     type MetadataType: PartialEq;
     fn into_future(self, backend: &Bkend) -> impl Future<Output = Self::Output> + Send + 'static;
@@ -37,7 +40,7 @@ pub trait BackendTask<Bkend>: Send + Any {
 /// A task of kind T that can be run on a backend, returning a stream of outputs
 /// Output. The type must implement Any, as the TypeId is used as part of the
 /// task management process.
-pub trait BackendStreamingTask<Bkend>: Send + Any {
+pub trait BackendStreamingTask<Bkend>: Send + Any + OptPartialEq + OptDebug {
     type Output: Send;
     type MetadataType: PartialEq;
     fn into_stream(
@@ -52,21 +55,33 @@ pub trait BackendStreamingTask<Bkend>: Send + Any {
 }
 
 /// Represents the handler for a task output.
-pub trait TaskHandler<Input, Frntend, Bkend, Md> {
+pub trait TaskHandler<Input, Frntend, Bkend, Md>: OptPartialEq + OptDebug {
     fn handle(self, input: Input) -> impl FrontendEffect<Frntend, Bkend, Md>;
 }
 
 /// Represents a mutation that can be applied to some state, returning an
 /// effect.
 pub trait FrontendEffect<Frntend, Bkend, Md> {
-    fn apply(self, target: &mut Frntend) -> AsyncTask<Frntend, Bkend, Md>;
+    fn apply(self, target: &mut Frntend) -> impl Into<AsyncTask<Frntend, Bkend, Md>>;
 }
 
-/// Helper trait, representing an equality that may be indeterminate for some
-/// values, e,g comparing two closures where equality is indeterminate via
-/// algorithms due to the halting problem.
-///
-/// e.g `(|x| x + 2).maybe_eq(|x| x + 1 + 1) == None`
-pub trait MaybeEq<T> {
-    fn maybe_eq(&self, other: &T) -> Option<bool>;
-}
+// Crate user require using features that key traits will require PartialEq or
+// Debug. In return, the AsyncTask type will also implement PartialEq and Debug.
+// Feature(where_clauses) on nightly would simplify this as traits themself
+// could contain the cfg directives an a where Self: clause.
+#[cfg(not(feature = "task-equality"))]
+pub trait OptPartialEq {}
+#[cfg(feature = "task-equality")]
+pub trait OptPartialEq: PartialEq {}
+#[cfg(not(feature = "task-debug"))]
+pub trait OptDebug {}
+#[cfg(feature = "task-debug")]
+pub trait OptDebug: Debug {}
+#[cfg(feature = "task-debug")]
+impl<T: Debug> OptDebug for T {}
+#[cfg(not(feature = "task-debug"))]
+impl<T> OptDebug for T {}
+#[cfg(feature = "task-equality")]
+impl<T: PartialEq> OptPartialEq for T {}
+#[cfg(not(feature = "task-equality"))]
+impl<T> OptPartialEq for T {}

@@ -1,5 +1,6 @@
 use crate::{
-    BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE, PanickingReceiverStream,
+    BackendStreamingTask, BackendTask, DEFAULT_STREAM_CHANNEL_SIZE, OptDebug, OptPartialEq,
+    PanickingReceiverStream,
 };
 use futures::{Stream, StreamExt};
 use std::fmt::Debug;
@@ -13,10 +14,11 @@ impl<Bkend, T: BackendTask<Bkend, Output = Result<O, E>>, O, E> TryBackendTaskEx
 /// Local definition of the unstable FnOnce trait, allowing users of this crate
 /// to implement mapping functions that are PartialEq and Debug for
 /// observability purposes.
-pub trait MapFn<T> {
+pub trait MapFn<T>: OptPartialEq + OptDebug {
     type Output;
     fn apply(self, input: T) -> Self::Output;
 }
+#[cfg(all(not(feature = "task-equality"), not(feature = "task-debug")))]
 impl<T, F, O> MapFn<T> for F
 where
     F: FnOnce(T) -> O,
@@ -141,6 +143,7 @@ where
     }
 }
 
+#[derive(PartialEq, Debug)]
 pub struct Then<T, F> {
     first: T,
     create_next: F,
@@ -153,7 +156,7 @@ where
     T: BackendTask<Bkend, MetadataType = Ct>,
     T2: BackendTask<Bkend, MetadataType = Ct>,
     Ct: PartialEq,
-    F: FnOnce(T::Output) -> T2,
+    F: MapFn<T::Output, Output = T2>,
 {
     type Output = T2::Output;
     type MetadataType = Ct;
@@ -162,7 +165,7 @@ where
         let backend = backend.clone();
         async move {
             let output = BackendTask::into_future(first, &backend).await;
-            let next = create_next(output);
+            let next = create_next.apply(output);
             BackendTask::into_future(next, &backend).await
         }
     }
@@ -181,7 +184,7 @@ where
     T: BackendTask<Bkend, MetadataType = Ct>,
     S: BackendStreamingTask<Bkend, MetadataType = Ct>,
     Ct: PartialEq,
-    F: FnOnce(T::Output) -> S,
+    F: MapFn<T::Output, Output = S>,
 {
     type Output = S::Output;
     type MetadataType = Ct;
@@ -194,7 +197,7 @@ where
         let (tx, rx) = tokio::sync::mpsc::channel(DEFAULT_STREAM_CHANNEL_SIZE);
         let handle = tokio::task::spawn(async move {
             let seed = BackendTask::into_future(first, &backend).await;
-            let mut stream = create_next(seed).into_stream(&backend);
+            let mut stream = create_next.apply(seed).into_stream(&backend);
             while let Some(item) = stream.next().await {
                 let _ = tx.send(item).await;
             }

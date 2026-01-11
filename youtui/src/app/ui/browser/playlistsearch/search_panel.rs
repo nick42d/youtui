@@ -125,7 +125,7 @@ impl TextHandler for PlaylistSearchPanel {
     ) -> Option<ComponentEffect<Self>> {
         self.search
             .handle_text_event_impl(event)
-            .map(|effect| effect.map(|this: &mut Self| &mut this.search))
+            .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.search))
     }
 }
 

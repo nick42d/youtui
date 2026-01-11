@@ -13,7 +13,7 @@ use crate::app::structures::{
     AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
     ListSongID, Percentage, PlayState, SongListComponent,
 };
-use crate::app::ui::playlist::async_effects::{
+use crate::app::ui::playlist::effect_handlers::{
     HandleAllStopped, HandleAutoplayUpdateOk, HandleGetSongThumbnailError,
     HandleGetSongThumbnailOk, HandlePausePlayResponse, HandlePausedResponse, HandlePlayUpdateError,
     HandlePlayUpdateOk, HandleQueueUpdateOk, HandleResumeResponse, HandleSetSongPlayProgress,
@@ -42,7 +42,7 @@ use std::time::Duration;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::Thumbnail;
 
-mod async_effects;
+mod effect_handlers;
 #[cfg(test)]
 mod tests;
 
@@ -242,7 +242,7 @@ impl Playlist {
     /// When creating a Playlist, an effect is also created.
     pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
-        let task = AsyncTask::new_future_eq(
+        let task = AsyncTask::new_future_option(
             // Since IncreaseVolume responds back with player volume after change, this is a
             // neat hack.
             IncreaseVolume(0),
@@ -264,7 +264,7 @@ impl Playlist {
     /// - Stop playback of the song 'song_id', if it is still playing.
     /// - If stop was succesful, update state.
     pub fn stop_song_id(&self, song_id: ListSongID) -> ComponentEffect<Self> {
-        AsyncTask::new_future_eq(
+        AsyncTask::new_future_option(
             Stop(song_id),
             HandleStopped,
             Some(Constraint::new_block_matching_metadata(
@@ -294,7 +294,7 @@ impl Playlist {
                 let constraint = Some(Constraint::new_block_matching_metadata(
                     TaskMetadata::PlayingSong,
                 ));
-                let effect = effect.push(AsyncTask::new_stream_try_eq(
+                let effect = effect.push(AsyncTask::new_stream_try(
                     task,
                     HandlePlayUpdateOk,
                     HandlePlayUpdateError(id),
@@ -335,7 +335,7 @@ impl Playlist {
                 // This task has the metadata of both DecodeSong and AutoplaySong and returns
                 // Result<AutoplayUpdate>.
                 let task = DecodeSong(pointer.clone()).map_stream(AutoplayDecodedSong(id));
-                let effect = effect.push(AsyncTask::new_stream_try_eq(
+                let effect = effect.push(AsyncTask::new_stream_try(
                     task,
                     HandleAutoplayUpdateOk,
                     HandlePlayUpdateError(id),
@@ -437,7 +437,7 @@ impl Playlist {
             _ => (),
         };
         // TODO: Consider how to handle race conditions.
-        let effect = AsyncTask::new_stream_eq(
+        let effect = AsyncTask::new_stream(
             DownloadSong(song.video_id.clone(), id),
             HandleSongDownloadProgressUpdate,
             None,
@@ -484,7 +484,7 @@ impl Playlist {
         let effect = albums
             .into_iter()
             .map(|(thumbnail_id, thumbnail_url)| {
-                AsyncTask::new_future_try_eq(
+                AsyncTask::new_future_try(
                     GetSongThumbnail {
                         thumbnail_url,
                         thumbnail_id: thumbnail_id.clone(),
@@ -663,7 +663,7 @@ impl Playlist {
         direction: SeekDirection,
     ) -> ComponentEffect<Self> {
         // Consider if we also want to update current duration.
-        AsyncTask::new_future_option_eq(
+        AsyncTask::new_future_option(
             Seek {
                 duration,
                 direction,
@@ -685,7 +685,7 @@ impl Playlist {
             _ => return AsyncTask::new_no_op(),
         };
         // Consider if we also want to update current duration.
-        AsyncTask::new_future_option_eq(SeekTo { position, id }, HandleSetSongPlayProgress, None)
+        AsyncTask::new_future_option(SeekTo { position, id }, HandleSetSongPlayProgress, None)
     }
     /// Handle next command (from global keypress), if currently playing.
     pub fn handle_next(&mut self) -> ComponentEffect<Self> {
@@ -754,7 +754,7 @@ impl Playlist {
             }
             _ => return AsyncTask::new_no_op(),
         };
-        AsyncTask::new_future_option_eq(
+        AsyncTask::new_future_option(
             PausePlay(id),
             HandlePausePlayResponse,
             Some(Constraint::new_block_matching_metadata(
@@ -772,7 +772,7 @@ impl Playlist {
             }
             _ => return AsyncTask::new_no_op(),
         };
-        AsyncTask::new_future_option_eq(
+        AsyncTask::new_future_option(
             Resume(id),
             HandleResumeResponse,
             Some(Constraint::new_block_matching_metadata(
@@ -790,7 +790,7 @@ impl Playlist {
             }
             _ => return AsyncTask::new_no_op(),
         };
-        AsyncTask::new_future_option_eq(
+        AsyncTask::new_future_option(
             Pause(id),
             HandlePausedResponse,
             Some(Constraint::new_block_matching_metadata(
@@ -802,7 +802,7 @@ impl Playlist {
     /// (server).
     pub fn stop(&mut self) -> ComponentEffect<Self> {
         self.play_status = PlayState::Stopped;
-        AsyncTask::new_future_eq(
+        AsyncTask::new_future_option(
             StopAll,
             HandleAllStopped,
             Some(Constraint::new_block_matching_metadata(
@@ -865,10 +865,8 @@ impl Playlist {
         AsyncTask::new_no_op()
     }
     /// Handle volume message from server
-    pub fn handle_volume_update(&mut self, response: Option<VolumeUpdate>) {
-        if let Some(v) = response {
-            self.volume = Percentage(v.0.into())
-        }
+    pub fn handle_volume_update(&mut self, response: VolumeUpdate) {
+        self.volume = Percentage(response.0.into())
     }
     pub fn handle_play_update(&mut self, update: PlayUpdate<ListSongID>) -> ComponentEffect<Self> {
         match update {
@@ -942,7 +940,7 @@ impl Playlist {
             // Result<QueueUpdate>.
             let task = DecodeSong(song.clone()).map_stream(QueueDecodedSong(id));
             info!("Queuing up song!");
-            let effect = AsyncTask::new_stream_try_eq(
+            let effect = AsyncTask::new_stream_try(
                 task,
                 HandleQueueUpdateOk,
                 HandlePlayUpdateError(id),
@@ -1023,8 +1021,8 @@ impl Playlist {
         }
     }
     /// Handle stopped message from server
-    pub fn handle_stopped(&mut self, id: Option<Stopped<ListSongID>>) {
-        let Some(Stopped(id)) = id else { return };
+    pub fn handle_stopped(&mut self, id: Stopped<ListSongID>) {
+        let Stopped(id) = id;
         // TODO: Hoist info up.
         info!("Received message that playback {:?} has been stopped", id);
         if self.check_id_is_cur(id) {
@@ -1033,10 +1031,7 @@ impl Playlist {
         }
     }
     /// Handle all stopped message from server
-    pub fn handle_all_stopped(&mut self, msg: Option<AllStopped>) {
-        if msg.is_none() {
-            return;
-        }
+    pub fn handle_all_stopped(&mut self, _: AllStopped) {
         self.play_status = PlayState::Stopped
     }
 }
