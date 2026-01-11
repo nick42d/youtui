@@ -45,7 +45,7 @@ default = ["default-tls", "simplified-queries"]
 # https://docs.rs/reqwest/latest/reqwest/tls/index.html
 default-tls = ["reqwest/default-tls"]
 native-tls = ["reqwest/native-tls"]
-rustls-tls = ["reqwest/rustls-tls"]
+rustls = ["reqwest/rustls"]
 # Enable the use of simplified queries such as YtMusic::search("xx")
 simplified-queries = []
 # Enable functions that allow interoperability with the `serde_json` crate.
