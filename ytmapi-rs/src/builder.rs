@@ -3,10 +3,10 @@ use crate::auth::AuthToken;
 use crate::auth::noauth::NoAuthToken;
 // NOTE: Example requires feature, so it is conditionally built.
 #[cfg_attr(
-    feature = "rustls",
+    feature = "rustls-tls",
     doc = r##"
 ## Example
-Basic usage with a pre-created cookie file forcing use of rustls
+Basic usage with a pre-created cookie file forcing use of rustls-tls
 ```no_run
 #[tokio::main]
 pub async fn main() -> Result<(), ytmapi_rs::Error> {
@@ -34,8 +34,8 @@ use std::path::Path;
 pub enum ClientOptions {
     #[default]
     Default,
-    #[cfg(feature = "rustls")]
-    Rustls,
+    #[cfg(feature = "rustls-tls")]
+    RustlsTls,
     #[cfg(feature = "native-tls")]
     NativeTls,
     Existing(Client),
@@ -63,10 +63,10 @@ impl<T> YtMusicBuilder<T> {
         self.client_options = ClientOptions::Existing(client);
         self
     }
-    #[cfg(feature = "rustls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "rustls")))]
+    #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
     pub fn with_rustls_tls(mut self) -> Self {
-        self.client_options = ClientOptions::Rustls;
+        self.client_options = ClientOptions::RustlsTls;
         self
     }
     #[cfg(feature = "native-tls")]
@@ -174,11 +174,11 @@ impl YtMusicBuilder<NoToken> {
             token: NoToken,
         }
     }
-    #[cfg(feature = "rustls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "rustls")))]
+    #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
     pub fn new_rustls_tls() -> YtMusicBuilder<NoToken> {
         YtMusicBuilder {
-            client_options: ClientOptions::Rustls,
+            client_options: ClientOptions::RustlsTls,
             token: NoToken,
         }
     }
@@ -212,8 +212,8 @@ impl<A: AuthToken> YtMusicBuilder<A> {
 fn build_client(client_options: ClientOptions) -> Result<Client> {
     match client_options {
         ClientOptions::Default => Client::new(),
-        #[cfg(feature = "rustls")]
-        ClientOptions::Rustls => Client::new_rustls_tls(),
+        #[cfg(feature = "rustls-tls")]
+        ClientOptions::RustlsTls => Client::new_rustls_tls(),
         #[cfg(feature = "native-tls")]
         ClientOptions::NativeTls => Client::new_native_tls(),
         ClientOptions::Existing(client) => Ok(client),

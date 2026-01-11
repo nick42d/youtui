@@ -64,14 +64,19 @@
 //!   reqwest - at the time of writing is native-tls.
 //! - **native-tls**: This feature allows use of the the native-tls crate,
 //!   reliant on vendors tls.
-//! - **rustls**: This feature allows use of the rustls crate, written in rust.
+//! - **rustls-tls**: This feature allows use of the rustls crate, written in
+//!   rust.
 //! ### Other
 //! - **simplified_queries**: Adds convenience methods to [`YtMusic`].
 //! - **serde_json**: Enables some interoperability functions with `serde_json`.
 //! - **reqwest**: Enables some interoperability functions with `reqwest`.
 // For feature specific documentation.
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#[cfg(not(any(feature = "rustls", feature = "native-tls", feature = "default-tls")))]
+#[cfg(not(any(
+    feature = "rustls-tls",
+    feature = "native-tls",
+    feature = "default-tls"
+)))]
 compile_error!("One of the TLS features must be enabled for this crate");
 use auth::browser::BrowserToken;
 use auth::noauth::NoAuthToken;

@@ -59,9 +59,9 @@ impl Client {
         let inner = reqwest::Client::builder().build()?;
         Ok(Self { inner })
     }
-    #[cfg(feature = "rustls")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "rustls")))]
-    /// Force the use of rustls
+    #[cfg(feature = "rustls-tls")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls-tls")))]
+    /// Force the use of rustls-tls
     pub fn new_rustls_tls() -> Result<Self> {
         let inner = reqwest::Client::builder().use_rustls_tls().build()?;
         Ok(Self { inner })
