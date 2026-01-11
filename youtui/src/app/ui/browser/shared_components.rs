@@ -1,6 +1,5 @@
 use crate::app::component::actionhandler::{Action, ComponentEffect, Suggestable, TextHandler};
 use crate::app::server::{GetSearchSuggestions, HandleApiError};
-use crate::app::ui::browser::shared_components;
 use crate::app::view::{TableFilterCommand, TableSortCommand};
 use anyhow::Context;
 use async_callback_manager::{AsyncTask, Constraint, NoOpHandler};

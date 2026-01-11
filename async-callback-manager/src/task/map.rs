@@ -1,11 +1,8 @@
-use crate::MapFn;
 use crate::task::dyn_task::{
     self, DynFutureTask, DynMutationFuture, DynMutationStream, DynStateMutation, DynStreamTask,
     IntoDynFutureTask, IntoDynStreamTask,
 };
 use futures::FutureExt;
-use std::any::Any;
-use std::fmt::Debug;
 use tokio_stream::StreamExt;
 
 pub struct MapDynFutureTask<Frntend, Bkend, Md, F> {

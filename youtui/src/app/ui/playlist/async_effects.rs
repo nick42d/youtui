@@ -8,7 +8,7 @@ use crate::async_rodio_sink::{
     AllStopped, AutoplayUpdate, PausePlayResponse, Paused, PlayUpdate, ProgressUpdate, QueueUpdate,
     Resumed, Stopped, VolumeUpdate,
 };
-use async_callback_manager::{AsyncTask, FrontendEffect, TaskHandler};
+use async_callback_manager::{AsyncTask, FrontendEffect};
 use rodio::decoder::DecoderError;
 use std::fmt::Debug;
 use std::option::Option;

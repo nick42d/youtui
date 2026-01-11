@@ -22,7 +22,7 @@ use itertools::Either;
 use std::mem;
 use tracing::error;
 use ytmapi_rs::common::PlaylistID;
-use ytmapi_rs::parse::{PlaylistItem, PlaylistUploadSong, SearchResultPlaylist};
+use ytmapi_rs::parse::{PlaylistItem, SearchResultPlaylist};
 
 /// Maximum number of playlist songs to download / stream in a single viewing.
 const MAX_PLAYLIST_SONGS: usize = 1000;

@@ -6,7 +6,6 @@
 //!    tasks directly in a Vec as they are all the same size.
 use crate::{AsyncTask, BackendStreamingTask, BackendTask, FrontendEffect, OptDebug, TaskHandler};
 use futures::Stream;
-use std::any::Any;
 use tokio_stream::StreamExt;
 
 pub(crate) type DynStateMutation<Frntend, Bkend, Md> =

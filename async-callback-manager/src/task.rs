@@ -2,7 +2,7 @@ use crate::task::dyn_task::{
     FusedTask, IntoDynFutureTask, IntoDynStreamTask, OptionHandler, TryHandler,
 };
 use crate::task::map::{MapDynFutureTask, MapDynStreamTask};
-use crate::{BackendStreamingTask, BackendTask, Constraint, MapFn, TaskHandler};
+use crate::{BackendStreamingTask, BackendTask, Constraint, TaskHandler};
 use std::any::{TypeId, type_name};
 use std::boxed::Box;
 use std::fmt::Debug;
