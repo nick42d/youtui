@@ -385,21 +385,15 @@ async fn test_kill_constraint_stream() {
 async fn test_task_spawn_callback() {
     let task_received = Arc::new(std::sync::Mutex::new(false));
     let task_received_clone = task_received.clone();
-    let mut manager = AsyncCallbackManager::new().with_on_task_spawn_callback(move |_| {
-        *task_received_clone.lock().unwrap() = true;
-    });
-    #[derive(PartialEq, Debug)]
-    struct EmptyHandler;
-    impl TaskHandler<String, (), (), ()> for EmptyHandler {
-        fn handle(self, _: String) -> impl FrontendEffect<(), (), ()> {
-            |_: &mut ()| AsyncTask::new_no_op()
-        }
-    }
+    let mut manager = AsyncCallbackManager::<Arc<std::sync::Mutex<bool>>, _, _>::new()
+        .with_on_task_spawn_callback(move |_| {
+            *task_received_clone.lock().unwrap() = true;
+        });
 
     #[cfg(not(any(feature = "task-debug", feature = "task-equality")))]
     let handler = |_: &mut (), _| ();
     #[cfg(any(feature = "task-debug", feature = "task-equality"))]
-    let handler = EmptyHandler;
+    let handler = async_callback_manager::NoOpHandler;
 
     let task = AsyncTask::new_future(TextTask("Hello from the future".to_string()), handler, None);
     manager.spawn_task(&(), task);
@@ -412,7 +406,9 @@ async fn test_task_spawns_task() {
     let mut manager = AsyncCallbackManager::new();
 
     #[derive(PartialEq, Debug)]
+    #[cfg(any(feature = "task-debug", feature = "task-equality"))]
     struct ChainedHandler;
+    #[cfg(any(feature = "task-debug", feature = "task-equality"))]
     impl TaskHandler<String, Vec<String>, (), ()> for ChainedHandler {
         fn handle(self, input: String) -> impl FrontendEffect<Vec<String>, (), ()> {
             |state: &mut Vec<_>| {

@@ -13,7 +13,7 @@ use crate::app::structures::{
     AlbumArtState, BrowserSongsList, DownloadStatus, ListSong, ListSongDisplayableField,
     ListSongID, Percentage, PlayState, SongListComponent,
 };
-use crate::app::ui::playlist::async_effects::{
+use crate::app::ui::playlist::effect_handlers::{
     HandleAllStopped, HandleAutoplayUpdateOk, HandleGetSongThumbnailError,
     HandleGetSongThumbnailOk, HandlePausePlayResponse, HandlePausedResponse, HandlePlayUpdateError,
     HandlePlayUpdateOk, HandleQueueUpdateOk, HandleResumeResponse, HandleSetSongPlayProgress,
@@ -42,7 +42,7 @@ use std::time::Duration;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::Thumbnail;
 
-mod async_effects;
+mod effect_handlers;
 #[cfg(test)]
 mod tests;
 
@@ -264,7 +264,7 @@ impl Playlist {
     /// - Stop playback of the song 'song_id', if it is still playing.
     /// - If stop was succesful, update state.
     pub fn stop_song_id(&self, song_id: ListSongID) -> ComponentEffect<Self> {
-        AsyncTask::new_future(
+        AsyncTask::new_future_option(
             Stop(song_id),
             HandleStopped,
             Some(Constraint::new_block_matching_metadata(
@@ -802,7 +802,7 @@ impl Playlist {
     /// (server).
     pub fn stop(&mut self) -> ComponentEffect<Self> {
         self.play_status = PlayState::Stopped;
-        AsyncTask::new_future(
+        AsyncTask::new_future_option(
             StopAll,
             HandleAllStopped,
             Some(Constraint::new_block_matching_metadata(
@@ -1021,8 +1021,8 @@ impl Playlist {
         }
     }
     /// Handle stopped message from server
-    pub fn handle_stopped(&mut self, id: Option<Stopped<ListSongID>>) {
-        let Some(Stopped(id)) = id else { return };
+    pub fn handle_stopped(&mut self, id: Stopped<ListSongID>) {
+        let Stopped(id) = id;
         // TODO: Hoist info up.
         info!("Received message that playback {:?} has been stopped", id);
         if self.check_id_is_cur(id) {
@@ -1031,10 +1031,7 @@ impl Playlist {
         }
     }
     /// Handle all stopped message from server
-    pub fn handle_all_stopped(&mut self, msg: Option<AllStopped>) {
-        if msg.is_none() {
-            return;
-        }
+    pub fn handle_all_stopped(&mut self, _: AllStopped) {
         self.play_status = PlayState::Stopped
     }
 }
