@@ -17,6 +17,7 @@ pub use manager::task_list::{TaskInformation, TaskOutcome};
 pub use manager::*;
 pub use panicking_receiver_stream::*;
 pub use task::AsyncTask;
+pub use task::dyn_task::NoOpHandler;
 
 // Size of the channel used for each stream task.
 // In future, this could be settable.
@@ -61,12 +62,13 @@ pub trait TaskHandler<Input, Frntend, Bkend, Md>: OptPartialEq + OptDebug {
 /// Represents a mutation that can be applied to some state, returning an
 /// effect.
 pub trait FrontendEffect<Frntend, Bkend, Md> {
-    // TODO: Consider impl Into<AsyncTask<_>> + OptPartialEq + OptDebug to allow
-    // return of ().
     fn apply(self, target: &mut Frntend) -> impl Into<AsyncTask<Frntend, Bkend, Md>>;
 }
 
-/// feature(where_clauses) on nightly would prevent this.
+// Crate user require using features that key traits will require PartialEq or
+// Debug. In return, the AsyncTask type will also implement PartialEq and Debug.
+// Feature(where_clauses) on nightly would simplify this as traits themself
+// could contain the cfg directives an a where Self: clause.
 #[cfg(not(feature = "task-equality"))]
 pub trait OptPartialEq {}
 #[cfg(feature = "task-equality")]
@@ -75,8 +77,6 @@ pub trait OptPartialEq: PartialEq {}
 pub trait OptDebug {}
 #[cfg(feature = "task-debug")]
 pub trait OptDebug: Debug {}
-
-// Blanket implementations
 #[cfg(feature = "task-debug")]
 impl<T: Debug> OptDebug for T {}
 #[cfg(not(feature = "task-debug"))]
@@ -85,11 +85,3 @@ impl<T> OptDebug for T {}
 impl<T: PartialEq> OptPartialEq for T {}
 #[cfg(not(feature = "task-equality"))]
 impl<T> OptPartialEq for T {}
-
-#[derive(PartialEq, Clone, Copy, Debug)]
-pub struct NoOpHandler;
-impl<Input, Frntend, Bkend, Md> TaskHandler<Input, Frntend, Bkend, Md> for NoOpHandler {
-    fn handle(self, _: Input) -> impl FrontendEffect<Frntend, Bkend, Md> {
-        |_: &mut Frntend| AsyncTask::new_no_op()
-    }
-}

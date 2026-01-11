@@ -73,7 +73,9 @@ impl State {
     async fn handle_get_word(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.word = "Loading".to_string();
         #[derive(Debug, PartialEq)]
+        #[cfg(any(feature = "task-equality", feature = "task-debug"))]
         struct Handler;
+        #[cfg(any(feature = "task-equality", feature = "task-debug"))]
         impl TaskHandler<String, State, reqwest::Client, ()> for Handler {
             fn handle(
                 self,
@@ -93,7 +95,9 @@ impl State {
     async fn handle_start_counter(&mut self) -> AsyncTask<Self, reqwest::Client, ()> {
         self.number = "Loading".to_string();
         #[derive(Debug, PartialEq, Clone)]
+        #[cfg(any(feature = "task-equality", feature = "task-debug"))]
         struct Handler;
+        #[cfg(any(feature = "task-equality", feature = "task-debug"))]
         impl TaskHandler<String, State, reqwest::Client, ()> for Handler {
             fn handle(
                 self,
