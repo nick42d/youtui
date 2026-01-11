@@ -363,7 +363,7 @@ impl ArtistSearchBrowser {
             Some(AppCallback::AddSongsToPlaylist(song_list)),
         )
     }
-    pub fn play_album(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
+    pub fn play_album(&mut self) -> impl Into<YoutuiEffect<Self>> {
         // Consider how resource intensive this is as it runs in the main thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
