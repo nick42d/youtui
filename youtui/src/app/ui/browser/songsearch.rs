@@ -621,3 +621,40 @@ impl_youtui_task_handler!(
         None,
     )
 );
+
+#[cfg(test)]
+mod tests {
+    use crate::app::server::SearchSongs;
+    use crate::app::ui::browser::songsearch::{
+        HandleSearchSongsErr, HandleSearchSongsOk, SongSearchBrowser,
+    };
+    use async_callback_manager::{AsyncTask, Constraint};
+
+    fn get_dummy_song_search_browser() -> SongSearchBrowser {
+        SongSearchBrowser::new()
+    }
+
+    #[test]
+    fn test_on_submit_action_search_box_cleared() {
+        let mut browser = get_dummy_song_search_browser();
+        browser.search.search_contents.set_text("Search!");
+        let browser_text = browser.search.search_contents.text();
+        assert!(!browser_text.is_empty());
+        let _ = browser.handle_text_entry_action(crate::app::ui::action::TextEntryAction::Submit);
+        let browser_text = browser.search.search_contents.text();
+        assert!(browser_text.is_empty());
+    }
+    #[test]
+    fn test_search_returns_effect() {
+        let mut browser = get_dummy_song_search_browser();
+        browser.search.search_contents.set_text("Search!");
+        let effect = browser.search();
+        let expected_effect = AsyncTask::new_future_try(
+            SearchSongs("Search!".to_string()),
+            HandleSearchSongsOk,
+            HandleSearchSongsErr,
+            Some(Constraint::new_kill_same_type()),
+        );
+        assert_eq!(effect, expected_effect);
+    }
+}
