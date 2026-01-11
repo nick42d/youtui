@@ -305,7 +305,7 @@ fn destruct_terminal() -> Result<()> {
 /// # Panics
 /// If tracing fails to initialise, function will panic
 async fn init_tracing(debug: bool, logging: bool) -> Result<()> {
-    let tui_logger_layer = tui_logger::tracing_subscriber_layer();
+    let tui_logger_layer = tui_logger::TuiTracingSubscriberLayer;
     let (tracing_log_level, tui_logger_log_level) = if debug {
         (tracing::Level::DEBUG, tui_logger::LevelFilter::Debug)
     } else {

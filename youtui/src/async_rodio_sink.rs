@@ -3,9 +3,9 @@
 //! This module has been designed to be implemented as a library in future.
 use async_callback_manager::PanickingReceiverStream;
 use futures::Stream;
+use rodio::Source;
 use rodio::cpal::FromSample;
 use rodio::source::{EmptyCallback, PeriodicAccess, TrackPosition};
-use rodio::{Sample, Source};
 use std::borrow::Borrow;
 use std::fmt::Debug;
 use std::time::Duration;
@@ -168,7 +168,7 @@ impl<S, I> Default for AsyncRodio<S, I>
 where
     S: Source + Send + Sync + 'static,
     f32: FromSample<S::Item>,
-    S::Item: Sample + Send,
+    S::Item: Send,
     I: Debug + PartialEq + Copy + Send + 'static,
 {
     fn default() -> Self {
@@ -180,12 +180,12 @@ impl<S, I> AsyncRodio<S, I>
 where
     S: Source + Send + Sync + 'static,
     f32: FromSample<S::Item>,
-    S::Item: Sample + Send,
+    S::Item: Send,
     I: Debug + PartialEq + Copy + Send + 'static,
 {
     pub fn new() -> Self {
         let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
-        let _handle = tokio::task::spawn_blocking(move || {
+        let _handle = tokio::task::spawn(async move {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
             // a seperate thread all stderr for the whole app may be gagged.
@@ -198,11 +198,9 @@ where
                     return;
                 }
             };
-            // NOTE: the OutputStream is not Send, hence why this requires a blocking task.
-            let (_stream, stream_handle) = rodio::OutputStream::try_default()
+            let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
                 .expect("Expect to get a handle to output stream");
-            let sink =
-                rodio::Sink::try_new(&stream_handle).expect("Expect music player not to error");
+            let sink = rodio::Sink::connect_new(&stream_handle.mixer());
             // Hopefully someone else can't create a song with the same ID?!
             let mut cur_song_duration = None;
             let mut next_song_duration = None;
@@ -744,7 +742,7 @@ where
 
 /// Specific helper function to generate a source that sends a stopped playing
 /// message to the sender.
-fn on_done_cb<S>(tx: &RodioMpscSender<AsyncRodioResponse>) -> EmptyCallback<S> {
+fn on_done_cb(tx: &RodioMpscSender<AsyncRodioResponse>) -> EmptyCallback {
     let tx = tx.0.clone();
     let cb = move || {
         blocking_send_or_error(&tx, AsyncRodioResponse::StoppedPlaying);
@@ -761,7 +759,7 @@ fn add_periodic_access<S>(
 where
     S: Source + Send + Sync + 'static,
     f32: FromSample<S::Item>,
-    S::Item: Sample + Send,
+    S::Item: Send,
 {
     song.track_position().periodic_access(interval, callback)
 }
