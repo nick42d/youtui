@@ -30,7 +30,7 @@ serde = "1.0.228"
 serde_json = "1.0.149"
 tokio = "1.49.0"
 gag = "1.0.0"
-ytmapi-rs = { path = "../ytmapi-rs", version = "0.2.3", features = [ "reqwest" ] }
+ytmapi-rs = { path = "../ytmapi-rs", version = "0.2.3", features = [ "reqwest", "rustls" ] }
 async-callback-manager = { path = "../async-callback-manager", version = "0.0.11" }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"

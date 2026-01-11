@@ -32,7 +32,10 @@ pub fn move_render_stateful_widget<W: StatefulWidget>(
     widget: W,
     area: Rect,
     state: W::State,
-) -> W::State {
+) -> W::State
+where
+    W::State: Sized,
+{
     let mut state = state;
     f.render_stateful_widget(widget, area, &mut state);
     state
