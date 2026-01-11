@@ -271,7 +271,12 @@ pub fn get_adjusted_list_column<T: Copy, const N: usize>(
 
 #[cfg(test)]
 mod tests {
-    use crate::app::ui::browser::shared_components::get_adjusted_list_column;
+    use crate::app::server::GetSearchSuggestions;
+    use crate::app::ui::browser::shared_components::{
+        HandleSearchSuggestionsErr, HandleSearchSuggestionsOk, SearchBlock,
+        get_adjusted_list_column,
+    };
+    use async_callback_manager::{AsyncTask, Constraint};
     #[test]
     fn test_get_adjusted_list_column() {
         assert_eq!(get_adjusted_list_column(2, [3, 1, 2]).unwrap(), 2);
@@ -281,5 +286,24 @@ mod tests {
     #[test]
     fn test_get_adjusted_list_column_out_of_bounds() {
         assert!(get_adjusted_list_column(3, [3, 1, 2]).is_err())
+    }
+    #[test]
+    fn test_dont_fetch_search_suggestions_when_empty() {
+        let mut b = SearchBlock::default();
+        let effect = b.fetch_search_suggestions();
+        assert!(effect.is_no_op());
+    }
+    #[test]
+    fn test_search_suggestions_fetch_effect() {
+        let mut b = SearchBlock::default();
+        b.search_contents.set_text("The beatles");
+        let effect = b.fetch_search_suggestions();
+        let expected_effect = AsyncTask::new_future_try(
+            GetSearchSuggestions("The beatles".to_string()),
+            HandleSearchSuggestionsOk,
+            HandleSearchSuggestionsErr,
+            Some(Constraint::new_kill_same_type()),
+        );
+        assert_eq!(effect, expected_effect);
     }
 }
