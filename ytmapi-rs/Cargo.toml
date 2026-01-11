@@ -11,26 +11,26 @@ readme = "README.md"
 exclude = ["test_json/*"]
 
 [dependencies]
-tokio = { version = "1.43.1", features = ["full"] }
+tokio = { version = "1.49.0", features = ["full"] }
 # To allow alternative TLS options, we need to opt out of a single reqwest feature.
 # This isn't possible in Cargo, so we need to opt back into the other default features.
 # https://github.com/rust-lang/cargo/issues/3126
 # As of 26/4/24 the following are reqwest default features:
 # http2, default-tls, charset
 # stream is not a default feature. It is used explicitly - allows post queries to be streamed from a file handle.
-reqwest = { version = "0.12.12", features = [
+reqwest = { version = "0.13.1", features = [
   "json",
   "http2",
   "charset",
   "stream",
 ], default-features = false }
-serde = { version = "1.0.217", features = ["derive"] }
-serde_json = "1.0.138"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
 json-crawler = { version = "0.0.11", path = "../json-crawler" }
 sha1 = "0.10.6"
-const_format = "0.2.34"
-chrono = { version = "0.4.39", features = ["serde"] }
-rand = "0.9.0"
+const_format = "0.2.35"
+chrono = { version = "0.4.42", features = ["serde"] }
+rand = "0.9.2"
 # Futures `executor` feature is not required.
 futures = { version = "0.3.31", features = ["async-await", "std"] }
 itertools = "0.14.0"
