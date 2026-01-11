@@ -41,31 +41,21 @@ impl BackendStreamingTask<()> for StreamingTask {
 #[tokio::test]
 async fn test_recursive_map() {
     #[derive(PartialEq, Debug, Clone)]
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
     struct Handler1;
     #[derive(PartialEq, Debug, Clone)]
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
     struct Handler2;
-    #[derive(PartialEq, Debug)]
-    struct Effect1;
-    #[derive(PartialEq, Debug)]
-    struct Effect2;
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
     impl TaskHandler<(), (), (), ()> for Handler1 {
         fn handle(self, _: ()) -> impl crate::FrontendEffect<(), (), ()> {
-            Effect1
+            |_: &mut ()| AsyncTask::new_future(Task1, Handler2, None)
         }
     }
+    #[cfg(all(feature = "task-equality", feature = "task-debug"))]
     impl TaskHandler<(), (), (), ()> for Handler2 {
         fn handle(self, _: ()) -> impl crate::FrontendEffect<(), (), ()> {
-            Effect2
-        }
-    }
-    impl FrontendEffect<(), (), ()> for Effect1 {
-        fn apply(self, _: &mut ()) -> impl Into<AsyncTask<(), (), ()>> {
-            AsyncTask::new_future(Task2, Handler2, None)
-        }
-    }
-    impl FrontendEffect<(), (), ()> for Effect2 {
-        fn apply(self, _: &mut ()) -> impl Into<AsyncTask<(), (), ()>> {
-            AsyncTask::new_no_op()
+            |_: &mut ()| AsyncTask::new_future(Task2, crate::NoOpHandler, None)
         }
     }
 
