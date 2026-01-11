@@ -545,3 +545,47 @@ impl_youtui_task_handler!(
         }
     }
 );
+#[cfg(test)]
+mod tests {
+    use crate::app::server::SearchArtists;
+    use crate::app::ui::browser::artistsearch::{
+        ArtistSearchBrowser, HandleSearchArtistsError, HandleSearchArtistsOk,
+    };
+    use async_callback_manager::{AsyncTask, Constraint};
+
+    fn get_dummy_artist_search_browser() -> ArtistSearchBrowser {
+        ArtistSearchBrowser::new()
+    }
+
+    #[test]
+    fn test_on_submit_action_search_box_cleared() {
+        let mut browser = get_dummy_artist_search_browser();
+        browser
+            .artist_search_panel
+            .search
+            .search_contents
+            .set_text("Search!");
+        let browser_text = browser.artist_search_panel.search.search_contents.text();
+        assert!(!browser_text.is_empty());
+        let _ = browser.handle_text_entry_action(crate::app::ui::action::TextEntryAction::Submit);
+        let browser_text = browser.artist_search_panel.search.search_contents.text();
+        assert!(browser_text.is_empty());
+    }
+    #[test]
+    fn test_search_returns_effect() {
+        let mut browser = get_dummy_artist_search_browser();
+        browser
+            .artist_search_panel
+            .search
+            .search_contents
+            .set_text("Search!");
+        let effect = browser.search();
+        let expected_effect = AsyncTask::new_future_try(
+            SearchArtists("Search!".to_string()),
+            HandleSearchArtistsOk,
+            HandleSearchArtistsError,
+            Some(Constraint::new_kill_same_type()),
+        );
+        assert_eq!(effect, expected_effect);
+    }
+}

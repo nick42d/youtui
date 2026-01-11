@@ -271,12 +271,16 @@ pub fn get_adjusted_list_column<T: Copy, const N: usize>(
 
 #[cfg(test)]
 mod tests {
+    use crate::app::component::actionhandler::TextHandler;
     use crate::app::server::GetSearchSuggestions;
     use crate::app::ui::browser::shared_components::{
         HandleSearchSuggestionsErr, HandleSearchSuggestionsOk, SearchBlock,
         get_adjusted_list_column,
     };
     use async_callback_manager::{AsyncTask, Constraint};
+    use crossterm::event::KeyModifiers;
+    use pretty_assertions::assert_eq;
+
     #[test]
     fn test_get_adjusted_list_column() {
         assert_eq!(get_adjusted_list_column(2, [3, 1, 2]).unwrap(), 2);
@@ -305,5 +309,24 @@ mod tests {
             Some(Constraint::new_kill_same_type()),
         );
         assert_eq!(effect, expected_effect);
+    }
+    #[test]
+    fn test_search_suggestions_fetched_on_change() {
+        let mut b = SearchBlock::default();
+        let effect = b
+            .try_handle_text(&crossterm::event::Event::Key(
+                crossterm::event::KeyEvent::new(
+                    crossterm::event::KeyCode::Char('A'),
+                    KeyModifiers::empty(),
+                ),
+            ))
+            .unwrap();
+        let expected_effect = AsyncTask::new_future_try(
+            GetSearchSuggestions("A".to_string()),
+            HandleSearchSuggestionsOk,
+            HandleSearchSuggestionsErr,
+            Some(Constraint::new_kill_same_type()),
+        );
+        assert_eq!(effect, expected_effect)
     }
 }
