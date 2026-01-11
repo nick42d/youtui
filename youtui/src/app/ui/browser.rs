@@ -280,7 +280,9 @@ impl TextHandler for Browser {
             BrowserVariant::Artist => self
                 .artist_search_browser
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.artist_search_browser)),
+                .map(|effect| {
+                    effect.map_frontend(|this: &mut Self| &mut this.artist_search_browser)
+                }),
             BrowserVariant::Song => self
                 .song_search_browser
                 .handle_text_event_impl(event)
@@ -288,7 +290,9 @@ impl TextHandler for Browser {
             BrowserVariant::Playlist => self
                 .playlist_search_browser
                 .handle_text_event_impl(event)
-                .map(|effect| effect.map_frontend(|this: &mut Self| &mut this.playlist_search_browser)),
+                .map(|effect| {
+                    effect.map_frontend(|this: &mut Self| &mut this.playlist_search_browser)
+                }),
         }
     }
 }
