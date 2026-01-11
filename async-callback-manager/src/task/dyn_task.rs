@@ -158,6 +158,8 @@ where
 {
     fn dyn_partial_eq(&self, other: &dyn DynPartialEq) -> bool {
         // let eq_fn = self.eq_fn?;
+
+        use std::any::Any;
         let Some(other) = (other as &dyn Any).downcast_ref::<Self>() else {
             return false;
         };

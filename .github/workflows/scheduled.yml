@@ -1,0 +1,46 @@
+name: Rust
+
+on:
+  schedule:
+    # Once a week at 5:30 on a saturday
+    - cron: '30 5 * * 6'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain: [stable]
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Update rust
+      run: rustup update
+    
+    - name: Install linux deps
+      run: |
+        sudo apt update
+        sudo apt install -y --no-install-recommends libasound2-dev pkg-config
+      
+    - name: Build
+      run: cargo build --verbose
+
+    - name: Run integration tests
+      env:
+          youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
+          youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
+      run: | 
+        # live_integration_tests are API tests for ytmapi_rs
+        cargo test --verbose --test live_integration_tests
+
+    - name: Run ignored tests
+      env:
+          youtui_test_cookie: ${{ secrets.COOKIE_SECRET }}
+          youtui_test_oauth: ${{ secrets.EXPIRED_OAUTH_SECRET }}
+      run: | 
+        # ignored tests are other tests live tests that shouldn't be run on every push - e.g downloading.
+        cargo test --verbose -- --ignored

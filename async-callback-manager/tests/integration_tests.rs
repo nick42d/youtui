@@ -391,7 +391,7 @@ async fn test_task_spawn_callback() {
     #[derive(PartialEq, Debug)]
     struct EmptyHandler;
     impl TaskHandler<String, (), (), ()> for EmptyHandler {
-        fn handle(self, input: String) -> impl FrontendEffect<(), (), ()> {
+        fn handle(self, _: String) -> impl FrontendEffect<(), (), ()> {
             |_: &mut ()| AsyncTask::new_no_op()
         }
     }

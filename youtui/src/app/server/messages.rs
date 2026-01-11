@@ -120,39 +120,6 @@ pub struct GetSongThumbnail {
     pub thumbnail_id: SongThumbnailID<'static>,
 }
 
-// It's not possible to compare this type due to the underlying type, but
-// comparison is only used for testing.
-#[cfg(test)]
-impl PartialEq for HandleApiError {
-    fn eq(&self, other: &Self) -> bool {
-        panic!("Unable to compare HandleApiError");
-    }
-}
-// It's not possible to compare this type due to the underlying type, but
-// comparison is only used for testing.
-#[cfg(test)]
-impl PartialEq for PlaySong {
-    fn eq(&self, other: &Self) -> bool {
-        panic!("Unable to compare PlaySong");
-    }
-}
-// It's not possible to compare this type due to the underlying type, but
-// comparison is only used for testing.
-#[cfg(test)]
-impl PartialEq for AutoplaySong {
-    fn eq(&self, other: &Self) -> bool {
-        panic!("Unable to compare AutoplaySong");
-    }
-}
-// It's not possible to compare this type due to the underlying type, but
-// comparison is only used for testing.
-#[cfg(test)]
-impl PartialEq for QueueSong {
-    fn eq(&self, other: &Self) -> bool {
-        panic!("Unable to compare QueueSong");
-    }
-}
-
 impl BackendTask<ArcServer> for HandleApiError {
     // Infallible - assumption is that even if this task fails, caller won't care.
     type Output = ();
@@ -462,6 +429,38 @@ impl MapFn<DecodedInMemSong> for QueueDecodedSong {
         QueueSong {
             song: input,
             id: self.0,
+        }
+    }
+}
+
+/// It's not possible to compare some of these Tasks type due to the underlying
+/// type, but because tests and some ci run with async_callback_manager's
+/// "task-equality" enabled, a PartialEq impl is required. It's acceptable to
+/// panic as running .eq() on these types is a logic error AND should only occur
+/// during testing.
+#[cfg(any(test, clippy))]
+#[allow(unexpected_cfgs)]
+mod test_config {
+    use crate::app::server::{AutoplaySong, HandleApiError, PlaySong, QueueSong};
+
+    impl PartialEq for HandleApiError {
+        fn eq(&self, _: &Self) -> bool {
+            panic!("Unable to compare HandleApiError");
+        }
+    }
+    impl PartialEq for PlaySong {
+        fn eq(&self, _: &Self) -> bool {
+            panic!("Unable to compare PlaySong");
+        }
+    }
+    impl PartialEq for AutoplaySong {
+        fn eq(&self, _: &Self) -> bool {
+            panic!("Unable to compare AutoplaySong");
+        }
+    }
+    impl PartialEq for QueueSong {
+        fn eq(&self, _: &Self) -> bool {
+            panic!("Unable to compare QueueSong");
         }
     }
 }

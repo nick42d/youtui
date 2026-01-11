@@ -3,6 +3,8 @@ use crate::task::dyn_task::{
     IntoDynFutureTask, IntoDynStreamTask,
 };
 use futures::FutureExt;
+#[cfg(feature = "task-debug")]
+use std::fmt::Debug;
 use tokio_stream::StreamExt;
 
 pub struct MapDynFutureTask<Frntend, Bkend, Md, F> {
@@ -45,7 +47,7 @@ where
     fn dyn_partial_eq(&self, other: &dyn dyn_task::DynPartialEq) -> bool {
         // Note - map function is not checked. It's assumed that this doesn't change the
         // equality in any meaningful way.
-        let Some(other) = (other as &dyn Any).downcast_ref::<Self>() else {
+        let Some(other) = (other as &dyn std::any::Any).downcast_ref::<Self>() else {
             return false;
         };
         self.task.dyn_partial_eq(other.task.as_ref())
@@ -63,7 +65,8 @@ where
     fn dyn_partial_eq(&self, other: &dyn dyn_task::DynPartialEq) -> bool {
         // Note - map function is not checked. It's assumed that this doesn't change the
         // equality in any meaningful way.
-        let Some(other) = (other as &dyn Any).downcast_ref::<Self>() else {
+
+        let Some(other) = (other as &dyn std::any::Any).downcast_ref::<Self>() else {
             return false;
         };
         self.task.as_ref().dyn_partial_eq(other.task.as_ref())
