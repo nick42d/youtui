@@ -11,21 +11,20 @@ readme = "README.md"
 
 [dependencies]
 futures = "0.3.31"
-reqwest = "0.12.12"
-tokio = { version = "1.43.1", default-features = false, features = ["macros"] }
-tracing = "0.1.41"
+tokio = { version = "1.49.0", default-features = false, features = ["macros"] }
+tracing = "0.1.44"
 # For Then combinator
-tokio-stream = "0.1.17"
+tokio-stream = "0.1.18"
 
 [dev-dependencies]
-tokio-stream = "0.1.17"
-tokio = { version = "1.43.1", features = ["full"] }
-ratatui = "0.29.0"
-crossterm = { version = "0.28.1", features = ["event-stream"] }
-reqwest = { version = "0.12.12", features = [
+tokio-stream = "0.1.18"
+tokio = { version = "1.49.0", features = ["full"] }
+ratatui = "0.30.0"
+crossterm = { version = "0.29.0", features = ["event-stream"] }
+reqwest = { version = "0.13.1", features = [
   "http2",
   "charset",
-  "rustls-tls"
+  "rustls"
 ] }
 
 [features]
