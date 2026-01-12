@@ -209,6 +209,13 @@ pub trait Loadable {
 pub trait HasTitle {
     fn get_title(&self) -> Cow<'_, str>;
 }
+// A part of the application that has a context menu.
+pub trait HasContext<const N: usize> {
+    fn context_menu_title(&'_ self) -> Cow<'_, str>;
+    fn context_menu_items(&'_ self) -> [Cow<'_, str>; N];
+    // TODO: use clamped int
+    fn context_menu_selected(&self) -> usize;
+}
 
 #[cfg(test)]
 mod tests {

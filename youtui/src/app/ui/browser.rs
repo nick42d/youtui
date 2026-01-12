@@ -8,7 +8,7 @@ use crate::app::component::actionhandler::{
 use crate::app::ui::browser::playlistsearch::PlaylistSearchBrowser;
 use crate::app::ui::browser::playlistsearch::search_panel::BrowserPlaylistsAction;
 use crate::app::ui::browser::playlistsearch::songs_panel::BrowserPlaylistSongsAction;
-use crate::app::view::DrawableMut;
+use crate::app::view::{DrawableMut, HasContext};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use artistsearch::ArtistSearchBrowser;
@@ -306,6 +306,21 @@ impl DrawableMut for Browser {
         cur_tick: u64,
     ) {
         draw_browser(f, self, chunk, selected, cur_tick);
+    }
+}
+impl HasContext<3> for Browser {
+    fn context_menu_title(&'_ self) -> std::borrow::Cow<'_, str> {
+        "Browser".into()
+    }
+    fn context_menu_items(&'_ self) -> [std::borrow::Cow<'_, str>; 3] {
+        ["Artists".into(), "Playlists".into(), "Songs".into()]
+    }
+    fn context_menu_selected(&self) -> usize {
+        match self.variant {
+            BrowserVariant::Artist => todo!(),
+            BrowserVariant::Song => todo!(),
+            BrowserVariant::Playlist => todo!(),
+        }
     }
 }
 impl KeyRouter<AppAction> for Browser {

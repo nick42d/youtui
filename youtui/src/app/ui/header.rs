@@ -1,4 +1,5 @@
 use crate::app::component::actionhandler::{KeyRouter, get_global_keybinds_as_readable_iter};
+use crate::app::view::HasContext;
 use crate::drawutils::{BUTTON_BG_COLOUR, BUTTON_FG_COLOUR};
 use crate::keyaction::DisplayableKeyAction;
 use ratatui::Frame;
@@ -30,6 +31,9 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         },
     ));
     let commands_block = Block::default().borders(Borders::ALL).title("Commands");
+    let title = w.browser.context_menu_title();
+    let items = w.browser.context_menu_items();
+    let selected_item = w.browser.context_menu_selected();
     let mode_block = Block::default().borders(Borders::ALL).title("Mode");
     let commands_widget = Paragraph::new(help_string).wrap(Wrap { trim: true });
     let selected = match w.context {
