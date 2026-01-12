@@ -19,7 +19,9 @@ use itertools::Either;
 use serde::{Deserialize, Serialize};
 use shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use songsearch::{BrowserSongsAction, SongSearchBrowser};
-use std::iter::Iterator;
+use std::borrow::Cow;
+use std::convert::Into;
+use std::iter::{IntoIterator, Iterator};
 use tracing::warn;
 
 pub mod artistsearch;
@@ -55,10 +57,10 @@ pub enum BrowserAction {
 }
 
 impl Action for BrowserAction {
-    fn context(&self) -> std::borrow::Cow<'_, str> {
+    fn context(&self) -> Cow<'_, str> {
         "Browser".into()
     }
-    fn describe(&self) -> std::borrow::Cow<'_, str> {
+    fn describe(&self) -> Cow<'_, str> {
         match self {
             BrowserAction::ViewPlaylist => "View Playlist",
             BrowserAction::Search => "Toggle Search",
@@ -308,18 +310,18 @@ impl DrawableMut for Browser {
         draw_browser(f, self, chunk, selected, cur_tick);
     }
 }
-impl HasContext<3> for Browser {
-    fn context_menu_title(&'_ self) -> std::borrow::Cow<'_, str> {
+impl HasContext for Browser {
+    fn context_menu_title(&'_ self) -> Cow<'_, str> {
         "Browser".into()
     }
-    fn context_menu_items(&'_ self) -> [std::borrow::Cow<'_, str>; 3] {
-        ["Artists".into(), "Playlists".into(), "Songs".into()]
+    fn context_menu_items(&'_ self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> + '_ {
+        ["Artists", "Songs", "Playlists"]
     }
-    fn context_menu_selected(&self) -> usize {
+    fn context_menu_selected_item_idx(&self) -> usize {
         match self.variant {
-            BrowserVariant::Artist => todo!(),
-            BrowserVariant::Song => todo!(),
-            BrowserVariant::Playlist => todo!(),
+            BrowserVariant::Artist => 0,
+            BrowserVariant::Song => 1,
+            BrowserVariant::Playlist => 2,
         }
     }
 }

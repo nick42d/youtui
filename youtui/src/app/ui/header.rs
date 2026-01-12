@@ -31,20 +31,14 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
         },
     ));
     let commands_block = Block::default().borders(Borders::ALL).title("Commands");
+    let commands_widget = Paragraph::new(help_string).wrap(Wrap { trim: true });
     let title = w.browser.context_menu_title();
     let items = w.browser.context_menu_items();
-    let selected_item = w.browser.context_menu_selected();
-    let mode_block = Block::default().borders(Borders::ALL).title("Mode");
-    let commands_widget = Paragraph::new(help_string).wrap(Wrap { trim: true });
-    let selected = match w.context {
-        super::WindowContext::Browser => 0,
-        super::WindowContext::Playlist => 1,
-        super::WindowContext::Logs => 2,
-    };
-    let mode_widget =
-        crate::widgets::TabGrid::new_with_cols(["Search", "Playlist", "Logs"], TAB_COLS)
-            .select(selected)
-            .highlight_style(Style::new().fg(BUTTON_FG_COLOUR).bg(BUTTON_BG_COLOUR));
+    let selected_item = w.browser.context_menu_selected_item_idx();
+    let mode_block = Block::default().borders(Borders::ALL).title(title);
+    let mode_widget = crate::widgets::TabGrid::new_with_cols(items, TAB_COLS)
+        .select(selected_item)
+        .highlight_style(Style::new().fg(BUTTON_FG_COLOUR).bg(BUTTON_BG_COLOUR));
     let split = Layout::horizontal([
         Constraint::Min(0),
         Constraint::Max(mode_widget.required_width().try_into().unwrap_or(u16::MAX)),

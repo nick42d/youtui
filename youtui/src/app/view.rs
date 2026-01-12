@@ -210,11 +210,10 @@ pub trait HasTitle {
     fn get_title(&self) -> Cow<'_, str>;
 }
 // A part of the application that has a context menu.
-pub trait HasContext<const N: usize> {
+pub trait HasContext {
     fn context_menu_title(&'_ self) -> Cow<'_, str>;
-    fn context_menu_items(&'_ self) -> [Cow<'_, str>; N];
-    // TODO: use clamped int
-    fn context_menu_selected(&self) -> usize;
+    fn context_menu_items(&'_ self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> + '_;
+    fn context_menu_selected_item_idx(&self) -> usize;
 }
 
 #[cfg(test)]
