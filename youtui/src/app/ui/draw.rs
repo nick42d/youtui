@@ -17,14 +17,11 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities
     let [header_chunk, window_chunk, footer_chunk] = Layout::default()
         .direction(Direction::Vertical)
         .margin(0)
-        .constraints(
-            [
-                Constraint::Length(header::header_required_height(w)),
-                Constraint::Min(2),
-                Constraint::Length(5),
-            ]
-            .as_ref(),
-        )
+        .constraints([
+            Constraint::Length(header::header_required_height(w)),
+            Constraint::Min(2),
+            Constraint::Length(5),
+        ])
         .areas(f.area());
     header::draw_header(f, w, header_chunk);
     let context_selected = !w.help.shown && !w.key_pending();
