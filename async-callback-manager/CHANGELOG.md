@@ -12,11 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Other
 - Update non-reqwest deps ([#328](https://github.com/nick42d/youtui/pull/328))
-- Migrate Browser to testable effects and make effect equality and debug implementations feature gated ([#324](https://github.com/nick42d/youtui/pull/324))
-- Allow effects to be testable ([#323](https://github.com/nick42d/youtui/pull/323))
-
-
-
+- Make effect equality and debug implementations feature gated ([#324](https://github.com/nick42d/youtui/pull/324))
+- Make effects Debug and PartailEQ to be testable ([#323](https://github.com/nick42d/youtui/pull/323))
 
 ## [0.0.11](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.10...async-callback-manager/v0.0.11) - 2025-12-22
 

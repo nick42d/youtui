@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.34](https://github.com/nick42d/youtui/compare/youtui/v0.0.33...youtui/v0.0.34) - 2026-01-13
 
 ### Added
-- make context menu depend on the currently showing main window ([#329](https://github.com/nick42d/youtui/pull/329))
+- Make context menu depend on the currently showing main window ([#329](https://github.com/nick42d/youtui/pull/329))
 - Scroll text in table too ([#319](https://github.com/nick42d/youtui/pull/319))
 
 ### Other
@@ -18,9 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add starting point for unit tests to other browsers ([#325](https://github.com/nick42d/youtui/pull/325))
 - Migrate Browser to testable effects and make effect equality and debug implementations feature gated ([#324](https://github.com/nick42d/youtui/pull/324))
 - Allow effects to be testable ([#323](https://github.com/nick42d/youtui/pull/323))
-
-
-
 
 ## [0.0.33](https://github.com/nick42d/youtui/compare/youtui/v0.0.32...youtui/v0.0.33) - 2025-12-22
 
