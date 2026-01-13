@@ -133,9 +133,9 @@ impl<'a> Widget for TabGrid<'a> {
             style,
         } = self;
         match constraint {
-            TabGridConstraint::MaxCols(max_cols) => {
+            TabGridConstraint::MaxCols(_) => {
                 for (idx, title) in titles.into_iter().enumerate() {
-                    let row = idx.rem_euclid(max_cols as usize);
+                    let row = idx.rem_euclid(rows);
                     let col = idx.div_euclid(rows);
                     let tab = if let Some(highlight_style) = highlight_style
                         && selected == Some(idx)
@@ -159,9 +159,8 @@ impl<'a> Widget for TabGrid<'a> {
                 }
             }
             TabGridConstraint::MaxRows(_) => {
-                let cols = titles.len().div_euclid(rows);
                 for (idx, title) in titles.into_iter().enumerate() {
-                    let row = idx.rem_euclid(cols);
+                    let row = idx.rem_euclid(rows);
                     let col = idx.div_euclid(rows);
                     let tab = if let Some(highlight_style) = highlight_style
                         && selected == Some(idx)
@@ -181,6 +180,7 @@ impl<'a> Widget for TabGrid<'a> {
                     }
                     // Don't render outside provided area
                     .intersection(area);
+                    dbg!(render_area);
                     tab.render(render_area, buf);
                 }
             }
@@ -209,6 +209,8 @@ mod tests {
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
+        // | AA |CCCC|
+        // |BBBB| DD |
         let expected_cells_as_string = " AA  CCCCBBBB  DD ".to_string();
         assert_eq!(rendered_cells_as_string, expected_cells_as_string);
     }
@@ -226,7 +228,9 @@ mod tests {
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
-        let expected_cells_as_string = " AA    DD  BBBB EEEEECCCC  FF  ".to_string();
+        // | AA  |CCCC |EEEEE|
+        // |BBBB | DD  | FF  |
+        let expected_cells_as_string = " AA   CCCC  EEEEEBBBB   DD    FF  ".to_string();
         assert_eq!(rendered_cells_as_string, expected_cells_as_string);
     }
     #[test]
@@ -243,7 +247,10 @@ mod tests {
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
-        let expected_cells_as_string = " AA   CCCC EEEEEBBBB   DD   FF  ".to_string();
+        // | AA  | DD  |
+        // |BBBB |EEEEE|
+        // |CCCC | FF  |
+        let expected_cells_as_string = " AA    DD  BBBB  EEEEECCCC   FF  ".to_string();
         assert_eq!(rendered_cells_as_string, expected_cells_as_string);
     }
 }

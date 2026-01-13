@@ -52,7 +52,8 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
             .highlight_style(Style::new().fg(BUTTON_FG_COLOUR).bg(BUTTON_BG_COLOUR));
         let [commands_chunk, tabs_chunk] = Layout::horizontal([
             Constraint::Min(0),
-            Constraint::Max(tabs_widget.required_width().try_into().unwrap_or(u16::MAX)),
+            // Add two to accommodate block
+            Constraint::Max(tabs_widget.required_width().try_into().unwrap_or(u16::MAX) + 2),
         ])
         .areas(chunk);
         f.render_widget(commands_widget, commands_block.inner(commands_chunk));
