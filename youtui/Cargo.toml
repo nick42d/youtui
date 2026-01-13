@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.33"
+version = "0.0.34"
 # Required for let chains
 edition = "2024"
 authors = ["nick42d"]
@@ -30,8 +30,8 @@ serde = "1.0.228"
 serde_json = "1.0.149"
 tokio = "1.49.0"
 gag = "1.0.0"
-ytmapi-rs = { path = "../ytmapi-rs", version = "0.2.3", default-features = false, features = [ "simplified-queries", "reqwest", "rustls-tls" ] }
-async-callback-manager = { path = "../async-callback-manager", version = "0.0.11" }
+ytmapi-rs = { path = "../ytmapi-rs", version = "0.2.4", default-features = false, features = [ "simplified-queries", "reqwest", "rustls-tls" ] }
+async-callback-manager = { path = "../async-callback-manager", version = "0.1.0" }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"
 directories = "6.0.0"
@@ -74,7 +74,7 @@ features = ["symphonia-all"]
 [dev-dependencies]
 pretty_assertions = "1.4.1"
 tempfile = "3.24.0"
-async-callback-manager = { path = "../async-callback-manager", version = "0.0.11", features = ["task-equality", "task-debug"] }
+async-callback-manager = { path = "../async-callback-manager", version = "0.1.0", features = ["task-equality", "task-debug"] }
 
 [lints]
 workspace = true
