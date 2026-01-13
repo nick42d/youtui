@@ -8,7 +8,7 @@ use crate::app::component::actionhandler::{
 use crate::app::ui::browser::playlistsearch::PlaylistSearchBrowser;
 use crate::app::ui::browser::playlistsearch::search_panel::BrowserPlaylistsAction;
 use crate::app::ui::browser::playlistsearch::songs_panel::BrowserPlaylistSongsAction;
-use crate::app::view::{DrawableMut, HasContext};
+use crate::app::view::{DrawableMut, HasTabs};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use artistsearch::ArtistSearchBrowser;
@@ -30,7 +30,7 @@ pub mod playlistsearch;
 pub mod shared_components;
 pub mod songsearch;
 
-#[derive(Default)]
+#[derive(Default, Copy, Clone)]
 enum BrowserVariant {
     #[default]
     Artist,
@@ -310,19 +310,17 @@ impl DrawableMut for Browser {
         draw_browser(f, self, chunk, selected, cur_tick);
     }
 }
-impl HasContext for Browser {
-    fn context_menu_title(&'_ self) -> Cow<'_, str> {
+impl HasTabs for Browser {
+    fn tabs_block_title(&'_ self) -> Cow<'_, str> {
         "Browser".into()
     }
-    fn context_menu_items(&'_ self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> + '_ {
+    fn tab_items(&'_ self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> + '_ {
         ["Artists", "Songs", "Playlists"]
     }
-    fn context_menu_selected_item_idx(&self) -> usize {
-        match self.variant {
-            BrowserVariant::Artist => 0,
-            BrowserVariant::Song => 1,
-            BrowserVariant::Playlist => 2,
-        }
+    fn selected_tab_idx(&self) -> usize {
+        // Cast won't panic - rust compiler allows casting enums without data to
+        // integers, and won't compile if we later add data to the enum.
+        self.variant as usize
     }
 }
 impl KeyRouter<AppAction> for Browser {
