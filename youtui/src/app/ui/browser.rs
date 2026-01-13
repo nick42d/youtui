@@ -8,7 +8,7 @@ use crate::app::component::actionhandler::{
 use crate::app::ui::browser::playlistsearch::PlaylistSearchBrowser;
 use crate::app::ui::browser::playlistsearch::search_panel::BrowserPlaylistsAction;
 use crate::app::ui::browser::playlistsearch::songs_panel::BrowserPlaylistSongsAction;
-use crate::app::view::DrawableMut;
+use crate::app::view::{DrawableMut, HasTabs};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
 use artistsearch::ArtistSearchBrowser;
@@ -19,7 +19,9 @@ use itertools::Either;
 use serde::{Deserialize, Serialize};
 use shared_components::{BrowserSearchAction, FilterAction, SortAction};
 use songsearch::{BrowserSongsAction, SongSearchBrowser};
-use std::iter::Iterator;
+use std::borrow::Cow;
+use std::convert::Into;
+use std::iter::{IntoIterator, Iterator};
 use tracing::warn;
 
 pub mod artistsearch;
@@ -28,7 +30,7 @@ pub mod playlistsearch;
 pub mod shared_components;
 pub mod songsearch;
 
-#[derive(Default)]
+#[derive(Default, Copy, Clone)]
 enum BrowserVariant {
     #[default]
     Artist,
@@ -55,10 +57,10 @@ pub enum BrowserAction {
 }
 
 impl Action for BrowserAction {
-    fn context(&self) -> std::borrow::Cow<'_, str> {
+    fn context(&self) -> Cow<'_, str> {
         "Browser".into()
     }
-    fn describe(&self) -> std::borrow::Cow<'_, str> {
+    fn describe(&self) -> Cow<'_, str> {
         match self {
             BrowserAction::ViewPlaylist => "View Playlist",
             BrowserAction::Search => "Toggle Search",
@@ -306,6 +308,19 @@ impl DrawableMut for Browser {
         cur_tick: u64,
     ) {
         draw_browser(f, self, chunk, selected, cur_tick);
+    }
+}
+impl HasTabs for Browser {
+    fn tabs_block_title(&'_ self) -> Cow<'_, str> {
+        "Browser".into()
+    }
+    fn tab_items(&'_ self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> + '_ {
+        ["Artists", "Songs", "Playlists"]
+    }
+    fn selected_tab_idx(&self) -> usize {
+        // Cast won't panic - rust compiler allows casting enums without data to
+        // integers, and won't compile if we later add data to the enum.
+        self.variant as usize
     }
 }
 impl KeyRouter<AppAction> for Browser {

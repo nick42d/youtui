@@ -14,30 +14,33 @@ use ratatui_image::picker::Picker;
 
 // Add tests to try and draw app with oddly sized windows.
 pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities: &Picker) {
-    let [header_chunk, main_chunk, footer_chunk] = Layout::vertical([
-        Constraint::Length(4),
-        Constraint::Min(2),
-        Constraint::Length(5),
-    ])
-    .areas(f.area());
+    let [header_chunk, window_chunk, footer_chunk] = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(0)
+        .constraints([
+            Constraint::Length(header::header_required_height(w)),
+            Constraint::Min(2),
+            Constraint::Length(5),
+        ])
+        .areas(f.area());
     header::draw_header(f, w, header_chunk);
     let context_selected = !w.help.shown && !w.key_pending();
     match w.context {
         WindowContext::Browser => {
             w.browser
-                .draw_mut_chunk(f, main_chunk, context_selected, w.tick);
+                .draw_mut_chunk(f, window_chunk, context_selected, w.tick);
         }
-        WindowContext::Logs => w.logger.draw_chunk(f, main_chunk, context_selected),
+        WindowContext::Logs => w.logger.draw_chunk(f, window_chunk, context_selected),
         WindowContext::Playlist => {
             w.playlist
-                .draw_mut_chunk(f, main_chunk, context_selected, w.tick);
+                .draw_mut_chunk(f, window_chunk, context_selected, w.tick);
         }
     }
     if w.help.shown {
-        draw_help(f, w, main_chunk);
+        draw_help(f, w, window_chunk);
     }
     if w.key_pending() {
-        draw_popup(f, w, main_chunk);
+        draw_popup(f, w, window_chunk);
     }
     footer::draw_footer(f, w, footer_chunk, terminal_image_capabilities);
 }

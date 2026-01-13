@@ -209,6 +209,12 @@ pub trait Loadable {
 pub trait HasTitle {
     fn get_title(&self) -> Cow<'_, str>;
 }
+// A part of the application that has a tabbed interface.
+pub trait HasTabs {
+    fn tabs_block_title(&'_ self) -> Cow<'_, str>;
+    fn tab_items(&'_ self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> + '_;
+    fn selected_tab_idx(&self) -> usize;
+}
 
 #[cfg(test)]
 mod tests {

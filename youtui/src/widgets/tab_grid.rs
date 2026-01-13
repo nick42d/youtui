@@ -4,74 +4,64 @@ use ratatui::text::Line;
 use ratatui::widgets::Widget;
 use std::borrow::Cow;
 /// Ratatui widgets used in application
-pub struct TabGrid<'a, const N: usize> {
-    titles: [Cow<'a, str>; N],
+pub struct TabGrid<'a> {
+    titles: Vec<Cow<'a, str>>,
     selected: Option<usize>,
-    cols: u16,
+    constraint: TabGridConstraint,
     highlight_style: Option<Style>,
     style: Style,
 }
-impl<'a, const N: usize> TabGrid<'a, N> {
-    pub fn new_with_cols(titles: [impl Into<Cow<'a, str>>; N], cols: u16) -> Self {
-        Self {
-            titles: titles.map(|title| title.into()),
+#[derive(PartialEq)]
+enum TabGridConstraint {
+    MaxRows(u16),
+    MaxCols(u16),
+}
+impl<'a> TabGrid<'a> {
+    pub fn new_with_max_cols(
+        titles: impl IntoIterator<Item = impl Into<Cow<'a, str>>>,
+        cols: u16,
+    ) -> Self {
+        TabGrid {
+            titles: titles.into_iter().map(Into::into).collect(),
             selected: None,
-            cols,
+            constraint: TabGridConstraint::MaxCols(cols),
+            highlight_style: Default::default(),
+            style: Default::default(),
+        }
+    }
+    pub fn new_with_max_rows(
+        titles: impl IntoIterator<Item = impl Into<Cow<'a, str>>>,
+        rows: u16,
+    ) -> Self {
+        TabGrid {
+            titles: titles.into_iter().map(Into::into).collect(),
+            selected: None,
+            constraint: TabGridConstraint::MaxRows(rows),
             highlight_style: Default::default(),
             style: Default::default(),
         }
     }
     /// zero indexed
     pub fn select(self, selected: usize) -> Self {
-        let Self {
-            titles,
-            cols,
-            highlight_style,
-            style,
-            ..
-        } = self;
         Self {
-            titles,
             selected: Some(selected),
-            cols,
-            highlight_style,
-            style,
+            ..self
         }
     }
     #[allow(unused)]
     // This is a library type module and its expected all methods on TabGrid
     // will be eventually used.
     pub fn deselect(self) -> Self {
-        let Self {
-            titles,
-            cols,
-            highlight_style,
-            style,
-            ..
-        } = self;
         Self {
-            titles,
             selected: None,
-            cols,
-            highlight_style,
-            style,
+            ..self
         }
     }
     /// Sets the style for the highlighted tab - overwriting the base style.
     pub fn highlight_style(self, highlight_style: Style) -> Self {
-        let Self {
-            titles,
-            cols,
-            selected,
-            style,
-            ..
-        } = self;
         Self {
-            titles,
-            selected,
-            cols,
             highlight_style: Some(highlight_style),
-            style,
+            ..self
         }
     }
     /// Sets the style for all tabs.
@@ -79,34 +69,39 @@ impl<'a, const N: usize> TabGrid<'a, N> {
     // This is a library type module and its expected all methods on TabGrid
     // will be eventually used.
     pub fn style(self, style: Style) -> Self {
-        let Self {
-            titles,
-            cols,
-            selected,
-            highlight_style,
-            ..
-        } = self;
-        Self {
-            titles,
-            selected,
-            cols,
-            highlight_style,
-            style,
-        }
+        Self { style, ..self }
     }
     /// Returns 0 if there are 0 cols or 0 titles.
     pub fn required_width(&self) -> usize {
-        self.longest_title()
-            .saturating_mul(self.cols as usize)
-            .saturating_add(self.cols as usize)
-            .saturating_sub(1)
+        match self.constraint {
+            TabGridConstraint::MaxCols(cols) => self
+                .longest_title()
+                .saturating_mul(cols as usize)
+                .saturating_add(cols as usize)
+                .saturating_sub(1),
+            TabGridConstraint::MaxRows(rows) => {
+                if rows == 0 {
+                    return 0;
+                }
+                let cols = self.titles.len().div_ceil(rows as usize);
+                self.longest_title()
+                    .saturating_mul(cols)
+                    .saturating_add(cols)
+                    .saturating_sub(1)
+            }
+        }
     }
     /// Returns 0 if there are 0 cols (instead of panicing)
     pub fn required_height(&self) -> usize {
-        if self.cols == 0 {
-            return 0;
+        match self.constraint {
+            TabGridConstraint::MaxCols(cols) => {
+                if cols == 0 {
+                    return 0;
+                }
+                self.titles.len().div_ceil(cols as usize)
+            }
+            TabGridConstraint::MaxRows(rows) => self.titles.len().min(rows as usize),
         }
-        self.titles.len().div_ceil(self.cols as usize)
     }
     /// Returns 0 if there are 0 titles.
     fn longest_title(&self) -> usize {
@@ -117,13 +112,15 @@ impl<'a, const N: usize> TabGrid<'a, N> {
             .unwrap_or_default()
     }
 }
-impl<'a, const N: usize> Widget for TabGrid<'a, N> {
+impl<'a> Widget for TabGrid<'a> {
     fn render(self, area: Rect, buf: &mut ratatui::prelude::Buffer)
     where
         Self: Sized,
     {
-        // Do nothing if cols is 0.
-        if self.cols == 0 {
+        // Do nothing if constraint is 0 cols/rows.
+        if self.constraint == TabGridConstraint::MaxCols(0)
+            || self.constraint == TabGridConstraint::MaxRows(0)
+        {
             return;
         }
         let longest_title = self.longest_title();
@@ -131,32 +128,62 @@ impl<'a, const N: usize> Widget for TabGrid<'a, N> {
         let Self {
             titles,
             selected,
-            cols,
+            constraint,
             highlight_style,
             style,
         } = self;
-        for (idx, title) in titles.into_iter().enumerate() {
-            let row = idx.rem_euclid(cols as usize);
-            let col = idx.div_euclid(rows);
-            let tab = if let Some(highlight_style) = highlight_style
-                && selected == Some(idx)
-            {
-                Line::from(title).style(highlight_style)
-            } else {
-                Line::from(title).style(style)
+        match constraint {
+            TabGridConstraint::MaxCols(_) => {
+                for (idx, title) in titles.into_iter().enumerate() {
+                    let row = idx.rem_euclid(rows);
+                    let col = idx.div_euclid(rows);
+                    let tab = if let Some(highlight_style) = highlight_style
+                        && selected == Some(idx)
+                    {
+                        Line::from(title).style(highlight_style)
+                    } else {
+                        Line::from(title).style(style)
+                    }
+                    .centered();
+                    let render_area = Rect {
+                        x: (area.x as usize + col * (longest_title + 1))
+                            .try_into()
+                            .unwrap_or(u16::MAX),
+                        y: (area.y as usize + row).try_into().unwrap_or(u16::MAX),
+                        width: longest_title.try_into().unwrap_or(u16::MAX),
+                        height: 1,
+                    }
+                    // Don't render outside provided area
+                    .intersection(area);
+                    tab.render(render_area, buf);
+                }
             }
-            .centered();
-            let render_area = Rect {
-                x: (area.x as usize + col * (longest_title + 1))
-                    .try_into()
-                    .unwrap_or(u16::MAX),
-                y: (area.y as usize + row).try_into().unwrap_or(u16::MAX),
-                width: longest_title.try_into().unwrap_or(u16::MAX),
-                height: 1,
+            TabGridConstraint::MaxRows(_) => {
+                for (idx, title) in titles.into_iter().enumerate() {
+                    let row = idx.rem_euclid(rows);
+                    let col = idx.div_euclid(rows);
+                    let tab = if let Some(highlight_style) = highlight_style
+                        && selected == Some(idx)
+                    {
+                        Line::from(title).style(highlight_style)
+                    } else {
+                        Line::from(title).style(style)
+                    }
+                    .centered();
+                    let render_area = Rect {
+                        x: (area.x as usize + col * (longest_title + 1))
+                            .try_into()
+                            .unwrap_or(u16::MAX),
+                        y: (area.y as usize + row).try_into().unwrap_or(u16::MAX),
+                        width: longest_title.try_into().unwrap_or(u16::MAX),
+                        height: 1,
+                    }
+                    // Don't render outside provided area
+                    .intersection(area);
+                    dbg!(render_area);
+                    tab.render(render_area, buf);
+                }
             }
-            // Don't render outside provided area
-            .intersection(area);
-            tab.render(render_area, buf);
         }
     }
 }
@@ -170,7 +197,7 @@ mod tests {
 
     #[test]
     fn test_basic_tab_grid() {
-        let grid = TabGrid::new_with_cols(["AA", "BBBB", "CCCC", "DD"], 2);
+        let grid = TabGrid::new_with_max_cols(["AA", "BBBB", "CCCC", "DD"], 2);
         assert_eq!(grid.required_width(), 9);
         assert_eq!(grid.required_height(), 2);
         let area = Rect::new(0, 0, 9, 2);
@@ -182,7 +209,48 @@ mod tests {
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
+        // | AA |CCCC|
+        // |BBBB| DD |
         let expected_cells_as_string = " AA  CCCCBBBB  DD ".to_string();
+        assert_eq!(rendered_cells_as_string, expected_cells_as_string);
+    }
+    #[test]
+    fn test_basic_tab_grid_max_cols() {
+        let grid = TabGrid::new_with_max_cols(["AA", "BBBB", "CCCC", "DD", "EEEEE", "FF"], 3);
+        assert_eq!(grid.required_width(), 17);
+        assert_eq!(grid.required_height(), 2);
+        let area = Rect::new(0, 0, 17, 2);
+        let mut buf = ratatui::buffer::Buffer::empty(area);
+        grid.render(area, &mut buf);
+        assert_eq!(buf.area, area);
+        let rendered_cells_as_string = buf
+            .content
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect::<String>();
+        // | AA  |CCCC |EEEEE|
+        // |BBBB | DD  | FF  |
+        let expected_cells_as_string = " AA   CCCC  EEEEEBBBB   DD    FF  ".to_string();
+        assert_eq!(rendered_cells_as_string, expected_cells_as_string);
+    }
+    #[test]
+    fn test_basic_tab_grid_max_rows() {
+        let grid = TabGrid::new_with_max_rows(["AA", "BBBB", "CCCC", "DD", "EEEEE", "FF"], 3);
+        assert_eq!(grid.required_width(), 11);
+        assert_eq!(grid.required_height(), 3);
+        let area = Rect::new(0, 0, 11, 3);
+        let mut buf = ratatui::buffer::Buffer::empty(area);
+        grid.render(area, &mut buf);
+        assert_eq!(buf.area, area);
+        let rendered_cells_as_string = buf
+            .content
+            .iter()
+            .map(|cell| cell.symbol())
+            .collect::<String>();
+        // | AA  | DD  |
+        // |BBBB |EEEEE|
+        // |CCCC | FF  |
+        let expected_cells_as_string = " AA    DD  BBBB  EEEEECCCC   FF  ".to_string();
         assert_eq!(rendered_cells_as_string, expected_cells_as_string);
     }
 }
