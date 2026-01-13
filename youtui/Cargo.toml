@@ -52,6 +52,7 @@ souvlaki = { version = "0.8.2", default-features = false, features = [
 ] }
 fs-err = { version = "3.1.1", features=["tokio"] }
 tokio-util = { version = "0.7.17", features = ["io"] }
+rand = "0.9.2"
 
 # These platforms require an open window to use media controls.
 # https://github.com/Sinono3/souvlaki/blob/master/examples/window.rs

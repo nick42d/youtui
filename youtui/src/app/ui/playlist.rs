@@ -29,6 +29,8 @@ use crate::config::Config;
 use crate::config::keymap::Keymap;
 use crate::widgets::ScrollingTableState;
 use async_callback_manager::{AsyncTask, Constraint, TryBackendTaskExt};
+use rand::rng;
+use rand::seq::SliceRandom;
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use serde::{Deserialize, Serialize};
@@ -61,6 +63,8 @@ pub struct Playlist {
     pub volume: Percentage,
     cur_selected: usize,
     pub widget_state: ScrollingTableState,
+    pub shuffle_enabled: bool,
+    shuffle_indices: Vec<usize>,
 }
 impl_youtui_component!(Playlist);
 
@@ -71,6 +75,7 @@ pub enum PlaylistAction {
     PlaySelected,
     DeleteSelected,
     DeleteAll,
+    ToggleShuffle,
 }
 
 impl Action for PlaylistAction {
@@ -83,6 +88,7 @@ impl Action for PlaylistAction {
             PlaylistAction::PlaySelected => "Play Selected",
             PlaylistAction::DeleteSelected => "Delete Selected",
             PlaylistAction::DeleteAll => "Delete All",
+            PlaylistAction::ToggleShuffle => "Toggle Shuffle",
         }
         .into()
     }
@@ -101,6 +107,7 @@ impl ActionHandler<PlaylistAction> for Playlist {
             PlaylistAction::PlaySelected => (self.play_selected(), None),
             PlaylistAction::DeleteSelected => (self.delete_selected(), None),
             PlaylistAction::DeleteAll => (self.delete_all(), None),
+            PlaylistAction::ToggleShuffle => (self.toggle_shuffle(), None),
         }
     }
 }
@@ -175,8 +182,6 @@ impl TableView for Playlist {
         &self.widget_state
     }
     fn get_layout(&self) -> &[BasicConstraint] {
-        // Not perfect as this method doesn't know the size of the parent.
-        // TODO: Change the get_layout function to something more appropriate.
         &[
             BasicConstraint::Length(3),
             BasicConstraint::Length(6),
@@ -188,20 +193,35 @@ impl TableView for Playlist {
             BasicConstraint::Length(4),
         ]
     }
+
+    /// Modified to display in shuffle order.
     fn get_items(&self) -> impl ExactSizeIterator<Item = impl Iterator<Item = Cow<'_, str>> + '_> {
-        self.list.get_list_iter().enumerate().map(|(i, ls)| {
-            let first_field = if Some(i) == self.get_cur_playing_index() {
+        let list_len = self.list.get_list_iter().count();
+        let cur_playing_visual = self
+            .get_cur_playing_index()
+            .and_then(|idx| self.actual_to_visual_index(idx));
+
+        (0..list_len).map(move |visual_i| {
+            let actual_i = self.visual_to_actual_index(visual_i);
+            let ls = self
+                .list
+                .get_list_iter()
+                .nth(actual_i)
+                .expect("Visual index should map to valid actual index");
+
+            let first_field = if Some(visual_i) == cur_playing_visual {
                 match self.play_status {
                     PlayState::NotPlaying => ">>>".to_string(),
-                    PlayState::Playing(_) => "".to_string(),
-                    PlayState::Paused(_) => "".to_string(),
+                    PlayState::Playing(_) => "".to_string(),
+                    PlayState::Paused(_) => "".to_string(),
                     PlayState::Stopped => ">>>".to_string(),
                     PlayState::Error(_) => ">>>".to_string(),
-                    PlayState::Buffering(_) => "".to_string(),
+                    PlayState::Buffering(_) => "".to_string(),
                 }
             } else {
-                (i + 1).to_string()
+                (visual_i + 1).to_string()
             };
+
             iter::once(first_field.to_string().into()).chain(ls.get_fields([
                 ListSongDisplayableField::DownloadStatus,
                 ListSongDisplayableField::TrackNo,
@@ -213,22 +233,37 @@ impl TableView for Playlist {
             ]))
         })
     }
+
     fn get_headings(&self) -> impl Iterator<Item = &'static str> {
         [
             "p#", "", "t#", "Artist", "Album", "Song", "Duration", "Year",
         ]
         .into_iter()
     }
+
+    /// Modified to highlight visual position of playing song.
     fn get_highlighted_row(&self) -> Option<usize> {
         self.get_cur_playing_index()
+            .and_then(|idx| self.actual_to_visual_index(idx))
     }
+
     fn get_mut_state(&mut self) -> &mut ScrollingTableState {
         &mut self.widget_state
     }
 }
 impl HasTitle for Playlist {
     fn get_title(&self) -> Cow<'_, str> {
-        format!("Local playlist - {} songs", self.list.get_list_iter().len()).into()
+        let shuffle_indicator = if self.shuffle_enabled {
+            " [SHUFFLE]"
+        } else {
+            ""
+        };
+        format!(
+            "Local playlist - {} songs{}",
+            self.list.get_list_iter().len(),
+            shuffle_indicator
+        )
+        .into()
     }
 }
 impl SongListComponent for Playlist {
@@ -257,6 +292,8 @@ impl Playlist {
             cur_selected: 0,
             queue_status: QueueState::NotQueued,
             widget_state: Default::default(),
+            shuffle_enabled: false,
+            shuffle_indices: Vec::new(),
         };
         (playlist, task)
     }
@@ -378,6 +415,7 @@ impl Playlist {
         self.cur_played_dur = None;
         self.play_status = PlayState::NotPlaying;
         self.list.clear();
+        self.shuffle_indices.clear();
     }
     /// If currently playing, play previous song.
     pub fn play_prev(&mut self) -> ComponentEffect<Self> {
@@ -390,11 +428,7 @@ impl Playlist {
             | PlayState::Playing(id)
             | PlayState::Buffering(id)
             | PlayState::Error(id) => {
-                let prev_song_id = self
-                    .get_index_from_id(*id)
-                    .and_then(|i| i.checked_sub(1))
-                    .and_then(|i| self.get_song_from_idx(i))
-                    .map(|i| i.id);
+                let prev_song_id = self.get_prev_song_id(*id);
                 info!("Next song id {:?}", prev_song_id);
                 match prev_song_id {
                     Some(id) => {
@@ -495,12 +529,15 @@ impl Playlist {
                 )
             })
             .collect::<ComponentEffect<Self>>();
-        (self.list.push_song_list(song_list), effect)
-        // Download function isn't triggered inside this function, since we
-        // don't know if the caller is going to immediately change what song is
-        // playing after adding songs, although we could check and accept it may
-        // be overridden. We also need to get current playing song ID to call
-        // download_upcoming_from_id (minor inconvenience).
+
+        let first_id = self.list.push_song_list(song_list);
+
+        // Regenerate shuffle indices after adding songs
+        if self.shuffle_enabled {
+            self.generate_shuffle_indices();
+        }
+
+        (first_id, effect)
     }
     /// Play the next song in the list if it exists, otherwise, stop playing.
     pub fn play_next_or_stop(&mut self, prev_id: ListSongID) -> ComponentEffect<Self> {
@@ -518,10 +555,7 @@ impl Playlist {
                 if id > &prev_id {
                     return AsyncTask::new_no_op();
                 }
-                let next_song_id = self
-                    .get_index_from_id(*id)
-                    .map(|i| i + 1)
-                    .and_then(|i| self.get_id_from_index(i));
+                let next_song_id = self.get_next_song_id(*id);
                 match next_song_id {
                     Some(id) => self.play_song_id(id),
                     None => {
@@ -552,10 +586,7 @@ impl Playlist {
                 if id > &prev_id {
                     return AsyncTask::new_no_op();
                 }
-                let next_song_id = self
-                    .get_index_from_id(*id)
-                    .map(|i| i + 1)
-                    .and_then(|i| self.get_id_from_index(i));
+                let next_song_id = self.get_next_song_id(*id);
                 match next_song_id {
                     Some(id) => self.autoplay_song_id(id),
                     None => {
@@ -577,10 +608,25 @@ impl Playlist {
         };
         let mut song_ids_list = Vec::new();
         song_ids_list.push(id);
-        for i in 1..SONGS_AHEAD_TO_BUFFER {
-            let next_id = self.get_song_from_idx(song_index + i).map(|song| song.id);
-            if let Some(id) = next_id {
-                song_ids_list.push(id);
+        if self.shuffle_enabled {
+            let Some(visual_index) = self.actual_to_visual_index(song_index) else {
+                return AsyncTask::new_no_op();
+            };
+
+            for offset in 1..SONGS_AHEAD_TO_BUFFER {
+                let next_visual = visual_index + offset;
+                if next_visual < self.shuffle_indices.len() {
+                    let next_actual = self.shuffle_indices[next_visual];
+                    if let Some(next_id) = self.get_id_from_index(next_actual) {
+                        song_ids_list.push(next_id);
+                    }
+                }
+            }
+        } else {
+            for i in 1..SONGS_AHEAD_TO_BUFFER {
+                if let Some(next_id) = self.get_song_from_idx(song_index + i).map(|s| s.id) {
+                    song_ids_list.push(next_id);
+                }
             }
         }
         // TODO: Don't love the way metadata and constraints are handled with this task
@@ -626,8 +672,8 @@ impl Playlist {
     }
     pub fn get_next_song(&self) -> Option<&ListSong> {
         self.get_cur_playing_id()
-            .and_then(|id| self.get_index_from_id(id))
-            .and_then(|idx| self.list.get_list_iter().nth(idx + 1))
+            .and_then(|id| self.get_next_song_id(id))
+            .and_then(|next_id| self.get_song_from_id(next_id))
     }
     pub fn get_index_from_id(&self, id: ListSongID) -> Option<usize> {
         self.list.get_list_iter().position(|s| s.id == id)
@@ -706,7 +752,8 @@ impl Playlist {
     }
     /// Play the song under the cursor (from local keypress)
     pub fn play_selected(&mut self) -> ComponentEffect<Self> {
-        let Some(id) = self.get_id_from_index(self.cur_selected) else {
+        let actual_index = self.visual_to_actual_index(self.cur_selected);
+        let Some(id) = self.get_id_from_index(actual_index) else {
             return AsyncTask::new_no_op();
         };
         self.play_song_id(id)
@@ -715,21 +762,27 @@ impl Playlist {
     /// playing, stop it and set PlayState to NotPlaying.
     pub fn delete_selected(&mut self) -> ComponentEffect<Self> {
         let mut return_task = AsyncTask::new_no_op();
-        let cur_selected_idx = self.cur_selected;
-        // If current song is playing, stop it.
-        if let Some(cur_playing_id) = self.get_cur_playing_id()
-            && Some(cur_selected_idx) == self.get_cur_playing_index()
-        {
-            self.play_status = PlayState::NotPlaying;
-            return_task = self.stop_song_id(cur_playing_id);
+        let actual_index = self.visual_to_actual_index(self.cur_selected);
+
+        if let Some(cur_playing_id) = self.get_cur_playing_id() {
+            if Some(actual_index) == self.get_cur_playing_index() {
+                self.play_status = PlayState::NotPlaying;
+                return_task = self.stop_song_id(cur_playing_id);
+            }
         }
-        self.list.remove_song_index(cur_selected_idx);
-        // If we are removing a song at a position less than current index, decrement
-        // current index. NOTE: Ok to simply take, if list only had one element.
-        if self.cur_selected >= cur_selected_idx && cur_selected_idx != 0 {
-            // Safe, as checked above that cur_idx >= 0
+
+        self.list.remove_song_index(actual_index);
+
+        // Regenerate shuffle indices after deletion
+        if self.shuffle_enabled {
+            self.generate_shuffle_indices();
+        }
+
+        // Adjust cursor position
+        if self.cur_selected >= self.list.get_list_iter().count() && self.cur_selected > 0 {
             self.cur_selected -= 1;
-        };
+        }
+
         return_task
     }
     /// Delete all songs.
@@ -813,6 +866,80 @@ impl Playlist {
 }
 // Server handlers
 impl Playlist {
+    // Toggle shuffle on/off. Regenerates shuffle order when enabled.
+    pub fn toggle_shuffle(&mut self) -> ComponentEffect<Self> {
+        self.shuffle_enabled = !self.shuffle_enabled;
+
+        if self.shuffle_enabled {
+            self.generate_shuffle_indices();
+        } else {
+            self.shuffle_indices.clear();
+        }
+
+        AsyncTask::new_no_op()
+    }
+
+    // Generate new shuffled indices for the current playlist
+    fn generate_shuffle_indices(&mut self) {
+        let len = self.list.get_list_iter().count();
+        let mut indices: Vec<usize> = (0..len).collect();
+        indices.shuffle(&mut rng());
+        self.shuffle_indices = indices;
+    }
+
+    fn visual_to_actual_index(&self, visual_index: usize) -> usize {
+        if self.shuffle_enabled && visual_index < self.shuffle_indices.len() {
+            self.shuffle_indices[visual_index]
+        } else {
+            visual_index
+        }
+    }
+
+    fn actual_to_visual_index(&self, actual_index: usize) -> Option<usize> {
+        if self.shuffle_enabled {
+            self.shuffle_indices.iter().position(|&i| i == actual_index)
+        } else {
+            Some(actual_index)
+        }
+    }
+
+    fn get_next_song_id(&self, current_id: ListSongID) -> Option<ListSongID> {
+        let current_actual_index = self.get_index_from_id(current_id)?;
+
+        if self.shuffle_enabled {
+            let current_visual_index = self.actual_to_visual_index(current_actual_index)?;
+            let next_visual_index = current_visual_index + 1;
+            if next_visual_index < self.shuffle_indices.len() {
+                let next_actual_index = self.shuffle_indices[next_visual_index];
+                self.get_id_from_index(next_actual_index)
+            } else {
+                None
+            }
+        } else {
+            self.get_id_from_index(current_actual_index + 1)
+        }
+    }
+
+    fn get_prev_song_id(&self, current_id: ListSongID) -> Option<ListSongID> {
+        let current_actual_index = self.get_index_from_id(current_id)?;
+
+        if self.shuffle_enabled {
+            let current_visual_index = self.actual_to_visual_index(current_actual_index)?;
+
+            if current_visual_index > 0 {
+                let prev_visual_index = current_visual_index - 1;
+                let prev_actual_index = self.shuffle_indices[prev_visual_index];
+                self.get_id_from_index(prev_actual_index)
+            } else {
+                None
+            }
+        } else {
+            current_actual_index
+                .checked_sub(1)
+                .and_then(|i| self.get_id_from_index(i))
+        }
+    }
+
     /// Handle song progress update from server.
     pub fn handle_song_download_progress_update(
         &mut self,

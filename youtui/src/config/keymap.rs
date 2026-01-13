@@ -750,6 +750,13 @@ fn default_playlist_keybinds() -> BTreeMap<Keybind, KeyActionTree<AppAction>> {
             ),
         ),
         (
+            Keybind::new_unmodified(crossterm::event::KeyCode::Char('S')),
+            KeyActionTree::new_key_with_visibility(
+                AppAction::Playlist(PlaylistAction::ToggleShuffle),
+                KeyActionVisibility::Global,
+            ),
+        ),
+        (
             Keybind::new_unmodified(crossterm::event::KeyCode::Enter),
             KeyActionTree::new_mode(
                 [
