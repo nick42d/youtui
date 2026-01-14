@@ -200,7 +200,7 @@ where
             };
             let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
                 .expect("Expect to get a handle to output stream");
-            let sink = rodio::Sink::connect_new(&stream_handle.mixer());
+            let sink = rodio::Sink::connect_new(stream_handle.mixer());
             // Hopefully someone else can't create a song with the same ID?!
             let mut cur_song_duration = None;
             let mut next_song_duration = None;
@@ -220,7 +220,7 @@ where
                             next_song_id = None;
                             cur_song_duration = next_song_duration;
                             next_song_duration = None;
-                            blocking_send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued);
+                            send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued).await;
                             continue;
                         }
                         if Some(song_id) == cur_song_id {
@@ -228,7 +228,7 @@ where
                                 "Received autoplay for {:?}, it's already playing. I was expecting it to be queued up.",
                                 song_id
                             );
-                            blocking_send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued);
+                            send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued).await;
                             continue;
                         }
                         info!(
@@ -259,10 +259,8 @@ where
                         debug!("Now playing {:?}", song_id);
                         // Send the Now Playing message for good orders sake to avoid
                         // synchronization issues.
-                        blocking_send_or_error(
-                            tx.0,
-                            AsyncRodioResponse::StartedPlaying(cur_song_duration),
-                        );
+                        send_or_error(tx.0, AsyncRodioResponse::StartedPlaying(cur_song_duration))
+                            .await;
                         cur_song_id = Some(song_id);
                         next_song_id = None;
                         next_song_duration = None;
@@ -277,10 +275,7 @@ where
                         tracing::debug!(
                             "Received request to queue {song_id:?} of duration {next_song_duration:?}"
                         );
-                        blocking_send_or_error(
-                            &tx.0,
-                            AsyncRodioResponse::Queued(next_song_duration),
-                        );
+                        send_or_error(&tx.0, AsyncRodioResponse::Queued(next_song_duration)).await;
                         let txs = tx.0.clone();
                         let song = add_periodic_access(song, PROGRESS_UPDATE_DELAY, move |s| {
                             blocking_send_or_error(
@@ -319,10 +314,8 @@ where
                         debug!("Now playing {:?}", song_id);
                         // Send the Now Playing message for good orders sake to avoid
                         // synchronization issues.
-                        blocking_send_or_error(
-                            tx.0,
-                            AsyncRodioResponse::StartedPlaying(cur_song_duration),
-                        );
+                        send_or_error(tx.0, AsyncRodioResponse::StartedPlaying(cur_song_duration))
+                            .await;
                         cur_song_id = Some(song_id);
                         next_song_id = None;
                     }
