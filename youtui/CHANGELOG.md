@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.35](https://github.com/nick42d/youtui/compare/youtui/v0.0.34...youtui/v0.0.35) - 2026-01-14
+
+### Fixed
+- unable to play due to blocking main thread issue ([#334](https://github.com/nick42d/youtui/pull/334))
+
+
+
+
 ## [0.0.34](https://github.com/nick42d/youtui/compare/youtui/v0.0.33...youtui/v0.0.34) - 2026-01-13
 
 ### Added
