@@ -185,7 +185,7 @@ where
 {
     pub fn new() -> Self {
         let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
-        let _handle = tokio::task::spawn(async move {
+        let _handle = tokio::task::spawn_blocking(move || {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
             // a seperate thread all stderr for the whole app may be gagged.
@@ -220,7 +220,7 @@ where
                             next_song_id = None;
                             cur_song_duration = next_song_duration;
                             next_song_duration = None;
-                            send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued).await;
+                            blocking_send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued);
                             continue;
                         }
                         if Some(song_id) == cur_song_id {
@@ -228,7 +228,7 @@ where
                                 "Received autoplay for {:?}, it's already playing. I was expecting it to be queued up.",
                                 song_id
                             );
-                            send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued).await;
+                            blocking_send_or_error(tx.0, AsyncRodioResponse::AutoplayingQueued);
                             continue;
                         }
                         info!(
@@ -259,8 +259,10 @@ where
                         debug!("Now playing {:?}", song_id);
                         // Send the Now Playing message for good orders sake to avoid
                         // synchronization issues.
-                        send_or_error(tx.0, AsyncRodioResponse::StartedPlaying(cur_song_duration))
-                            .await;
+                        blocking_send_or_error(
+                            tx.0,
+                            AsyncRodioResponse::StartedPlaying(cur_song_duration),
+                        );
                         cur_song_id = Some(song_id);
                         next_song_id = None;
                         next_song_duration = None;
@@ -275,7 +277,10 @@ where
                         tracing::debug!(
                             "Received request to queue {song_id:?} of duration {next_song_duration:?}"
                         );
-                        send_or_error(&tx.0, AsyncRodioResponse::Queued(next_song_duration)).await;
+                        blocking_send_or_error(
+                            &tx.0,
+                            AsyncRodioResponse::Queued(next_song_duration),
+                        );
                         let txs = tx.0.clone();
                         let song = add_periodic_access(song, PROGRESS_UPDATE_DELAY, move |s| {
                             blocking_send_or_error(
@@ -314,8 +319,10 @@ where
                         debug!("Now playing {:?}", song_id);
                         // Send the Now Playing message for good orders sake to avoid
                         // synchronization issues.
-                        send_or_error(tx.0, AsyncRodioResponse::StartedPlaying(cur_song_duration))
-                            .await;
+                        blocking_send_or_error(
+                            tx.0,
+                            AsyncRodioResponse::StartedPlaying(cur_song_duration),
+                        );
                         cur_song_id = Some(song_id);
                         next_song_id = None;
                     }
