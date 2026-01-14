@@ -185,7 +185,7 @@ where
 {
     pub fn new() -> Self {
         let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
-        let _handle = tokio::task::spawn(async move {
+        let _handle = tokio::task::spawn_blocking(move || {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
             // a seperate thread all stderr for the whole app may be gagged.
@@ -200,7 +200,7 @@ where
             };
             let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
                 .expect("Expect to get a handle to output stream");
-            let sink = rodio::Sink::connect_new(&stream_handle.mixer());
+            let sink = rodio::Sink::connect_new(stream_handle.mixer());
             // Hopefully someone else can't create a song with the same ID?!
             let mut cur_song_duration = None;
             let mut next_song_duration = None;
