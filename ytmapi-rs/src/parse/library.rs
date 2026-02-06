@@ -13,8 +13,8 @@ use crate::common::{
 use crate::continuations::ParseFromContinuable;
 use crate::nav_consts::{
     GRID, ITEM_SECTION, MENU_ITEMS, MRLIR, MTRIR, MUSIC_SHELF, NAVIGATION_BROWSE_ID,
-    NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, SECTION_LIST, SECTION_LIST_ITEM, SINGLE_COLUMN_TAB,
-    SUBTITLE_BADGE_ICON, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
+    NAVIGATION_PLAYLIST_ID, PLAY_BUTTON, RUN_TEXT, SECTION_LIST, SECTION_LIST_ITEM,
+    SINGLE_COLUMN_TAB, SUBTITLE_BADGE_ICON, THUMBNAIL_RENDERER, TITLE, TITLE_TEXT, WATCH_VIDEO_ID,
 };
 use crate::query::library::{GetLibraryChannelsQuery, GetLibraryPodcastsQuery};
 use crate::query::{
@@ -53,9 +53,10 @@ pub struct LibraryPlaylist {
     pub playlist_id: PlaylistID<'static>,
     pub title: String,
     pub thumbnails: Vec<Thumbnail>,
-    pub count: Option<usize>,
-    pub description: Option<String>,
-    pub author: Option<String>,
+    pub tracks: String,
+    pub author: String,
+    // Authoer may be YouTube Music in some cases - no ChannelID
+    pub author_id: Option<ArtistChannelID<'static>>,
 }
 #[derive(PartialEq, Debug, Clone, Deserialize, Serialize)]
 #[non_exhaustive]
@@ -311,7 +312,7 @@ fn parse_library_playlists(
         .try_into_iter()?
         // First result is just a link to create a new playlist.
         .skip(1)
-        .map(parse_content_list_playlist)
+        .filter_map(|item| parse_content_list_playlist(item).transpose())
         .collect::<Result<_>>()?;
     Ok((playlists, continuation_params))
 }
@@ -501,45 +502,47 @@ fn parse_table_list_song(title: String, mut data: JsonCrawlerBorrowed) -> Result
     })
 }
 
-fn parse_content_list_playlist(item: JsonCrawlerOwned) -> Result<LibraryPlaylist> {
+fn parse_content_list_playlist(item: JsonCrawlerOwned) -> Result<Option<LibraryPlaylist>> {
     // TODO: Implement count and author fields
     let mut mtrir = item.navigate_pointer(MTRIR)?;
-    let title = mtrir.take_value_pointer(TITLE_TEXT)?;
+    let title: String = mtrir.take_value_pointer(TITLE_TEXT)?;
+    // There are some potential special playlist results. This is one
+    // way to filter them out.
+    // TODO: i18n or more robust method of filtering.
+    if title.eq_ignore_ascii_case("liked music") || title.eq_ignore_ascii_case("episodes for later")
+    {
+        return Ok(None);
+    }
     let playlist_id: PlaylistID = mtrir
         .borrow_pointer(concatcp!(TITLE, NAVIGATION_BROWSE_ID))?
         // ytmusicapi uses range index [2:] here but doesn't seem to be required.
         // Revisit later if we crash.
         .take_value()?;
     let thumbnails: Vec<Thumbnail> = mtrir.take_value_pointer(THUMBNAIL_RENDERER)?;
-    let mut description = None;
-    let count = None;
-    let author = None;
-    if let Ok(mut subtitle) = mtrir.borrow_pointer("/subtitle") {
-        let runs = subtitle.borrow_pointer("/runs")?.try_into_iter()?;
-        // Extract description from runs.
-        // Collect the iterator of Result<String> into a single Result<String>
-        description = Some(
-            runs.map(|mut c| c.take_value_pointer::<String>("/text"))
-                .collect::<std::result::Result<String, _>>()?,
-        );
-    }
-    Ok(LibraryPlaylist {
-        description,
-        author,
+    let mut subtitle = mtrir.navigate_pointer("/subtitle")?;
+    let tracks = subtitle.take_value_pointer("/runs/2/text")?;
+    let mut author_run = subtitle.navigate_pointer("/runs/0")?;
+    let author = author_run.take_value_pointer("/text")?;
+    let author_id = author_run.take_value_pointer(NAVIGATION_BROWSE_ID).ok();
+    Ok(Some(LibraryPlaylist {
         playlist_id,
         title,
         thumbnails,
-        count,
-    })
+        tracks,
+        author_id,
+        author,
+    }))
 }
 
 fn parse_content_list_podcast(item: impl JsonCrawler) -> Result<Option<LibraryPodcast>> {
     let mut mtrir = item.navigate_pointer(MTRIR)?;
-    let title = mtrir.take_value_pointer(TITLE_TEXT)?;
+    let title: String = mtrir.take_value_pointer(TITLE_TEXT)?;
     // There are some potential non-podcast special playlist results. This is one
     // way to filter them out.
     // TODO: i18n or more robust method of filtering.
-    if title == "New Episodes" || title == "Episodes for Later" {
+    if title.eq_ignore_ascii_case("new episodes")
+        || title.eq_ignore_ascii_case("Episodes for Later")
+    {
         return Ok(None);
     }
     let podcast_id: PodcastID = mtrir
