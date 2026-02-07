@@ -59,10 +59,10 @@ winit = "0.30.12"
 [dependencies.rusty_ytdl]
 # version = "0.7.4"
 # package = "rusty_ytdl"
-version = "0.7.4-youtui-vendored.3"
+version = "0.7.4-youtui-vendored.4"
 package = "youtui-vendored-rusty_ytdl"
 default-features = false
-features = ["live", "rustls-tls"]
+features = ["live"]
 
 # Accommodate for vendoring if required - a change to YouTube API may break downloading or playback.
 [dependencies.rodio]
