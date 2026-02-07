@@ -475,7 +475,7 @@ impl BrowserSongsList {
                 video_id,
                 duration,
                 artists.into_iter().map(Into::into).collect(),
-                Some(album.into()),
+                album.map(Into::into),
                 thumbnails,
                 None,
             ),
