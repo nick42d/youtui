@@ -10,7 +10,7 @@ use crate::drawutils::{
 use crate::widgets::{ScrollingList, ScrollingTable, ScrollingTableState};
 use ratatui::Frame;
 use ratatui::prelude::{Margin, Rect};
-use ratatui::style::{Style, Stylize};
+use ratatui::style::Style;
 use ratatui::symbols::{block, line};
 use ratatui::text::Line;
 use ratatui::widgets::{

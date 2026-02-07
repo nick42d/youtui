@@ -5358,4 +5358,41 @@
             ),
         },
     ),
+    UploadSong(
+        PlaylistUploadSong {
+            entity_id: UploadEntityID(
+                "t_po_CIOIo7OKzretmwEQ7b2asP7_____AQ",
+            ),
+            video_id: VideoID(
+                "bR_lgtZXA9A",
+            ),
+            track_no: 102,
+            duration: "3:21",
+            album: None,
+            title: "Hungarian Dance No. 5",
+            artists: [
+                ParsedUploadArtist {
+                    name: "Johannes Brahms",
+                    id: Some(
+                        UploadArtistID(
+                            "FEmusic_library_privately_owned_artist_detaila_po_CIOIo7OKzretmwESD2pvaGFubmVzIGJyYWhtcw",
+                        ),
+                    ),
+                },
+            ],
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 60,
+                    width: 60,
+                    url: "https://www.gstatic.com/youtube/media/ytm/images/cover_track_default@1200.png?sqp=CPXnx-oF-oaymwEGCDwQPFgB&rs=ALLJMcKG4HoG-nDcHAjjtvKnA1-TsHbplA",
+                },
+                Thumbnail {
+                    height: 120,
+                    width: 120,
+                    url: "https://www.gstatic.com/youtube/media/ytm/images/cover_track_default@1200.png?sqp=CMnnx-oF-oaymwEGCHgQeFgB&rs=ALLJMcJMYVX-njU3_fFWsT7BvREyrfEBFQ",
+                },
+            ],
+        },
+    ),
 ]

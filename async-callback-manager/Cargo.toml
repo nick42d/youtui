@@ -1,6 +1,6 @@
 [package]
 name = "async-callback-manager"
-version = "0.0.11"
+version = "0.1.0"
 edition = "2024"
 authors = ["nick42d"]
 license = "MIT"
@@ -11,7 +11,7 @@ readme = "README.md"
 
 [dependencies]
 futures = "0.3.31"
-tokio = { version = "1.49.0", default-features = false, features = ["macros"] }
+tokio = { version = "1.49.0", default-features = false, features = ["macros", "rt"] }
 tracing = "0.1.44"
 # For Then combinator
 tokio-stream = "0.1.18"

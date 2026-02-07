@@ -200,7 +200,7 @@ where
             };
             let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
                 .expect("Expect to get a handle to output stream");
-            let sink = rodio::Sink::connect_new(&stream_handle.mixer());
+            let sink = rodio::Sink::connect_new(stream_handle.mixer());
             // Hopefully someone else can't create a song with the same ID?!
             let mut cur_song_duration = None;
             let mut next_song_duration = None;

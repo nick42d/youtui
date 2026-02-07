@@ -139,8 +139,10 @@ pub struct PlaylistUploadSong {
     pub video_id: VideoID<'static>,
     pub track_no: usize,
     pub duration: String,
-    pub album: ParsedUploadSongAlbum,
+    // An UploadSong may not have an album
+    pub album: Option<ParsedUploadSongAlbum>,
     pub title: String,
+    // An UploadSong may not have an album, in that case empty vec returned.
     pub artists: Vec<ParsedUploadArtist>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
@@ -361,8 +363,10 @@ pub(crate) fn parse_playlist_upload_song(
         "/playNavigationEndpoint/watchEndpoint/videoId"
     ))?;
     let thumbnails = data.take_value_pointer(THUMBNAILS)?;
-    let artists = parse_upload_song_artists(data.borrow_mut(), 1)?;
-    let album = parse_upload_song_album(data.borrow_mut(), 2)?;
+    // An uploaded song may not have artists metadata
+    let artists = parse_upload_song_artists(data.borrow_mut(), 1).unwrap_or_default();
+    // An uploaded song may not have artists metadata
+    let album = parse_upload_song_album(data.borrow_mut(), 2).ok();
     let mut menu = data.navigate_pointer(MENU_ITEMS)?;
     let entity_id = menu
         .try_iter_mut()?

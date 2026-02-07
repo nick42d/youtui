@@ -68,6 +68,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN" >> ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
+          sudo chmod a+rw "$SSH_AUTH_SOCK"
 
           echo "Installing dependencies for arch docker image"
           docker run --name setup-container \
