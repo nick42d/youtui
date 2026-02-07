@@ -185,7 +185,7 @@ where
 {
     pub fn new() -> Self {
         let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
-        let _handle = tokio::task::spawn(async move {
+        let _handle = tokio::task::spawn_blocking(move || {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
             // a seperate thread all stderr for the whole app may be gagged.
