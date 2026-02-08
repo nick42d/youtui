@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.3.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.2.4...ytmapi-rs/v0.3.0) - 2026-02-07
+
+### Added
+- [**breaking**] Better granularity for LibraryPlaylist fields ([#343](https://github.com/nick42d/youtui/pull/343))
+
+### Fixed
+- [**breaking**] handle optional artists/album fields for uploaded songs in a playlist ([#346](https://github.com/nick42d/youtui/pull/346))
+
+### Other
+- [**breaking**] Update reqwest ([#327](https://github.com/nick42d/youtui/pull/327))
+- _ytmapi_rs now uses rustls by default (just like reqwest)_ 
+
 ## [0.2.4](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.2.3...ytmapi-rs/v0.2.4) - 2026-01-13
 
 ### Other

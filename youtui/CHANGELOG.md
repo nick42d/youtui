@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.36](https://github.com/nick42d/youtui/compare/youtui/v0.0.35...youtui/v0.0.36) - 2026-02-07
+
+### Fixed
+- handle optional artists/album fields for uploaded songs in a playlist ([#346](https://github.com/nick42d/youtui/pull/346))
+
+### Other
+- Update reqwest ([#327](https://github.com/nick42d/youtui/pull/327))
+- *(deps)* bump bytes in the cargo group across 1 directory ([#342](https://github.com/nick42d/youtui/pull/342))
+
 ## [0.0.35](https://github.com/nick42d/youtui/compare/youtui/v0.0.34...youtui/v0.0.35) - 2026-01-14
 
 ### Fixed
