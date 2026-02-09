@@ -1,6 +1,6 @@
 [package]
 name = "youtui"
-version = "0.0.36"
+version = "0.0.37"
 # Required for let chains
 edition = "2024"
 authors = ["nick42d"]
@@ -28,10 +28,10 @@ ratatui = { version = "0.30.0", features = ["all-widgets"] }
 tui-logger = { version = "0.18.0", features = ["tracing-support"] }
 serde = "1.0.228"
 serde_json = "1.0.149"
-ytmapi-rs = { path = "../ytmapi-rs", version = "0.3.1", features = [ "reqwest", "rustls" ] }
+ytmapi-rs = { path = "../ytmapi-rs", version = "0.3.2", features = [ "reqwest", "rustls" ] }
 tokio = { version = "1.49.0", features = ["full"] }
 gag = "1.0.0"
-async-callback-manager = { path = "../async-callback-manager", version = "0.1.0" }
+async-callback-manager = { path = "../async-callback-manager", version = "0.1.1" }
 tracing = "0.1.44"
 tracing-subscriber = "0.3.22"
 directories = "6.0.0"
@@ -74,7 +74,7 @@ features = ["symphonia-all"]
 [dev-dependencies]
 pretty_assertions = "1.4.1"
 tempfile = "3.24.0"
-async-callback-manager = { path = "../async-callback-manager", version = "0.1.0", features = ["task-equality", "task-debug"] }
+async-callback-manager = { path = "../async-callback-manager", version = "0.1.1", features = ["task-equality", "task-debug"] }
 
 [lints]
 workspace = true
