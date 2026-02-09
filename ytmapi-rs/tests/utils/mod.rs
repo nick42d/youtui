@@ -47,7 +47,7 @@ pub async fn new_standard_oauth_api() -> Result<YtMusic<OAuthToken>> {
                 tokio::fs::read_to_string(EXPIRED_OAUTH_PATH).await.unwrap()
             };
             let tok: OAuthToken = serde_json::from_slice(tok_str.as_bytes()).unwrap();
-            let client = Client::new_rustls_tls().unwrap();
+            let client = Client::new().unwrap();
             tok.refresh(&client).await.unwrap();
             tok
         })

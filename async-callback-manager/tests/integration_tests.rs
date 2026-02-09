@@ -391,7 +391,7 @@ async fn test_task_spawn_callback() {
         });
 
     #[cfg(not(any(feature = "task-debug", feature = "task-equality")))]
-    let handler = |_: &mut (), _| ();
+    let handler = |_: &mut Arc<std::sync::Mutex<bool>>, _| ();
     #[cfg(any(feature = "task-debug", feature = "task-equality"))]
     let handler = async_callback_manager::NoOpHandler;
 
@@ -419,7 +419,7 @@ async fn test_task_spawns_task() {
     }
 
     #[cfg(not(any(feature = "task-debug", feature = "task-equality")))]
-    |state: &mut Vec<_>, output| {
+    let handler = |state: &mut Vec<_>, output| {
         state.push(output);
         AsyncTask::new_future(
             TextTask("World".to_string()),

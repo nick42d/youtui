@@ -25,6 +25,9 @@ jobs:
       run: |
         rustup update
         rustup component add --toolchain nightly rustfmt
+        # cargo-hack is used to do things like test all combinations of features without hardcoding.
+        # https://github.com/taiki-e/cargo-hack
+        cargo +stable install cargo-hack --locked
     
     - name: Install linux deps
       run: |
@@ -37,11 +40,12 @@ jobs:
 
     - name: Run tests
       run: | 
-        cargo test --verbose --bins --lib
+        cargo test --verbose --bins
+        cargo hack test --lib
         cargo test --verbose --doc
 
     - name: Check formatting
       run: cargo +nightly fmt --all --check
 
     - name: Run Clippy
-      run: cargo clippy --all-targets --all-features
+      run: cargo hack clippy --all-targets --all-features
