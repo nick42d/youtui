@@ -40,12 +40,16 @@ jobs:
 
     - name: Run tests
       run: | 
-        cargo test --verbose --bins
-        cargo hack test --lib
-        cargo test --verbose --doc
+        # Test all workspace members individually to avoid feature unification
+        # However, we don't want to run the ytmapi-rs live integration tests,
+        # So it is excluded from the automation and then manually included with
+        # integration tests disabled.
+        cargo hack test --workspace --exclude ytmapi-rs --verbose
+        cargo test --verbose -p ytmapi-rs --lib
+        cargo test --verbose -p ytmapi-rs --doc
 
     - name: Check formatting
       run: cargo +nightly fmt --all --check
 
     - name: Run Clippy
-      run: cargo hack clippy --all-targets --all-features
+      run: cargo clippy --all-targets --all-features
