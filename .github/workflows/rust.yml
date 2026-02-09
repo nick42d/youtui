@@ -25,6 +25,9 @@ jobs:
       run: |
         rustup update
         rustup component add --toolchain nightly rustfmt
+        # cargo-hack is used to do things like test all combinations of features without hardcoding.
+        # https://github.com/taiki-e/cargo-hack
+        cargo +stable install cargo-hack --locked
     
     - name: Install linux deps
       run: |
@@ -37,8 +40,13 @@ jobs:
 
     - name: Run tests
       run: | 
-        cargo test --verbose --bins --lib
-        cargo test --verbose --doc
+        # Test all workspace members individually to avoid feature unification
+        # However, we don't want to run the ytmapi-rs live integration tests,
+        # So it is excluded from the automation and then manually included with
+        # integration tests disabled.
+        cargo hack test --workspace --exclude ytmapi-rs --verbose
+        cargo test --verbose -p ytmapi-rs --lib
+        cargo test --verbose -p ytmapi-rs --doc
 
     - name: Check formatting
       run: cargo +nightly fmt --all --check
