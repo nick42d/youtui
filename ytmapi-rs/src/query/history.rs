@@ -2,7 +2,7 @@ use super::{GetMethod, GetQuery, PostMethod, PostQuery, Query};
 use crate::auth::LoggedIn;
 use crate::common::{ApiOutcome, FeedbackTokenRemoveFromHistory, SongTrackingUrl, YoutubeID};
 use crate::parse::HistoryPeriod;
-use rand::Rng;
+use rand::RngExt;
 use serde_json::json;
 use std::borrow::Cow;
 
