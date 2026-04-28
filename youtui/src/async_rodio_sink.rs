@@ -407,6 +407,7 @@ where
                         info!("Rodio sent volume update");
                     }
                     AsyncRodioRequest::Seek(inc, direction, tx) => {
+                        info!("Got request to seek {inc:?} in {direction:?}");
                         // Rodio always you to seek past song end when paused, and will report back
                         // an incorrect position for sink.get_pos().
                         // TODO: Report upstream
