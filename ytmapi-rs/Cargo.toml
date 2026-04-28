@@ -32,7 +32,7 @@ json-crawler = { version = "0.1.0", path = "../json-crawler" }
 sha1 = "0.10.6"
 const_format = "0.2.35"
 chrono = { version = "0.4.42", features = ["serde"] }
-rand = "0.9.3"
+rand = "0.10.1"
 # Futures `executor` feature is not required.
 futures = { version = "0.3.31", features = ["async-await", "std"] }
 itertools = "0.14.0"
