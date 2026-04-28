@@ -417,7 +417,8 @@ pub async fn generate_browser_token<S: AsRef<str>>(
 /// # Usage
 /// ```
 /// let json = r#"{ "test" : true }"#.to_string();
-/// let query = ytmapi_rs::query::SearchQuery::new("Beatles");
+/// let query = ytmapi_rs::query::SearchQuery::new("Beatles")
+///     .with_filter(ytmapi_rs::query::search::ArtistsFilter);
 /// let result = ytmapi_rs::process_json::<_, ytmapi_rs::auth::BrowserToken>(json, query);
 /// assert!(result.is_err());
 /// ```
