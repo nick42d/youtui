@@ -198,9 +198,9 @@ where
                     return;
                 }
             };
-            let stream_handle = rodio::OutputStreamBuilder::open_default_stream()
+            let mixer_device_sink = rodio::DeviceSinkBuilder::open_default_sink()
                 .expect("Expect to get a handle to output stream");
-            let sink = rodio::Sink::connect_new(stream_handle.mixer());
+            let sink = rodio::Player::connect_new(mixer_device_sink.mixer());
             // Hopefully someone else can't create a song with the same ID?!
             let mut cur_song_duration = None;
             let mut next_song_duration = None;
