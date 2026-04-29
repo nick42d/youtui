@@ -11,14 +11,14 @@ readme = "README.md"
 exclude = ["test_json/*"]
 
 [dependencies]
-tokio = "1.49.0"
+tokio = "1.52.1"
 # To allow alternative TLS options, we need to opt out of a single reqwest feature.
 # This isn't possible in Cargo, so we need to opt back into the other default features.
 # https://github.com/rust-lang/cargo/issues/3126
 # As of 26/4/24 the following are reqwest default features:
 # http2, default-tls, charset
 # stream is not a default feature. It is used explicitly - allows post queries to be streamed from a file handle.
-reqwest = { version = "0.13.1", features = [
+reqwest = { version = "0.13.3", features = [
   "json",
   "http2",
   "charset",
@@ -29,12 +29,12 @@ reqwest = { version = "0.13.1", features = [
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 json-crawler = { version = "0.1.0", path = "../json-crawler" }
-sha1 = "0.10.6"
-const_format = "0.2.35"
-chrono = { version = "0.4.42", features = ["serde"] }
+sha1 = "0.11.0"
+const_format = "0.2.36"
+chrono = { version = "0.4.44", features = ["serde"] }
 rand = "0.10.1"
 # Futures `executor` feature is not required.
-futures = { version = "0.3.31", features = ["async-await", "std"] }
+futures = { version = "0.3.32", features = ["async-await", "std"] }
 itertools = "0.14.0"
 
 [features]
@@ -69,7 +69,7 @@ workspace = true
 [dev-dependencies]
 pretty_assertions = "1.4.1"
 paste = "1.0.15"
-tokio = { version = "1.49.0", features = ["macros", "rt", "rt-multi-thread"] }
+tokio = { version = "1.52.1", features = ["macros", "rt", "rt-multi-thread"] }
 
 # Docs.rs-specific configuration required to enable documentation of
 # code requiring optional features.
