@@ -74,7 +74,7 @@ impl Default for Config {
 }
 
 #[derive(Default, Debug, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 /// Intermediate representation of Config for serde.
 pub struct ConfigIR {
     pub auth_type: AuthType,
