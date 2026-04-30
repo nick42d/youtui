@@ -587,6 +587,7 @@ where
         let handle = tokio::task::spawn(async move {
             std_send_or_error(selftx, AsyncRodioRequest::PlaySong(song, identifier, tx)).await;
             while let Some(msg) = rx.recv().await {
+                debug!("Received {msg:?}");
                 match msg {
                     AsyncRodioResponse::ProgressUpdate(duration) => {
                         send_or_error(&streamtx, PlayUpdate::PlayProgress(duration, identifier))
