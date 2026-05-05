@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.1.1](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.1.0...async-callback-manager/v0.1.1) - 2026-05-05
+
+### Other
+- Update deps ([#363](https://github.com/nick42d/youtui/pull/363))
+- Use cargo hack to better matrix crates ([#350](https://github.com/nick42d/youtui/pull/350))
+
+
+
+
 ## [0.0.12](https://github.com/nick42d/youtui/compare/async-callback-manager/v0.0.11...async-callback-manager/v0.0.12) - 2026-01-13
 
 ### Other

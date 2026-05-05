@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.0.37](https://github.com/nick42d/youtui/compare/youtui/v0.0.36...youtui/v0.0.37) - 2026-05-05
+
+### Fixed
+- Better declare image size ([#365](https://github.com/nick42d/youtui/pull/365))
+
+### Other
+- Update deps ([#363](https://github.com/nick42d/youtui/pull/363))
+- release ([#349](https://github.com/nick42d/youtui/pull/349))
+
+
+
 ### Other
 - updated the following local packages: ytmapi-rs
 
