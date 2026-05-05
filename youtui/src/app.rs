@@ -20,7 +20,7 @@ use std::fmt::Display;
 use std::io;
 use std::sync::Arc;
 use structures::ListSong;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 use tracing_subscriber::prelude::*;
 use ui::{WindowContext, YoutuiWindow};
 
@@ -136,6 +136,7 @@ impl Youtui {
         // visibility. Note that this may briefly block, delaying startup, but likely
         // unavoidable.
         let terminal_image_capabilities = Picker::from_query_stdio()?;
+        debug!("Terminal info: {terminal_image_capabilities:#?}");
         let (media_controls, media_control_event_stream) = if disable_media_controls {
             (None, None)
         } else {

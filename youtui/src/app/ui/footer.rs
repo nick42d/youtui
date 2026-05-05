@@ -191,7 +191,7 @@ pub fn draw_footer(
                                     x: 0,
                                     y: 0,
                                     width: ALBUM_ART_WIDTH,
-                                    height: ALBUM_ART_WIDTH,
+                                    height: ALBUM_ART_WIDTH - 1,
                                 },
                                 ratatui_image::Resize::Fit(None),
                             )
