@@ -407,29 +407,33 @@ where
                         info!("Rodio sent volume update");
                     }
                     AsyncRodioRequest::Seek(inc, direction, tx) => {
-                        info!("Got request to seek {inc:?} in {direction:?}");
-                        // Rodio always you to seek past song end when paused, and will report back
-                        // an incorrect position for sink.get_pos().
-                        // TODO: Report upstream
-                        let res = match direction {
-                            SeekDirection::Forward => sink.try_seek(
-                                sink.get_pos()
-                                    .saturating_add(inc)
-                                    .min(cur_song_duration.unwrap_or_default()),
-                            ),
-                            SeekDirection::Back => sink.try_seek(
-                                sink.get_pos()
-                                    .saturating_sub(inc)
-                                    .min(cur_song_duration.unwrap_or_default()),
-                            ),
-                        };
-                        if let Err(e) = res {
-                            error!("Failed to seek {:?}", e);
-                        }
+                        info!("Got request to seek {inc:?} in direction {direction:?}");
                         let Some(cur_song_id) = cur_song_id else {
                             warn!("Tried to seek, but no song loaded");
                             continue;
                         };
+                        let cur_pos = sink.get_pos();
+                        // The `min` is used because Rodio always you to seek past song end when
+                        // paused, and will report back an incorrect
+                        // position for sink.get_pos().
+                        //
+                        // TODO: Report upstream
+                        let new_pos = match direction {
+                            SeekDirection::Forward => cur_pos
+                                .saturating_add(inc)
+                                .min(cur_song_duration.unwrap_or_default()),
+
+                            SeekDirection::Back => cur_pos
+                                .saturating_sub(inc)
+                                .min(cur_song_duration.unwrap_or_default()),
+                        };
+                        debug!(
+                            "Executing seek request of {inc:?} in direction {direction:?}. \
+                             Song with ID {cur_song_id:?} will move from pos {cur_pos:?} to pos {new_pos:?}"
+                        );
+                        if let Err(e) = sink.try_seek(new_pos) {
+                            error!("Failed to seek {:?}", e);
+                        }
                         // It seems that there is a race condition with seeking a paused track in
                         // rodio itself. This delay is sufficient to ensure sink.get_pos() gets the
                         // right position.
