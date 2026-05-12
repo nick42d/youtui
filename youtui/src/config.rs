@@ -157,8 +157,13 @@ mod tests {
     }
     #[tokio::test]
     async fn test_unknown_keys_in_config() {
-        let config_file = r#"auth_typo = "Browser"#;
-        let ir: Result<ConfigIR, _> = toml::from_str(config_file);
+        let config_file = r#"auth_typo = 'Browser'"#;
+        // ASSERT: the provided toml is valid so therefore the error is related
+        // specifically to parsing into [ConfigIR]
+        //
+        // See https://github.com/nick42d/youtui/pull/366
+        let config_toml: toml::Value = toml::from_str(config_file).unwrap();
+        let ir: Result<ConfigIR, _> = config_toml.try_into();
         assert!(ir.is_err());
     }
     #[tokio::test]
