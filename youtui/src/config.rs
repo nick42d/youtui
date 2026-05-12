@@ -170,7 +170,12 @@ mod tests {
     async fn test_unknown_keybind_parameters() {
         let config_file = r#"[keybinds.global]
 raisevolume = {action = "vol_up", visiblity = "hidden"}"#;
-        let ir: Result<ConfigIR, _> = toml::from_str(config_file);
+        // ASSERT: the provided toml is valid so therefore the error is related
+        // specifically to parsing into [ConfigIR]
+        //
+        // See https://github.com/nick42d/youtui/pull/366
+        let config_toml: toml::Value = toml::from_str(config_file).unwrap();
+        let ir: Result<ConfigIR, _> = config_toml.try_into();
         assert!(ir.is_err());
     }
     #[tokio::test]
