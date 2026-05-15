@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    concurrency:
+      group: release-plz-release-${{ github.ref }}
+      cancel-in-progress: false
     steps:
       - &checkout
         name: Checkout repository
@@ -35,68 +38,78 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-      # Code to run post-release
-      #
-      # Add youtui release status and version number to use in the next actions
+
       - name: Check if youtui was released
         id: check_youtui_release
-        if: ${{ steps.release-plz.outputs.releases_created }}
+        if: ${{ steps.release-plz.outputs.releases_created == 'true' }}
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
         run: |
-          YOUTUI_IS_RELEASED=$(echo "$RELEASES" | jq -r 'any(.[]; .package_name == "youtui")')
+          # Safely parse JSON from env variable using a here-string
+          YOUTUI_IS_RELEASED=$(jq -r 'any(.[]; .package_name == "youtui")' <<< "$RELEASES")
           echo "Checking if youtui was released: $YOUTUI_IS_RELEASED"
           echo "youtui_released=$YOUTUI_IS_RELEASED" >> "$GITHUB_OUTPUT"
+          
           if [ "$YOUTUI_IS_RELEASED" == "true" ]; then
-             YOUTUI_VERSION=$(echo "$RELEASES" | jq -r '.[] | select(.package_name == "youtui") | .version')
+             YOUTUI_VERSION=$(jq -r '.[] | select(.package_name == "youtui") | .version' <<< "$RELEASES")
              echo "released version: $YOUTUI_VERSION"
              echo "youtui_version=$YOUTUI_VERSION" >> "$GITHUB_OUTPUT"
           fi
-        
-      - name: Setup SSH agent
-        if: ${{ steps.check_youtui_release.outputs.youtui_released == 'true' }}
-        uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+
       - name: Release youtui to AUR
         if: ${{ steps.check_youtui_release.outputs.youtui_released == 'true' }}
         env:
           NEW_YOUTUI_VERSION: ${{ steps.check_youtui_release.outputs.youtui_version }}
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
-          echo "Adding aur to known_hosts"
-          # To access aur via ssh aur public key must be added to known hosts
-          mkdir -p ~/.ssh
-          echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-          sudo chmod a+rw "$SSH_AUTH_SOCK"
+          # 1. Grab host IDs to prevent Docker permission errors
+          HOST_UID=$(id -u)
+          HOST_GID=$(id -g)
+          
+          # 2. Write SSH key safely to a temporary file
+          echo "$AUR_SSH_PRIVATE_KEY" > /tmp/aur_key
+          chmod 600 /tmp/aur_key
 
-          echo "Installing dependencies for arch docker image"
-          docker run --name setup-container \
-            -v "${{ github.workspace }}:/workspace" \
-            -v "$SSH_AUTH_SOCK:/tmp/ssh_agent.sock" \
-            -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
-            -e SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
-            -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
-            --workdir /workspace \
-            archlinux/archlinux:base-devel \
-            /bin/bash -c "pacman -Syu --noconfirm --needed git openssh just pacman-contrib rust && useradd -u 1000 -m builder"
+          # 3. Create an Ephemeral Dockerfile
+          cat <<EOF > Dockerfile.aur
+          FROM archlinux/archlinux:base-devel
+          
+          # Fix keyring before updating
+          RUN pacman -Sy archlinux-keyring --noconfirm && \
+              pacman -Su --noconfirm && \
+              pacman -S --noconfirm --needed git openssh just pacman-contrib rust sudo
 
-          echo "Storing setup docker image"
-          docker commit setup-container arch-loaded
-          docker rm setup-container
+          # Create non-root builder matching exact host permissions
+          RUN groupadd -g $HOST_GID builder && \
+              useradd -u $HOST_UID -g $HOST_GID -m builder && \
+              echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+              
+          USER builder
+          WORKDIR /workspace
+          
+          # Configure SSH known hosts for the container user
+          RUN mkdir -p /home/builder/.ssh && \
+              ssh-keyscan aur.archlinux.org >> /home/builder/.ssh/known_hosts
+          EOF
 
-          # makepkg commands within justfile need to run as non-root user
-          echo "Running aur update under docker image as non-root user"
+          # Build the ephemeral image
+          docker build -t aur-builder -f Dockerfile.aur .
+
+          # 4. Run builder securely without modifying SSH_AUTH_SOCK permissions
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
-            -v "$SSH_AUTH_SOCK:/tmp/ssh_agent.sock" \
-            -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
-            -e SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
-            -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
-            --user 1000:1000 \
-            --workdir /workspace \
-            arch-loaded \
-            /bin/bash -c 'git config --global user.email "nick42d-bot@users.noreply.github.com" && git config --global user.name "nick42d-bot" && just release-youtui-to-aur $NEW_YOUTUI_VERSION'
+            -v "/tmp/aur_key:/home/builder/.ssh/id_rsa:ro" \
+            -e NEW_YOUTUI_VERSION="$NEW_YOUTUI_VERSION" \
+            aur-builder \
+            /bin/bash -c '
+              git config --global --add safe.directory /workspace &&
+              git config --global user.email "nick42d-bot@users.noreply.github.com" &&
+              git config --global user.name "nick42d-bot" &&
+              just release-youtui-to-aur $NEW_YOUTUI_VERSION
+            '
+            
+          # Clean up the SSH key
+          rm /tmp/aur_key
 
   # Create a PR with the new versions and changelog, preparing the next release.
   release-plz-pr:
@@ -119,5 +132,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
-
