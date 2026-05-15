@@ -35,68 +35,65 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
       # Code to run post-release
       #
       # Add youtui release status and version number to use in the next actions
       - name: Check if youtui was released
         id: check_youtui_release
-        if: ${{ steps.release-plz.outputs.releases_created }}
+        if: ${{ steps.release-plz.outputs.releases_created == 'true' }}
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
         run: |
-          YOUTUI_IS_RELEASED=$(echo "$RELEASES" | jq -r 'any(.[]; .package_name == "youtui")')
+          YOUTUI_IS_RELEASED=$(jq -r 'any(.[]; .package_name == "youtui")' <<< "$RELEASES")
           echo "Checking if youtui was released: $YOUTUI_IS_RELEASED"
           echo "youtui_released=$YOUTUI_IS_RELEASED" >> "$GITHUB_OUTPUT"
+          
           if [ "$YOUTUI_IS_RELEASED" == "true" ]; then
-             YOUTUI_VERSION=$(echo "$RELEASES" | jq -r '.[] | select(.package_name == "youtui") | .version')
+             YOUTUI_VERSION=$(jq -r '.[] | select(.package_name == "youtui") | .version' <<< "$RELEASES")
              echo "released version: $YOUTUI_VERSION"
              echo "youtui_version=$YOUTUI_VERSION" >> "$GITHUB_OUTPUT"
           fi
-        
-      - name: Setup SSH agent
-        if: ${{ steps.check_youtui_release.outputs.youtui_released == 'true' }}
-        uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+
       - name: Release youtui to AUR
         if: ${{ steps.check_youtui_release.outputs.youtui_released == 'true' }}
         env:
           NEW_YOUTUI_VERSION: ${{ steps.check_youtui_release.outputs.youtui_version }}
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
         run: |
-          echo "Adding aur to known_hosts"
-          # To access aur via ssh aur public key must be added to known hosts
-          mkdir -p ~/.ssh
-          echo "aur.archlinux.org ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEuBKrPzbawxA/k2g6NcyV5jmqwJ2s+zpgZGZ7tpLIcN" >> ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
-          sudo chmod a+rw "$SSH_AUTH_SOCK"
+          # Grab host IDs to prevent Docker permission errors
+          HOST_UID=$(id -u)
+          HOST_GID=$(id -g)
+          
+          # It's safe to write this key to a temporary file - VM is torn down on exit.
+          # However - use GitHub Actions nominated temp directory.
+          # 
+          # Trap is used to prevent subsequent actions having access to this file if somehow this
+          # script is aborted before it's deleted (the trap command is run on exit).
+          KEY_PATH="$RUNNER_TEMP_DIR/aur_key"
+          trap 'rm -f "$KEY_PATH"' EXIT
+          echo "$AUR_SSH_PRIVATE_KEY" > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
 
-          echo "Installing dependencies for arch docker image"
-          docker run --name setup-container \
-            -v "${{ github.workspace }}:/workspace" \
-            -v "$SSH_AUTH_SOCK:/tmp/ssh_agent.sock" \
-            -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
-            -e SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
-            -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
-            --workdir /workspace \
-            archlinux/archlinux:base-devel \
-            /bin/bash -c "pacman -Syu --noconfirm --needed git openssh just pacman-contrib rust && useradd -u 1000 -m builder"
+          # Build an arch linux image set up for AUR development
+          docker build \
+            --build-arg HOST_UID=$HOST_UID \
+            --build-arg HOST_GID=$HOST_GID \
+            -t aur-builder \
+            -f .github/workflows/Dockerfile.aur-release .
 
-          echo "Storing setup docker image"
-          docker commit setup-container arch-loaded
-          docker rm setup-container
-
-          # makepkg commands within justfile need to run as non-root user
-          echo "Running aur update under docker image as non-root user"
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
-            -v "$SSH_AUTH_SOCK:/tmp/ssh_agent.sock" \
-            -v "$HOME/.ssh/known_hosts:/etc/ssh/ssh_known_hosts" \
-            -e SSH_AUTH_SOCK=/tmp/ssh_agent.sock \
-            -e NEW_YOUTUI_VERSION="${{ steps.check_youtui_release.outputs.youtui_version }}" \
-            --user 1000:1000 \
-            --workdir /workspace \
-            arch-loaded \
-            /bin/bash -c 'git config --global user.email "nick42d-bot@users.noreply.github.com" && git config --global user.name "nick42d-bot" && just release-youtui-to-aur $NEW_YOUTUI_VERSION'
+            -v "$KEY_PATH:/home/builder/.ssh/id_rsa:ro" \
+            -e NEW_YOUTUI_VERSION="$NEW_YOUTUI_VERSION" \
+            aur-builder \
+            /bin/bash -c '
+              git config --global --add safe.directory /workspace &&
+              git config --global user.email "nick42d-bot@users.noreply.github.com" &&
+              git config --global user.name "nick42d-bot" &&
+              just release-youtui-to-aur "$NEW_YOUTUI_VERSION"
+            '
 
   # Create a PR with the new versions and changelog, preparing the next release.
   release-plz-pr:
@@ -119,5 +116,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
-
