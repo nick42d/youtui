@@ -60,6 +60,7 @@ jobs:
         env:
           NEW_YOUTUI_VERSION: ${{ steps.check_youtui_release.outputs.youtui_version }}
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          RUNNER_TEMP_DIR: ${{ runner.temp }}
         run: |
           # Grab host IDs to prevent Docker permission errors
           HOST_UID=$(id -u)
@@ -70,7 +71,7 @@ jobs:
           # 
           # Trap is used to prevent subsequent actions having access to this file if somehow this
           # script is aborted before it's deleted (the trap command is run on exit).
-          KEY_PATH="${{ runner.temp }}/aur_key"
+          KEY_PATH="$RUNNER_TEMP_DIR/aur_key"
           trap 'rm -f "$KEY_PATH"' EXIT
           echo "$AUR_SSH_PRIVATE_KEY" > "$KEY_PATH"
           chmod 600 "$KEY_PATH"
