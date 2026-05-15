@@ -1,0 +1,22 @@
+FROM archlinux/archlinux:base-devel
+
+# Accept dynamic user/group IDs from GitHub Actions
+ARG HOST_UID
+ARG HOST_GID
+
+# Fix keyring before updating
+RUN pacman -Sy archlinux-keyring --noconfirm && \
+    pacman -Su --noconfirm && \
+    pacman -S --noconfirm --needed git openssh just pacman-contrib rust sudo
+
+# Create non-root builder matching exact host permissions
+RUN groupadd -g ${HOST_GID} builder && \
+    useradd -u ${HOST_UID} -g ${HOST_GID} -m builder && \
+    echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+    
+USER builder
+WORKDIR /workspace
+
+# Configure SSH known hosts for the container user
+RUN mkdir -p /home/builder/.ssh && \
+    ssh-keyscan aur.archlinux.org >> /home/builder/.ssh/known_hosts

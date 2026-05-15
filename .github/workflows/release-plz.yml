@@ -12,9 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    concurrency:
-      group: release-plz-release-${{ github.ref }}
-      cancel-in-progress: false
     steps:
       - &checkout
         name: Checkout repository
@@ -39,13 +36,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
+      # Code to run post-release
+      #
+      # Add youtui release status and version number to use in the next actions
       - name: Check if youtui was released
         id: check_youtui_release
         if: ${{ steps.release-plz.outputs.releases_created == 'true' }}
         env:
           RELEASES: ${{ steps.release-plz.outputs.releases }}
         run: |
-          # Safely parse JSON from env variable using a here-string
           YOUTUI_IS_RELEASED=$(jq -r 'any(.[]; .package_name == "youtui")' <<< "$RELEASES")
           echo "Checking if youtui was released: $YOUTUI_IS_RELEASED"
           echo "youtui_released=$YOUTUI_IS_RELEASED" >> "$GITHUB_OUTPUT"
@@ -62,43 +61,29 @@ jobs:
           NEW_YOUTUI_VERSION: ${{ steps.check_youtui_release.outputs.youtui_version }}
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
         run: |
-          # 1. Grab host IDs to prevent Docker permission errors
+          # Grab host IDs to prevent Docker permission errors
           HOST_UID=$(id -u)
           HOST_GID=$(id -g)
           
-          # 2. Write SSH key safely to a temporary file
-          echo "$AUR_SSH_PRIVATE_KEY" > /tmp/aur_key
-          chmod 600 /tmp/aur_key
+          # It's safe to write this key to a temporary file - VM is torn down on exit.
+          # However - use GitHub Actions nominated temp directory.
+          # 
+          # Trap is used to prevent subsequent actions having access to this file if somehow this
+          # script is aborted before it's deleted (the trap command is run on exit).
+          KEY_PATH="${{ runner.temp }}/aur_key"
+          trap 'rm -f "$KEY_PATH"' EXIT
+          echo "$AUR_SSH_PRIVATE_KEY" > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
 
-          # 3. Create an Ephemeral Dockerfile
-          cat <<EOF > Dockerfile.aur
-          FROM archlinux/archlinux:base-devel
-          
-          # Fix keyring before updating
-          RUN pacman -Sy archlinux-keyring --noconfirm && \
-              pacman -Su --noconfirm && \
-              pacman -S --noconfirm --needed git openssh just pacman-contrib rust sudo
+          # Build an arch linux image set up for AUR development
+          docker build \
+            --build-arg HOST_UID=$HOST_UID \
+            --build-arg HOST_GID=$HOST_GID \
+            -t aur-builder -f Dockerfile.aur-release .
 
-          # Create non-root builder matching exact host permissions
-          RUN groupadd -g $HOST_GID builder && \
-              useradd -u $HOST_UID -g $HOST_GID -m builder && \
-              echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-              
-          USER builder
-          WORKDIR /workspace
-          
-          # Configure SSH known hosts for the container user
-          RUN mkdir -p /home/builder/.ssh && \
-              ssh-keyscan aur.archlinux.org >> /home/builder/.ssh/known_hosts
-          EOF
-
-          # Build the ephemeral image
-          docker build -t aur-builder -f Dockerfile.aur .
-
-          # 4. Run builder securely without modifying SSH_AUTH_SOCK permissions
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
-            -v "/tmp/aur_key:/home/builder/.ssh/id_rsa:ro" \
+            -v "$KEY_PATH:/home/builder/.ssh/id_rsa:ro" \
             -e NEW_YOUTUI_VERSION="$NEW_YOUTUI_VERSION" \
             aur-builder \
             /bin/bash -c '
@@ -107,9 +92,6 @@ jobs:
               git config --global user.name "nick42d-bot" &&
               just release-youtui-to-aur $NEW_YOUTUI_VERSION
             '
-            
-          # Clean up the SSH key
-          rm /tmp/aur_key
 
   # Create a PR with the new versions and changelog, preparing the next release.
   release-plz-pr:
