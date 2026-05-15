@@ -80,7 +80,8 @@ jobs:
           docker build \
             --build-arg HOST_UID=$HOST_UID \
             --build-arg HOST_GID=$HOST_GID \
-            -t aur-builder -f Dockerfile.aur-release .
+            -t aur-builder \
+            -f .github/workflows/Dockerfile.aur-release .
 
           docker run --rm \
             -v "${{ github.workspace }}:/workspace" \
