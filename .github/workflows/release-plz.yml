@@ -91,7 +91,7 @@ jobs:
               git config --global --add safe.directory /workspace &&
               git config --global user.email "nick42d-bot@users.noreply.github.com" &&
               git config --global user.name "nick42d-bot" &&
-              just release-youtui-to-aur $NEW_YOUTUI_VERSION
+              just release-youtui-to-aur "$NEW_YOUTUI_VERSION"
             '
 
   # Create a PR with the new versions and changelog, preparing the next release.
