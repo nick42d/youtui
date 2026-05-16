@@ -107,9 +107,18 @@ impl Player {
 
 /// Try to decode bytes into Source.
 fn try_decode(song: Arc<InMemSong>) -> std::result::Result<DecodedInMemSong, DecoderError> {
+    let len = song.as_ref().0.len();
     let song = ArcInMemSong(song);
     let cur = std::io::Cursor::new(song);
-    Ok(DecodedInMemSong(async_rodio_sink::rodio::Decoder::new(
-        cur,
-    )?))
+    Ok(DecodedInMemSong(
+        async_rodio_sink::rodio::Decoder::builder()
+            .with_data(cur)
+            .with_gapless(true)
+            .with_byte_len(
+                len.try_into()
+                    .expect("Expected usize to be smaller than or equal to u64"),
+            )
+            .with_seekable(true)
+            .build()?,
+    ))
 }
