@@ -137,6 +137,23 @@ impl SongThumbnailDownloader {
     ) -> anyhow::Result<SongThumbnail> {
         // Do not download album art until directory setup and clean has completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
+
+        let mut dir_contents = tokio::fs::read_dir(get_album_art_dir()?).await?;
+        while let Some(entry) = dir_contents.next_entry().await? {
+            if entry.path().file_name() == format!("{}{}", ALBUM_ART_FILENAME_PREFIX, thumbnail_id)
+            {
+                let file_ext = entry.path().extension();
+                let image_bytes = tokio::fs::read(entry.path()).await.unwrap();
+                let image_reader = image::ImageReader::with_format(
+                    std::io::Cursor::new(image_bytes.clone()),
+                    image::ImageFormat::from_extension(file_ext).unwrap(),
+                )
+                .with_guessed_format()
+                .unwrap();
+                // then touch the file & decode
+                // then return image
+            }
+        }
         let url = reqwest::Url::parse(&thumbnail_url)?;
         let image_bytes = self.client.get(url).send().await?.bytes().await?;
         // `Bytes` is cheap to clone.
