@@ -15,14 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other
 - Update deps ([#363](https://github.com/nick42d/youtui/pull/363))
 - *(deps)* bump the cargo group across 1 directory with 3 updates ([#361](https://github.com/nick42d/youtui/pull/361))
-
 - Reduce tokio features for ytmapi-rs ([#336](https://github.com/nick42d/youtui/pull/336))
 - *(deps)* bump rand in the cargo group across 1 directory ([#357](https://github.com/nick42d/youtui/pull/357))
-
 - Use cargo hack to better matrix crates ([#350](https://github.com/nick42d/youtui/pull/350))
-
-
-
 
 ## [0.3.1](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.3.0...ytmapi-rs/v0.3.1) - 2026-02-09
 
