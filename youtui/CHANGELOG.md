@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.38](https://github.com/nick42d/youtui/compare/youtui/v0.0.37...youtui/v0.0.38) - 2026-05-16
+
+### Fixed
+- Prevent playback ending when seeking back repeatedly ([#364](https://github.com/nick42d/youtui/pull/364))
+
+
+
+
 ## [0.0.37](https://github.com/nick42d/youtui/compare/youtui/v0.0.36...youtui/v0.0.37) - 2026-05-15
 
 ### Fixed
