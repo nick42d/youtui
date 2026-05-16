@@ -2,7 +2,7 @@
 //! handle gapless playback.
 //! This module has been designed to be implemented as a library in future.
 use async_callback_manager::PanickingReceiverStream;
-use futures::Stream;
+use futures::{FutureExt, Stream};
 use rodio::Source;
 use rodio::cpal::FromSample;
 use rodio::source::{EmptyCallback, PeriodicAccess, TrackPosition};
@@ -18,6 +18,7 @@ pub mod rodio {
 
 const PROGRESS_UPDATE_DELAY: Duration = Duration::from_millis(100);
 const PLAYER_MSG_QUEUE_SIZE: usize = 50;
+const RODIO_PLAYER_PANICKED_MESSAGE: &str = "Rodio player has panicked! Cause unknown";
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Percentage(u8);
@@ -161,7 +162,7 @@ where
     I: Debug,
 {
     _handle: tokio::task::JoinHandle<()>,
-    tx: std::sync::mpsc::Sender<AsyncRodioRequest<S, I>>,
+    tx: tokio::sync::mpsc::Sender<AsyncRodioRequest<S, I>>,
 }
 
 impl<S, I> Default for AsyncRodio<S, I>
@@ -184,7 +185,8 @@ where
     I: Debug + PartialEq + Copy + Send + 'static,
 {
     pub fn new() -> Self {
-        let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
+        let (tx, mut rx) =
+            tokio::sync::mpsc::channel::<AsyncRodioRequest<S, I>>(PLAYER_MSG_QUEUE_SIZE);
         let _handle = tokio::task::spawn_blocking(move || {
             // Rodio can produce output to stderr when we don't want it to, so we use Gag to
             // suppress stdout/stderr. The downside is that even though this runs in
@@ -208,7 +210,7 @@ where
             let mut next_song_id = None;
             // There is no need for a drop implementation on AsyncRodio, since if AsyncRodio
             // has dropped with it's sender, receive loop will receive Err and end.
-            while let Ok(msg) = rx.recv() {
+            while let Some(msg) = rx.blocking_recv() {
                 match msg {
                     AsyncRodioRequest::AutoplaySong(song, song_id, tx) => {
                         if Some(song_id) == next_song_id {
@@ -473,9 +475,10 @@ where
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
         let handle = tokio::task::spawn(async move {
-            std_send_or_error(
+            panicking_send_or_error(
                 selftx,
                 AsyncRodioRequest::AutoplaySong(song, identifier, tx),
+                RODIO_PLAYER_PANICKED_MESSAGE,
             )
             .await;
             while let Some(msg) = rx.recv().await {
@@ -532,7 +535,12 @@ where
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
         let handle = tokio::task::spawn(async move {
-            std_send_or_error(selftx, AsyncRodioRequest::QueueSong(song, identifier, tx)).await;
+            panicking_send_or_error(
+                selftx,
+                AsyncRodioRequest::QueueSong(song, identifier, tx),
+                RODIO_PLAYER_PANICKED_MESSAGE,
+            )
+            .await;
             while let Some(msg) = rx.recv().await {
                 match msg {
                     AsyncRodioResponse::ProgressUpdate(duration) => {
@@ -584,7 +592,12 @@ where
         let (streamtx, streamrx) = tokio::sync::mpsc::channel(PLAYER_MSG_QUEUE_SIZE);
         let selftx = self.tx.clone();
         let handle = tokio::task::spawn(async move {
-            std_send_or_error(selftx, AsyncRodioRequest::PlaySong(song, identifier, tx)).await;
+            panicking_send_or_error(
+                selftx,
+                AsyncRodioRequest::PlaySong(song, identifier, tx),
+                RODIO_PLAYER_PANICKED_MESSAGE,
+            )
+            .await;
             while let Some(msg) = rx.recv().await {
                 match msg {
                     AsyncRodioResponse::ProgressUpdate(duration) => {
@@ -633,7 +646,12 @@ where
         direction: SeekDirection,
     ) -> Option<ProgressUpdate<I>> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::Seek(duration, direction, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::Seek(duration, direction, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok((current_duration, song_id)) = rx.await else {
             // This happens intentionally - when a seek is requested for a song
             // but all songs have finished, instead of sending a reply, rodio will drop
@@ -648,7 +666,12 @@ where
     }
     pub async fn seek_to(&self, seek_to_pos: Duration, id: I) -> Option<ProgressUpdate<I>> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::SeekTo(seek_to_pos, id, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::SeekTo(seek_to_pos, id, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok((current_duration, song_id)) = rx.await else {
             // This happens intentionally - when a seek is requested for a song
             // that's no longer playing, instead of sending a reply, rodio will drop
@@ -663,7 +686,12 @@ where
     }
     pub async fn stop(&self, identifier: I) -> Option<Stopped<I>> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::Stop(identifier, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::Stop(identifier, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok(_) = rx.await else {
             // This happens intentionally - when a stop is requested for a song
             // that's no longer playing, instead of sending a reply, rodio will drop sender.
@@ -674,7 +702,12 @@ where
     }
     pub async fn stop_all(&self) -> Option<AllStopped> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::StopAll(tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::StopAll(tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok(_) = rx.await else {
             // Should never happen!
             error!("stop_all sender dropped - unknown reason");
@@ -684,7 +717,12 @@ where
     }
     pub async fn pause_play(&self, identifier: I) -> Option<PausePlayResponse<I>> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::PausePlay(identifier, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::PausePlay(identifier, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok(play_action_taken) = rx.await else {
             // This happens intentionally - when a pauseplay is requested for a song
             // that's no longer playing, instead of sending a reply, rodio will drop sender.
@@ -698,7 +736,12 @@ where
     }
     pub async fn pause(&self, identifier: I) -> Option<Paused<I>> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::Pause(identifier, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::Pause(identifier, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok(_) = rx.await else {
             // This happens intentionally - when a pauseplay is requested for a song
             // that's no longer playing, instead of sending a reply, rodio will drop sender.
@@ -709,7 +752,12 @@ where
     }
     pub async fn resume(&self, identifier: I) -> Option<Resumed<I>> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::Resume(identifier, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::Resume(identifier, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok(_) = rx.await else {
             // This happens intentionally - when a pauseplay is requested for a song
             // that's no longer playing, instead of sending a reply, rodio will drop sender.
@@ -720,7 +768,12 @@ where
     }
     pub async fn increase_volume(&self, vol_inc: i8) -> Option<VolumeUpdate> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::IncreaseVolume(vol_inc, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::IncreaseVolume(vol_inc, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok(current_volume) = rx.await else {
             // Should never happen!
             error!("The player has been dropped while I was waiting for a volume update for",);
@@ -730,7 +783,12 @@ where
     }
     pub async fn set_volume(&self, new_vol: u8) -> Option<VolumeUpdate> {
         let (tx, rx) = rodio_oneshot_channel();
-        std_send_or_error(&self.tx, AsyncRodioRequest::SetVolume(new_vol, tx)).await;
+        panicking_send_or_error(
+            &self.tx,
+            AsyncRodioRequest::SetVolume(new_vol, tx),
+            RODIO_PLAYER_PANICKED_MESSAGE,
+        )
+        .await;
         let Ok(current_volume) = rx.await else {
             // Should never happen!
             error!("The player has been dropped while I was waiting for a volume update for",);
@@ -764,6 +822,24 @@ where
     song.track_position().periodic_access(interval, callback)
 }
 
+/// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
+/// panic.
+///
+/// # PANICS
+pub async fn panicking_send_or_error<T, S: Borrow<mpsc::Sender<T>>>(
+    tx: S,
+    msg: T,
+    panic_msg: impl std::fmt::Display,
+) {
+    let Ok(_) = tx.borrow().send(msg).await else {
+        panic!("{panic_msg}")
+    };
+}
+pub fn std_send_or_error<T, S: Borrow<std::sync::mpsc::Sender<T>>>(tx: S, msg: T) {
+    tx.borrow()
+        .send(msg)
+        .unwrap_or_else(|e| error!("Error {e} received when sending message"));
+}
 /* #### BELOW CODE COPIED FROM youtui::core #### */
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
 /// log an error with Tracing.
@@ -771,11 +847,6 @@ pub async fn send_or_error<T, S: Borrow<mpsc::Sender<T>>>(tx: S, msg: T) {
     tx.borrow()
         .send(msg)
         .await
-        .unwrap_or_else(|e| error!("Error {e} received when sending message"));
-}
-pub async fn std_send_or_error<T, S: Borrow<std::sync::mpsc::Sender<T>>>(tx: S, msg: T) {
-    tx.borrow()
-        .send(msg)
         .unwrap_or_else(|e| error!("Error {e} received when sending message"));
 }
 /// Send a message to the specified Tokio mpsc::Sender, and if sending fails,
