@@ -312,7 +312,7 @@ mod tests {
             .iter()
             .map(|cell| cell.symbol())
             .collect::<String>();
-        let expected_cells_as_string = "AAABCAABCDAABCD".to_string();
+        let expected_cells_as_string = "AAABCAAABCAABCD".to_string();
         assert_eq!(cells_as_string, expected_cells_as_string);
     }
     #[test]
@@ -320,13 +320,14 @@ mod tests {
         let headings = ["AA"];
         let table_items = [[Cow::from("1")]];
         let mut table_state = ScrollingTableState::default();
-        table_state.select(Some(1), 0);
+        table_state.select(Some(0), 0);
         let area = Rect::new(0, 0, 2, 2);
         let mut buf = ratatui::buffer::Buffer::empty(area);
 
         let table_frame_three =
-            ScrollingTable::new(table_items, headings, vec![Constraint::Length(2)], 2)
-                .min_ticker_gap(1);
+            ScrollingTable::new(table_items, headings, vec![Constraint::Length(2)], 3)
+                .min_ticker_gap(1)
+                .row_highlight_style(ratatui::style::Style::new().on_light_blue());
         table_frame_three.render(area, &mut buf, &mut table_state);
         let cells_as_string = buf
             .content

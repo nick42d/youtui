@@ -219,7 +219,7 @@ mod tests {
         assert_eq!(frame_6_cells_as_string, expected_frame_6_cells_as_string);
     }
     #[test]
-    fn test_graphemes() {
+    fn test_scrolling_graphemes() {
         let list_items = ["AAA", " AA", "AAAA"];
         let mut list_state = ScrollingListState::default();
         list_state.select(Some(1), 0);
@@ -238,7 +238,7 @@ mod tests {
         assert_eq!(frame_1_cells_as_string, expected_frame_1_cells_as_string);
 
         // Frame 2 - scrolling only
-        let list_frame_2 = ScrollingList::new(list_items, 1).ticker_gap(1);
+        let list_frame_2 = ScrollingList::new(list_items, 3).ticker_gap(1);
         list_frame_2.render(area, &mut buf, &mut list_state);
         let frame_2_cells_as_string = buf
             .content
