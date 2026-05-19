@@ -3,11 +3,13 @@ use crate::core::create_or_clean_directory;
 use crate::get_data_dir;
 use anyhow::{Context, anyhow};
 use async_cell::sync::AsyncCell;
+use fs_err::OpenOptions;
 use futures::FutureExt;
 use futures::future::try_join;
 use rusty_ytdl::reqwest;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::SystemTime;
 use tokio_stream::StreamExt;
 use tracing::{error, info, warn};
 use ytmapi_rs::common::{AlbumID, UploadAlbumID, VideoID, YoutubeID};
@@ -169,26 +171,38 @@ impl SongThumbnailDownloader {
         );
         let matching_album_art =
             futures::stream::StreamExt::filter_map(valid_dir_files, |dir_file| async {
-                // Youtui album art is valid unicode - ie YAA_{STRING}
-                // Therefore, we can ignore all invalid unicode files in this directory as they
-                // are not from Youtui.
                 if dir_file
                     .path()
                     .file_prefix()
                     .and_then(|dir_file_prefix| dir_file_prefix.to_str())
+                    // Youtui album art is valid unicode - ie YAA_{STRING}
+                    // Therefore, we can ignore all invalid unicode files in this directory as they
+                    // are not from Youtui.
                     .is_none_or(|dir_file_prefix| {
                         dir_file_prefix
                             != format!("{}{}", ALBUM_ART_FILENAME_PREFIX, thumbnail_id).as_str()
                     })
                 {
+                    warn!(
+                        "Detected a file in youtui album art directory with invalid filename {}",
+                        dir_file.file_name().display()
+                    );
                     return None;
                 }
                 // Youtui will always write a file extension.
                 let Some(file_ext) = dir_file.path().extension() else {
+                    warn!(
+                        "Detected a file in youtui album art directory with no extension {}",
+                        dir_file.file_name().display()
+                    );
                     return None;
                 };
                 // ...and it will be a valid image format extension.
                 let Some(image_format) = image::ImageFormat::from_extension(file_ext) else {
+                    warn!(
+                        "Detected a file in youtui album art directory with invalid extension {}",
+                        dir_file.file_name().display()
+                    );
                     return None;
                 };
                 let image_bytes = match tokio::fs::read(dir_file.path()).await {
@@ -202,23 +216,52 @@ impl SongThumbnailDownloader {
                     std::io::Cursor::new(image_bytes),
                     image_format,
                 );
-                let image_decoded = match tokio::task::spawn_blocking(|| image_reader.decode()).await {
-                    Ok(Ok(img)) => img,
-                    Ok(Err(e)) => {
-                        warn!("Decoding image {} errored with error <{e}>, ignoring");
-                        return None
-                    }
-                    Err(e) => {
-                        warn!("Decoding image {} panicked with error <{e}>, ignoring");
-                        return None
-                    }
-                }
-                // then touch the file
-                // then return image
-                todo!()
+                let image_decoded =
+                    match tokio::task::spawn_blocking(|| image_reader.decode()).await {
+                        Ok(Ok(img)) => img,
+                        Ok(Err(e)) => {
+                            warn!(
+                                "Decoding image {} errored with error <{e}>, ignoring",
+                                dir_file.file_name().display()
+                            );
+                            return None;
+                        }
+                        Err(e) => {
+                            error!(
+                                "Decoding image {} panicked with error <{e}>, ignoring",
+                                dir_file.file_name().display()
+                            );
+                            return None;
+                        }
+                    };
+                let dir_file_arc = Arc::new(dir_file);
+                let dir_file_arc_clone = dir_file_arc.clone();
+                match tokio::task::spawn_blocking(move || {
+                    let now = SystemTime::now();
+                    let times = std::fs::FileTimes::new()
+                        .set_accessed(now)
+                        .set_modified(now);
+                    let file = OpenOptions::new().write(true).open(dir_file_arc.path())?;
+                    file.set_times(times)?;
+                    Ok::<_, std::io::Error>(())
+                })
+                .await
+                {
+                    Ok(Ok(())) => {}
+                    Ok(Err(e)) => warn!(
+                        "Error <{e} whilst trying to update timestamp on image {}",
+                        dir_file_arc_clone.path().display()
+                    ),
+                    Err(e) => error!(
+                        "Panicked whilst trying to update timestamp on {} with error <{e}>",
+                        dir_file_arc_clone.path().display()
+                    ),
+                };
+                Some(image_decoded)
             });
-        let matching_album_art = std::pin::pin!(matching_album_art);
+        let mut matching_album_art = std::pin::pin!(matching_album_art);
         matching_album_art.next().await;
+
         let url = reqwest::Url::parse(&thumbnail_url)?;
         let image_bytes = self.client.get(url).send().await?.bytes().await?;
         // `Bytes` is cheap to clone.
