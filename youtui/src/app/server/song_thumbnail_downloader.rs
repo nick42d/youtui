@@ -1,5 +1,5 @@
 use crate::app::structures::{AlbumOrUploadAlbumID, ListSong, ListSongAlbum};
-use crate::core::create_or_clean_directory;
+use crate::core::{create_or_clean_directory, touch_file_with_timestamp};
 use crate::get_data_dir;
 use anyhow::{Context, anyhow};
 use async_cell::sync::AsyncCell;
@@ -156,7 +156,7 @@ impl SongThumbnailDownloader {
             });
         let valid_dir_files = futures::stream::StreamExt::filter(
             valid_dir_contents,
-            |dir_entry| async {
+            |dir_entry| async move {
                 match dir_entry.file_type().await {
                     Ok(file_type) => file_type.is_file(),
                     Err(e) => {
@@ -236,27 +236,14 @@ impl SongThumbnailDownloader {
                     };
                 let dir_file_arc = Arc::new(dir_file);
                 let dir_file_arc_clone = dir_file_arc.clone();
-                match tokio::task::spawn_blocking(move || {
-                    let now = SystemTime::now();
-                    let times = std::fs::FileTimes::new()
-                        .set_accessed(now)
-                        .set_modified(now);
-                    let file = OpenOptions::new().write(true).open(dir_file_arc.path())?;
-                    file.set_times(times)?;
-                    Ok::<_, std::io::Error>(())
-                })
-                .await
-                {
-                    Ok(Ok(())) => {}
-                    Ok(Err(e)) => warn!(
+
+                match touch_file_with_timestamp(dir_file_arc.path(), SystemTime::now()).await {
+                    Ok(()) => {}
+                    Err(e) => warn!(
                         "Error <{e} whilst trying to update timestamp on image {}",
                         dir_file_arc_clone.path().display()
                     ),
-                    Err(e) => error!(
-                        "Panicked whilst trying to update timestamp on {} with error <{e}>",
-                        dir_file_arc_clone.path().display()
-                    ),
-                };
+                }
                 Some(image_decoded)
             });
         let mut matching_album_art = std::pin::pin!(matching_album_art);

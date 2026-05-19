@@ -142,6 +142,30 @@ pub async fn create_or_clean_directory(
     Ok(files_deleted)
 }
 
+/// Update the modified and accessed timestamps of a file that exists with
+/// `timestamp`, asynchronously.
+pub async fn touch_file_with_timestamp(
+    path: impl Into<PathBuf>,
+    timestamp: SystemTime,
+) -> std::io::Result<()> {
+    let path: PathBuf = path.into();
+    // Polyfill for missing tokio equivalent to std
+    //
+    // https://github.com/tokio-rs/tokio/issues/6368
+    tokio::task::spawn_blocking(move || {
+        let times = std::fs::FileTimes::new()
+            .set_accessed(timestamp)
+            .set_modified(timestamp);
+        let file = fs_err::OpenOptions::new().write(true).open(path)?;
+        file.set_times(times)?;
+        Ok::<_, std::io::Error>(())
+    })
+    .await
+    // The two ways the task can error is if I have cancelled it (I haven't) or it's panicked
+    .unwrap();
+    Ok(())
+}
+
 /// From serde documentation: [<https://serde.rs/string-or-struct.html>]
 pub fn string_or_struct<'de, T, D>(deserializer: D) -> std::result::Result<T, D::Error>
 where
@@ -187,13 +211,56 @@ where
 /// lowest one first.
 #[cfg(test)]
 mod tests {
-    use crate::core::{create_or_clean_directory, get_limited_sequential_file};
+    use crate::core::{
+        create_or_clean_directory, get_limited_sequential_file, touch_file_with_timestamp,
+    };
     use pretty_assertions::assert_eq;
     use std::time::{Duration, SystemTime};
     use tempfile::TempDir;
     use tokio_stream::StreamExt;
     use tokio_stream::wrappers::ReadDirStream;
 
+    #[tokio::test]
+    async fn test_touch_file_updates_timestamps() {
+        let tmpdir = TempDir::new().unwrap();
+        let tmpfile = tmpdir.path().join("test_file");
+        let file = fs_err::tokio::File::create_new(tmpfile.clone())
+            .await
+            .unwrap();
+        let metadata = file.metadata().await.unwrap();
+        let (old_accessed, old_modified) =
+            (metadata.accessed().unwrap(), metadata.modified().unwrap());
+        let new_timestamp = SystemTime::now();
+        assert_ne!(old_accessed, new_timestamp);
+        assert_ne!(old_modified, new_timestamp);
+        touch_file_with_timestamp(tmpfile.clone(), new_timestamp)
+            .await
+            .unwrap();
+        let new_metadata = fs_err::tokio::File::open(tmpfile.clone())
+            .await
+            .unwrap()
+            .metadata()
+            .await
+            .unwrap();
+        let (new_accessed, new_modified) = (
+            new_metadata.accessed().unwrap(),
+            new_metadata.modified().unwrap(),
+        );
+        assert_ne!(new_accessed, new_timestamp);
+        assert_ne!(new_modified, new_timestamp);
+    }
+    #[tokio::test]
+    async fn test_touch_file_file_not_found() {
+        let tmpdir = TempDir::new().unwrap();
+        let tmpfile = tmpdir.path().join("test_file");
+        assert!(!fs_err::tokio::try_exists(tmpfile.clone()).await.unwrap());
+        assert!(
+            touch_file_with_timestamp(tmpfile.clone(), SystemTime::now())
+                .await
+                .is_err()
+        );
+        assert!(!fs_err::tokio::try_exists(tmpfile).await.unwrap());
+    }
     #[tokio::test]
     async fn test_create_or_clean_directory_creates_directory() {
         let tmpdir = TempDir::new().unwrap();
