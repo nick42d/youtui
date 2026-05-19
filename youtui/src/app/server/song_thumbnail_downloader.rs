@@ -8,7 +8,8 @@ use futures::future::try_join;
 use rusty_ytdl::reqwest;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tracing::{error, info};
+use tokio_stream::StreamExt;
+use tracing::{error, info, warn};
 use ytmapi_rs::common::{AlbumID, UploadAlbumID, VideoID, YoutubeID};
 
 // The directory and prefix are to protect the user - files in this directory
@@ -138,22 +139,86 @@ impl SongThumbnailDownloader {
         // Do not download album art until directory setup and clean has completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
 
-        let mut dir_contents = tokio::fs::read_dir(get_album_art_dir()?).await?;
-        while let Some(entry) = dir_contents.next_entry().await? {
-            if entry.path().file_name() == format!("{}{}", ALBUM_ART_FILENAME_PREFIX, thumbnail_id)
-            {
-                let file_ext = entry.path().extension();
-                let image_bytes = tokio::fs::read(entry.path()).await.unwrap();
+        let album_art_dir = get_album_art_dir()?;
+
+        let mut dir_contents = tokio::fs::read_dir(&album_art_dir).await?;
+        let valid_dir_contents = tokio_stream::wrappers::ReadDirStream::new(dir_contents).
+            filter_map(|maybe_dir_entry| {
+                match maybe_dir_entry {
+                    Ok(dir_entry) => Some(dir_entry),
+                    Err(e) => {
+                        warn!("Error <{e}> iterating through files in album art dir {}, ignoring this entry", album_art_dir.display());
+                        None
+                    },
+                }
+            });
+        let valid_dir_files = futures::stream::StreamExt::filter(
+            valid_dir_contents,
+            |dir_entry| async {
+                match dir_entry.file_type().await {
+                    Ok(file_type) => file_type.is_file(),
+                    Err(e) => {
+                        warn!(
+                            "Error <{e}> determining file type of entry {dir_entry:?} in album art dir {}, ignoring this entry",
+                            album_art_dir.display()
+                        );
+                        false
+                    }
+                }
+            },
+        );
+        let matching_album_art =
+            futures::stream::StreamExt::filter_map(valid_dir_files, |dir_file| async {
+                // Youtui album art is valid unicode - ie YAA_{STRING}
+                // Therefore, we can ignore all invalid unicode files in this directory as they
+                // are not from Youtui.
+                if dir_file
+                    .path()
+                    .file_prefix()
+                    .and_then(|dir_file_prefix| dir_file_prefix.to_str())
+                    .is_none_or(|dir_file_prefix| {
+                        dir_file_prefix
+                            != format!("{}{}", ALBUM_ART_FILENAME_PREFIX, thumbnail_id).as_str()
+                    })
+                {
+                    return None;
+                }
+                // Youtui will always write a file extension.
+                let Some(file_ext) = dir_file.path().extension() else {
+                    return None;
+                };
+                // ...and it will be a valid image format extension.
+                let Some(image_format) = image::ImageFormat::from_extension(file_ext) else {
+                    return None;
+                };
+                let image_bytes = match tokio::fs::read(dir_file.path()).await {
+                    Ok(bytes) => bytes,
+                    Err(e) => {
+                        info!("Unable to read image {dir_file:?}, ignoring");
+                        return None;
+                    }
+                };
                 let image_reader = image::ImageReader::with_format(
-                    std::io::Cursor::new(image_bytes.clone()),
-                    image::ImageFormat::from_extension(file_ext).unwrap(),
-                )
-                .with_guessed_format()
-                .unwrap();
-                // then touch the file & decode
+                    std::io::Cursor::new(image_bytes),
+                    image_format,
+                );
+                let image_decoded = match tokio::task::spawn_blocking(|| image_reader.decode()).await {
+                    Ok(Ok(img)) => img,
+                    Ok(Err(e)) => {
+                        warn!("Decoding image {} errored with error <{e}>, ignoring");
+                        return None
+                    }
+                    Err(e) => {
+                        warn!("Decoding image {} panicked with error <{e}>, ignoring");
+                        return None
+                    }
+                }
+                // then touch the file
                 // then return image
-            }
-        }
+                todo!()
+            });
+        let matching_album_art = std::pin::pin!(matching_album_art);
+        matching_album_art.next().await;
         let url = reqwest::Url::parse(&thumbnail_url)?;
         let image_bytes = self.client.get(url).send().await?.bytes().await?;
         // `Bytes` is cheap to clone.
