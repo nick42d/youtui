@@ -152,6 +152,10 @@ pub async fn touch_file_with_timestamp(
     // Polyfill for missing tokio equivalent to std
     //
     // https://github.com/tokio-rs/tokio/issues/6368
+    #[expect(
+        clippy::unwrap_used,
+        reason = "The two ways the task can error is if I have cancelled it (I haven't) or it's panicked which should both be true panics"
+    )]
     tokio::task::spawn_blocking(move || {
         let times = std::fs::FileTimes::new()
             .set_accessed(timestamp)
@@ -161,8 +165,7 @@ pub async fn touch_file_with_timestamp(
         Ok::<_, std::io::Error>(())
     })
     .await
-    // The two ways the task can error is if I have cancelled it (I haven't) or it's panicked
-    .unwrap();
+    .unwrap()?;
     Ok(())
 }
 
@@ -246,18 +249,20 @@ mod tests {
             new_metadata.accessed().unwrap(),
             new_metadata.modified().unwrap(),
         );
-        assert_ne!(new_accessed, new_timestamp);
-        assert_ne!(new_modified, new_timestamp);
+        assert_eq!(new_accessed, new_timestamp);
+        assert_eq!(new_modified, new_timestamp);
     }
     #[tokio::test]
     async fn test_touch_file_file_not_found() {
         let tmpdir = TempDir::new().unwrap();
         let tmpfile = tmpdir.path().join("test_file");
         assert!(!fs_err::tokio::try_exists(tmpfile.clone()).await.unwrap());
-        assert!(
+        assert_eq!(
             touch_file_with_timestamp(tmpfile.clone(), SystemTime::now())
                 .await
-                .is_err()
+                .unwrap_err()
+                .kind(),
+            std::io::ErrorKind::NotFound
         );
         assert!(!fs_err::tokio::try_exists(tmpfile).await.unwrap());
     }

@@ -3,7 +3,6 @@ use crate::core::{create_or_clean_directory, touch_file_with_timestamp};
 use crate::get_data_dir;
 use anyhow::{Context, anyhow};
 use async_cell::sync::AsyncCell;
-use fs_err::OpenOptions;
 use futures::FutureExt;
 use futures::future::try_join;
 use rusty_ytdl::reqwest;
@@ -11,7 +10,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::SystemTime;
 use tokio_stream::StreamExt;
-use tracing::{error, info, warn};
+use tracing::{debug, error, info, warn};
 use ytmapi_rs::common::{AlbumID, UploadAlbumID, VideoID, YoutubeID};
 
 // The directory and prefix are to protect the user - files in this directory
@@ -141,36 +140,44 @@ impl SongThumbnailDownloader {
         // Do not download album art until directory setup and clean has completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
 
-        let album_art_dir = get_album_art_dir()?;
+        let album_art_dir = Arc::new(get_album_art_dir()?);
+        let album_art_dir_clone = album_art_dir.clone();
 
-        let mut dir_contents = tokio::fs::read_dir(&album_art_dir).await?;
+        let dir_contents = tokio::fs::read_dir(album_art_dir.as_path()).await?;
         let valid_dir_contents = tokio_stream::wrappers::ReadDirStream::new(dir_contents).
             filter_map(|maybe_dir_entry| {
                 match maybe_dir_entry {
                     Ok(dir_entry) => Some(dir_entry),
                     Err(e) => {
-                        warn!("Error <{e}> iterating through files in album art dir {}, ignoring this entry", album_art_dir.display());
+                        warn!("Error <{e}> iterating through files in album art dir {}, ignoring this entry", album_art_dir_clone.display());
                         None
                     },
                 }
             });
-        let valid_dir_files = futures::stream::StreamExt::filter(
+        // Use of filter_map here prevents lifetime uses between closure and future as
+        // it takes a closure with an owned instead of borrowed parameter.
+        let valid_dir_files = futures::stream::StreamExt::filter_map(
             valid_dir_contents,
-            |dir_entry| async move {
-                match dir_entry.file_type().await {
-                    Ok(file_type) => file_type.is_file(),
-                    Err(e) => {
-                        warn!(
-                            "Error <{e}> determining file type of entry {dir_entry:?} in album art dir {}, ignoring this entry",
-                            album_art_dir.display()
-                        );
-                        false
+            |dir_entry| {
+                let album_art_dir_clone = album_art_dir.clone();
+                async move {
+                    match dir_entry.file_type().await {
+                        Ok(file_type) => file_type.is_file().then_some(dir_entry),
+                        Err(e) => {
+                            warn!(
+                                "Error <{e}> determining file type of entry {dir_entry:?} in album art dir {}, ignoring this entry",
+                                album_art_dir_clone.clone().display()
+                            );
+                            None
+                        }
                     }
                 }
             },
         );
-        let matching_album_art =
-            futures::stream::StreamExt::filter_map(valid_dir_files, |dir_file| async {
+        let thumbnail_id_clone = thumbnail_id.clone();
+        let matching_album_art = futures::stream::StreamExt::filter_map(
+            valid_dir_files,
+            |dir_file: tokio::fs::DirEntry| async {
                 if dir_file
                     .path()
                     .file_prefix()
@@ -180,7 +187,8 @@ impl SongThumbnailDownloader {
                     // are not from Youtui.
                     .is_none_or(|dir_file_prefix| {
                         dir_file_prefix
-                            != format!("{}{}", ALBUM_ART_FILENAME_PREFIX, thumbnail_id).as_str()
+                            != format!("{}{}", ALBUM_ART_FILENAME_PREFIX, thumbnail_id_clone)
+                                .as_str()
                     })
                 {
                     warn!(
@@ -190,7 +198,8 @@ impl SongThumbnailDownloader {
                     return None;
                 }
                 // Youtui will always write a file extension.
-                let Some(file_ext) = dir_file.path().extension() else {
+                let dir_file_path = dir_file.path();
+                let Some(file_ext) = dir_file_path.extension() else {
                     warn!(
                         "Detected a file in youtui album art directory with no extension {}",
                         dir_file.file_name().display()
@@ -208,7 +217,7 @@ impl SongThumbnailDownloader {
                 let image_bytes = match tokio::fs::read(dir_file.path()).await {
                     Ok(bytes) => bytes,
                     Err(e) => {
-                        info!("Unable to read image {dir_file:?}, ignoring");
+                        info!("Unable to read image {dir_file:?}, with error <{e}> ignoring");
                         return None;
                     }
                 };
@@ -244,10 +253,21 @@ impl SongThumbnailDownloader {
                         dir_file_arc_clone.path().display()
                     ),
                 }
-                Some(image_decoded)
-            });
+                Some((image_decoded, dir_file_path))
+            },
+        );
         let mut matching_album_art = std::pin::pin!(matching_album_art);
-        matching_album_art.next().await;
+        if let Some((in_mem_image, on_disk_path)) = matching_album_art.next().await {
+            debug!(
+                "Loaded thumbnail id {thumbnail_id:?} from disk path {}",
+                on_disk_path.display()
+            );
+            return Ok(SongThumbnail {
+                in_mem_image,
+                on_disk_path,
+                song_thumbnail_id: thumbnail_id,
+            });
+        };
 
         let url = reqwest::Url::parse(&thumbnail_url)?;
         let image_bytes = self.client.get(url).send().await?.bytes().await?;
