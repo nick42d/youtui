@@ -3,10 +3,10 @@ use crate::core::{create_or_clean_directory, get_dir_file_paths, touch_file_with
 use crate::get_data_dir;
 use anyhow::{Context, anyhow};
 use async_cell::sync::AsyncCell;
+use futures::FutureExt;
 use futures::future::try_join;
-use futures::{FutureExt, TryStreamExt};
 use rusty_ytdl::reqwest;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::SystemTime;
 use tokio_stream::StreamExt;
@@ -140,7 +140,17 @@ impl SongThumbnailDownloader {
         // Do not download album art until directory setup and clean has completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
 
+        // Return early if thumbnail already exists in disk cache.
         if let Some(cached_song_thumbnail) = get_cached_album_art(thumbnail_id.clone()).await {
+            if let Err(e) =
+                touch_file_with_timestamp(&cached_song_thumbnail.on_disk_path, SystemTime::now())
+                    .await
+            {
+                warn!(
+                    "Error <{e} whilst trying to update timestamp on image {}",
+                    cached_song_thumbnail.on_disk_path.display()
+                )
+            }
             return Ok(cached_song_thumbnail);
         }
 
@@ -170,21 +180,21 @@ impl SongThumbnailDownloader {
     }
 }
 
+/// Get the first matching thumbnail in the cache directory matching
+/// thumbnail_id if there is one with the correct name and format.
 async fn get_cached_album_art(thumbnail_id: SongThumbnailID<'_>) -> Option<SongThumbnail> {
     let album_art_dir = get_album_art_dir()
         .inspect_err(|e| {
             warn!("Error <{e}> getting list of files in album art dir, falling back to network",)
         })
         .ok()?;
-    let album_art_dir = Arc::new(album_art_dir);
-    let album_art_dir_clone = album_art_dir.clone();
 
     let dir_file_paths = get_dir_file_paths(&album_art_dir)
         .await
         .inspect_err(|e| {
             warn!(
                 "Error <{e}> iterating through files in album art dir {}, falling back to network",
-                album_art_dir_clone.display()
+                album_art_dir.display()
             )
         })
         .ok()?
@@ -193,17 +203,13 @@ async fn get_cached_album_art(thumbnail_id: SongThumbnailID<'_>) -> Option<SongT
             Err(e) => {
                 warn!(
                     "Error <{e}> iterating through files in album art dir {}, ignoring this entry",
-                    album_art_dir_clone.display()
+                    album_art_dir.display()
                 );
                 None
             }
         });
     let thumbnail_id_clone = thumbnail_id.clone();
-    let matching_album_art = futures::stream::StreamExt::filter_map(dir_file_paths, |path| async {
-        let path_arc = Arc::new(path);
-        let path_arc_clone = path_arc.clone();
-        let path = &path_arc;
-
+    let matching_album_art = futures::stream::StreamExt::filter_map(dir_file_paths, async |path| {
         if path
             .file_prefix()
             .and_then(|dir_file_prefix| dir_file_prefix.to_str())
@@ -237,7 +243,7 @@ async fn get_cached_album_art(thumbnail_id: SongThumbnailID<'_>) -> Option<SongT
             );
             return None;
         };
-        let image_bytes = match tokio::fs::read(path_arc_clone.clone().as_path()).await {
+        let image_bytes = match tokio::fs::read(&path).await {
             Ok(bytes) => bytes,
             Err(e) => {
                 info!("Unable to read image {path:?}, with error <{e}> ignoring");
@@ -263,14 +269,7 @@ async fn get_cached_album_art(thumbnail_id: SongThumbnailID<'_>) -> Option<SongT
                 return None;
             }
         };
-        match touch_file_with_timestamp(path_arc.as_path(), SystemTime::now()).await {
-            Ok(()) => {}
-            Err(e) => warn!(
-                "Error <{e} whilst trying to update timestamp on image {}",
-                path_arc_clone.display()
-            ),
-        }
-        Some((image_decoded, path_arc.as_path().to_owned()))
+        Some((image_decoded, path.as_path().to_owned()))
     });
     let mut matching_album_art = std::pin::pin!(matching_album_art);
     if let Some((in_mem_image, on_disk_path)) = matching_album_art.next().await {
