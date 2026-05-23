@@ -22,15 +22,15 @@ fn get_scrolled_line<'a>(
     col_width: u16,
     max_times_to_wrap: Option<u16>,
 ) -> Line<'a> {
-    let text = text.into();
+    let text = ratatui::text::Span::from(text);
     let (chars_to_remove, blank_chars, times_wrapped) =
-        get_split_point_and_blanks_and_wrapped(cur_tick, blank_chars, text.len(), col_width);
+        get_split_point_and_blanks_and_wrapped(cur_tick, blank_chars, text.width(), col_width);
     if let Some(max_times_to_wrap) = max_times_to_wrap
         && times_wrapped >= max_times_to_wrap as u64
     {
         return Line::from(text);
     }
-    match text {
+    match text.content {
         Cow::Borrowed(b) => {
             // TODO: Handle actual terminal with of string bytes. Currently, this ticker may
             // render incorrectly for Strings containing multi-byte characters.
