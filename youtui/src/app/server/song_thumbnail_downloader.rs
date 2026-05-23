@@ -1,5 +1,5 @@
 use crate::app::structures::{AlbumOrUploadAlbumID, ListSong, ListSongAlbum};
-use crate::core::{create_or_clean_directory, touch_file_with_timestamp};
+use crate::core::{create_or_clean_directory, get_dir_file_paths, touch_file_with_timestamp};
 use crate::get_data_dir;
 use anyhow::{Context, anyhow};
 use async_cell::sync::AsyncCell;
@@ -101,28 +101,6 @@ pub struct SongThumbnailDownloader {
     client: reqwest::Client,
     // For information about why this error is stringly typed, see DynamicApiError
     status: Arc<AsyncCell<Result<(), String>>>,
-}
-
-/// Get a stream of the paths of all files in a directory  or any errors
-/// encountered when traversing files.
-pub async fn get_dir_file_paths(
-    dir: &Path,
-) -> std::io::Result<impl futures::Stream<Item = std::io::Result<PathBuf>> + 'static> {
-    let dir_contents = tokio::fs::read_dir(dir).await?;
-    let dir_contents = tokio_stream::wrappers::ReadDirStream::new(dir_contents);
-    let dir_contents =
-        futures::stream::StreamExt::filter_map(dir_contents, |maybe_dir_entry| async {
-            let dir_entry = match maybe_dir_entry {
-                Ok(dir_entry) => dir_entry,
-                Err(e) => return Some(Err(e)),
-            };
-            match dir_entry.file_type().await {
-                Ok(file_type) => file_type.is_file().then_some(Ok(dir_entry)),
-                Err(e) => Some(Err(e)),
-            }
-        });
-    let dir_contents = dir_contents.map_ok(|dir_entry| dir_entry.path());
-    Ok(dir_contents)
 }
 
 impl SongThumbnailDownloader {
