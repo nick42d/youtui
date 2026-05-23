@@ -117,7 +117,7 @@ pub async fn get_dir_file_paths(
                 Err(e) => return Some(Err(e)),
             };
             match dir_entry.file_type().await {
-                Ok(file_type) => file_type.is_dir().then_some(Ok(dir_entry)),
+                Ok(file_type) => file_type.is_file().then_some(Ok(dir_entry)),
                 Err(e) => Some(Err(e)),
             }
         });
@@ -162,8 +162,8 @@ impl SongThumbnailDownloader {
         // Do not download album art until directory setup and clean has completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
 
-        if let Some(song_thumbnail) = get_cached_album_art(thumbnail_id.clone()).await {
-            return Ok(song_thumbnail);
+        if let Some(cached_song_thumbnail) = get_cached_album_art(thumbnail_id.clone()).await {
+            return Ok(cached_song_thumbnail);
         }
 
         let url = reqwest::Url::parse(&thumbnail_url)?;
@@ -193,12 +193,23 @@ impl SongThumbnailDownloader {
 }
 
 async fn get_cached_album_art(thumbnail_id: SongThumbnailID<'_>) -> Option<SongThumbnail> {
-    let album_art_dir = Arc::new(get_album_art_dir().unwrap());
+    let album_art_dir = get_album_art_dir()
+        .inspect_err(|e| {
+            warn!("Error <{e}> getting list of files in album art dir, falling back to network",)
+        })
+        .ok()?;
+    let album_art_dir = Arc::new(album_art_dir);
     let album_art_dir_clone = album_art_dir.clone();
 
     let dir_file_paths = get_dir_file_paths(&album_art_dir)
         .await
-        .unwrap()
+        .inspect_err(|e| {
+            warn!(
+                "Error <{e}> iterating through files in album art dir {}, falling back to network",
+                album_art_dir_clone.display()
+            )
+        })
+        .ok()?
         .filter_map(|maybe_path| match maybe_path {
             Ok(path) => Some(path),
             Err(e) => {
