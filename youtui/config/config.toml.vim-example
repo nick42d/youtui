@@ -1,17 +1,126 @@
-# Example config.toml file for youtui with basic vim navigation keybinds.
+# Example config.toml file for youtui containing the application defaults.
+auth_type = "Browser"
+downloader_type = "YtDlp"
+yt_dlp_command = "yt-dlp"
+
+# Global keybinds
+[keybinds.global]
+"+" = "vol_up"
+"-" = "vol_down"
+">" = "next_song"
+"<" = "prev_song"
+"]" = "seek_forward"
+"[" = "seek_back"
+"?" = {action = "toggle_help", visibility = "global"}
+"q" = {action = "quit", visibility = "global"}
+F12 = {action = "view_logs", visibility = "global"}
+space = {action = "play_pause", visibility = "global"}
+C-c = "quit"
+
+# Global keybind mode names
+[mode_names.global]
+
+[keybinds.playlist]
+"b" = {action = "playlist.view_browser", visibility = "global"}
+enter.enter = "playlist.play_selected"
+enter.d = "playlist.delete_selected"
+enter.D = "playlist.delete_all"
+
+[mode_names.playlist]
+enter = "Playlist Action"
 
 [keybinds.browser]
-left = "no_op"
-right = "no_op"
-h = "browser.left"
-l = "browser.right"
+"p" = {action = "browser.view_playlist", visibility = "global"}
+esc = {action = "browser.search", visibility = "global"}  # unfortunately the search overrides so had to use escape for search toggle. 
+left = "browser.left"
+right = "browser.right"
+t = {action = "browser.change_search_type", visibility = "global"}
+
+[keybinds.browser_artists]
+enter = "browser_artists.display_selected_artist_albums"
+
+[keybinds.browser_search]
+down = "browser_search.next_search_suggestion"
+up = "browser_search.prev_search_suggestion"
+
+[keybinds.browser_artist_songs]
+"/" = {action = "browser_artist_songs.filter", visibility = "global"}
+"s" = {action = "browser_artist_songs.sort", visibility = "global"}
+enter.enter = "browser_artist_songs.play_song"
+enter.p = "browser_artist_songs.play_songs"
+enter.a = "browser_artist_songs.play_album"
+enter.space = "browser_artist_songs.add_song_to_playlist"
+enter.P = "browser_artist_songs.add_songs_to_playlist"
+enter.A = "browser_artist_songs.add_album_to_playlist"
+
+[mode_names.browser_artist_songs]
+enter = "Play"
+
+[keybinds.browser_playlists]
+enter = "browser_playlists.display_selected_playlist"
+
+[keybinds.browser_playlist_songs]
+"/" = {action = "browser_playlist_songs.filter", visibility = "global"}
+"s" = {action = "browser_playlist_songs.sort", visibility = "global"}
+enter.enter = "browser_playlist_songs.play_song"
+enter.p = "browser_playlist_songs.play_songs"
+enter.space = "browser_playlist_songs.add_song_to_playlist"
+enter.P = "browser_playlist_songs.add_songs_to_playlist"
+
+[mode_names.browser_playlist_songs]
+enter = "Play"
+
+[keybinds.browser_songs]
+"/" = {action = "browser_songs.filter", visibility = "global"}
+"s" = {action = "browser_songs.sort", visibility = "global"}
+enter.enter = "browser_songs.play_song"
+enter.p = "browser_songs.play_songs"
+enter.space = "browser_songs.add_song_to_playlist"
+enter.P = "browser_songs.add_songs_to_playlist"
+
+[mode_names.browser_songs]
+enter = "Play"
+
+[keybinds.help]
+"?" = {action = "help.close", visibility = "global"}
+esc = {action = "help.close", visibility = "hidden"}
+
+[keybinds.filter]
+esc = {action = "filter.close", visibility = "hidden"}
+"f" = {action = "filter.close", visibility = "global"}
+Enter = {action = "filter.apply", visibility = "global"}
+A-F3 = {action = "filter.clear_filter", visibility = "global"}
+
+[keybinds.sort]
+enter = {action = "sort.sort_selected_asc", visibility = "global"}
+A-enter = {action = "sort.sort_selected_desc", visibility = "global"}
+A-F4 = {action = "sort.clear_sort", visibility = "global"}
+esc = {action = "sort.close", visibility = "hidden"}
+"s" = {action = "sort.close", visibility = "global"}
+
+[keybinds.log]
+"b" = {action = "log.view_browser", visibility = "global"}
+S-left = "log.reduce_captured"
+S-right = "log.increase_captured"
+left = "log.reduce_shown"
+right = "log.increase_shown"
+up = "log.up"
+down = "log.down"
+pageup = "log.page_up"
+pagedown = "log.page_down"
+j = "log.toggle_hide_filtered"
+esc = "log.exit_page_mode"
+f = "log.toggle_target_focus"
+h = "log.toggle_target_selector"
+
+[keybinds.text_entry]
+enter = {action = "text_entry.submit", visibility = "hidden"}
+left = {action = "text_entry.left", visibility = "hidden"}
+right = {action = "text_entry.right", visibility = "hidden"}
+backspace = {action = "text_entry.backspace", visibility = "hidden"}
 
 [keybinds.list]
-up = "no_op"
-down = "no_op"
-pageup = "no_op"
-pagedown = "no_op"
-k = {action = "list.up", visibility = "hidden"}
-j = {action = "list.down", visibility = "hidden"}
-C-b = "list.page_up"
-C-f = "list.page_down"
+up = {action = "list.up", visibility = "hidden"}
+down = {action = "list.down", visibility = "hidden"}
+pageup = "list.page_up"  
+pagedown = "list.page_down"  
