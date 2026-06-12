@@ -204,6 +204,20 @@ async fn test_search_songs() {
     );
 }
 #[tokio::test]
+async fn test_search_songs_item_section_renderer() {
+    // Regression test: YouTube began returning filtered search results wrapped
+    // in individual `itemSectionRenderer`s instead of a single
+    // `musicShelfRenderer`. This fixture is the classic
+    // `search_songs_20231226.json` reshaped into that newer layout, so it must
+    // parse to the exact same songs.
+    parse_test!(
+        "./test_json/search_songs_item_section_renderer_20250612.json",
+        "./test_json/search_songs_20231226_output.txt",
+        SearchQuery::new("").with_filter(SongsFilter),
+        BrowserToken
+    );
+}
+#[tokio::test]
 async fn test_search_videos() {
     parse_test!(
         "./test_json/search_videos_20231226.json",

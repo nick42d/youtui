@@ -23,7 +23,9 @@ use crate::youtube_enums::{PlaylistEndpointParams, YoutubeMusicPageType};
 use crate::{Error, Result};
 use const_format::concatcp;
 use itertools::Itertools;
-use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
+use json_crawler::{
+    JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned, Value,
+};
 use serde::de::IntoDeserializer;
 use serde::{Deserialize, Serialize};
 
@@ -929,10 +931,44 @@ impl TryFrom<FilteredSearchSectionContents> for FilteredSearchMusicShelfContents
     fn try_from(
         value: FilteredSearchSectionContents,
     ) -> std::prelude::v1::Result<Self, Self::Error> {
-        let music_shelf_contents = value
-            .0
-            .try_into_iter()?
-            .find_path(concatcp!(MUSIC_SHELF, "/contents"))?;
+        // The section list may present results in one of two layouts:
+        //
+        // 1. Classic layout - a single `musicShelfRenderer` whose `/contents`
+        //    array holds every `musicResponsiveListItemRenderer` result row.
+        // 2. Newer layout (observed 2025) - YouTube returns each result row
+        //    wrapped in its own `itemSectionRenderer`, and no `musicShelfRenderer`
+        //    is present.
+        //
+        // To keep downstream parsing identical, we look for the classic shelf
+        // first and, if it is absent, flatten the `itemSectionRenderer` contents
+        // into a single array of `musicResponsiveListItemRenderer` items.
+        let source = value.0.get_source();
+        let mut item_section_results = Vec::new();
+        for section in value.0.try_into_iter()? {
+            // Classic layout - return the shelf contents directly so behaviour is
+            // unchanged when YouTube serves the original format.
+            if section.path_exists(concatcp!(MUSIC_SHELF, "/contents")) {
+                let music_shelf_contents =
+                    section.navigate_pointer(concatcp!(MUSIC_SHELF, "/contents"))?;
+                return Ok(FilteredSearchMusicShelfContents(music_shelf_contents));
+            }
+            // Newer layout - collect the result rows from this item section.
+            if let Ok(mut item_section_contents) =
+                section.navigate_pointer("/itemSectionRenderer/contents")
+            {
+                for mut item in item_section_contents.try_iter_mut()? {
+                    if item.path_exists(MRLIR) {
+                        item_section_results.push(item.take_value::<Value>()?);
+                    }
+                }
+            }
+        }
+        // Wrap the collected rows in a synthetic array so the resulting crawler
+        // behaves exactly like the classic `musicShelfRenderer/contents` array.
+        let music_shelf_contents = JsonCrawlerOwned::new(
+            source.as_ref().to_owned(),
+            Value::Array(item_section_results),
+        );
         Ok(FilteredSearchMusicShelfContents(music_shelf_contents))
     }
 }
