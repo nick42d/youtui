@@ -70,7 +70,7 @@ async fn test_search_artists_empty() {
         .await
         .expect("Expect file read to pass during tests");
     // Blank query has no bearing on function
-    let query = SearchQuery::new("").with_filter(ArtistsFilter);
+    let query = SearchQuery::new_filtered("", ArtistsFilter);
     let output = process_json::<_, BrowserToken>(source, query).unwrap();
     assert_eq!(output, Vec::new());
 }

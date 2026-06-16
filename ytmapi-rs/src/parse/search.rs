@@ -22,8 +22,10 @@ use crate::query::*;
 use crate::youtube_enums::{PlaylistEndpointParams, YoutubeMusicPageType};
 use crate::{Error, Result};
 use const_format::concatcp;
-use itertools::Itertools;
-use json_crawler::{JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned};
+use itertools::{Either, Itertools};
+use json_crawler::{
+    CrawlerResult, JsonCrawler, JsonCrawlerBorrowed, JsonCrawlerIterator, JsonCrawlerOwned,
+};
 use serde::de::IntoDeserializer;
 use serde::{Deserialize, Serialize};
 
@@ -845,6 +847,7 @@ fn parse_playlist_search_result_from_music_shelf_contents(
 
 struct FilteredSearchSectionContents(JsonCrawlerOwned);
 struct FilteredSearchMusicShelfContents(JsonCrawlerOwned);
+struct MusicResponsiveListItemRenderer(JsonCrawlerOwned);
 struct BasicSearchSectionListContents(JsonCrawlerOwned);
 // In this case, we've searched and had no results found.
 // We are being quite explicit here to avoid a false positive.
@@ -923,6 +926,40 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
         ))?;
         Ok(FilteredSearchSectionContents(section_contents))
     }
+}
+fn get_mrlir_at_location(
+    location: JsonCrawlerOwned,
+) -> json_crawler::CrawlerResult<MusicResponsiveListItemRenderer> {
+    location
+        .navigate_pointer(MRLIR)
+        .map(MusicResponsiveListItemRenderer)
+}
+fn get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+    mut section_contents: FilteredSearchSectionContents,
+) -> Result<impl Iterator<Item = json_crawler::CrawlerResult<MusicResponsiveListItemRenderer>>> {
+    let parsers: [fn(&mut JsonCrawlerOwned) -> _; 2] = [
+        |contents| {
+            let iter = contents
+                .try_iter_mut()?
+                .find_path(concatcp!(MUSIC_SHELF, "/contents"))?
+                .take_crawler()
+                .try_into_iter()?
+                .map(get_mrlir_at_location);
+            Ok(Either::left(iter))
+        },
+        |contents| {
+            let iter = contents
+                .try_iter_mut()?
+                .map(|content| content.navigate_pointer("/itemSectionRenderer/contents/0"))
+                .map(|maybe_content| maybe_content.map(JsonCrawlerBorrowed::take_crawler))
+                .map(|maybe_content| maybe_content.map(get_mrlir_at_location));
+            Ok(Either::Right(iter))
+        },
+    ];
+    section_contents
+        .0
+        .try_functions(parsers)
+        .map_err(Into::into)
 }
 impl TryFrom<FilteredSearchSectionContents> for FilteredSearchMusicShelfContents {
     type Error = Error;
