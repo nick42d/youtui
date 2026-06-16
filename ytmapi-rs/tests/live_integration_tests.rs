@@ -128,43 +128,43 @@ generate_stream_test_logged_in!(
 );
 generate_stream_test!(
     test_stream_search_artists,
-    SearchQuery::new("Beatles").with_filter(ArtistsFilter)
+    SearchQuery::new_filtered("Beatles", ArtistsFilter)
 );
 generate_stream_test!(
     test_stream_search_songs,
-    SearchQuery::new("Beatles").with_filter(SongsFilter)
+    SearchQuery::new_filtered("Beatles", SongsFilter)
 );
 generate_stream_test!(
     test_stream_search_albums,
-    SearchQuery::new("Beatles").with_filter(AlbumsFilter)
+    SearchQuery::new_filtered("Beatles", AlbumsFilter)
 );
 generate_stream_test!(
     test_stream_search_videos,
-    SearchQuery::new("Beatles").with_filter(VideosFilter)
+    SearchQuery::new_filtered("Beatles", VideosFilter)
 );
 generate_stream_test!(
     test_stream_search_episodes,
-    SearchQuery::new("Beatles").with_filter(EpisodesFilter)
+    SearchQuery::new_filtered("Beatles", EpisodesFilter)
 );
 generate_stream_test!(
     test_stream_search_podcasts,
-    SearchQuery::new("Beatles").with_filter(PodcastsFilter)
+    SearchQuery::new_filtered("Beatles", PodcastsFilter)
 );
 generate_stream_test!(
     test_stream_search_profiles,
-    SearchQuery::new("Beatles").with_filter(ProfilesFilter)
+    SearchQuery::new_filtered("Beatles", ProfilesFilter)
 );
 generate_stream_test!(
     test_stream_search_featured_playlists,
-    SearchQuery::new("Beatles").with_filter(FeaturedPlaylistsFilter)
+    SearchQuery::new_filtered("Beatles", FeaturedPlaylistsFilter)
 );
 generate_stream_test!(
     test_stream_search_community_playlists,
-    SearchQuery::new("Beatles").with_filter(CommunityPlaylistsFilter)
+    SearchQuery::new_filtered("Beatles", CommunityPlaylistsFilter)
 );
 generate_stream_test!(
     test_stream_search_playlists,
-    SearchQuery::new("Beatles").with_filter(PlaylistsFilter)
+    SearchQuery::new_filtered("Beatles", PlaylistsFilter)
 );
 generate_stream_test!(
     test_stream_get_playlist,
