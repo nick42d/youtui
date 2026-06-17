@@ -268,68 +268,78 @@ fn parse_basic_search_result_from_section_list_contents(
             SearchResultType::Artists => {
                 artists = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| parse_artist_search_result_from_music_shelf_contents(r))
+                    .try_into_iter()?
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_artist_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<SearchResultArtist>>>()?;
             }
             SearchResultType::Albums => {
                 albums = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| parse_album_search_result_from_music_shelf_contents(r))
+                    .try_into_iter()?
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_album_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<SearchResultAlbum>>>()?
             }
             SearchResultType::FeaturedPlaylists => {
                 featured_playlists = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| parse_featured_playlist_search_result_from_music_shelf_contents(r))
+                    .try_into_iter()?
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_featured_playlist_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<SearchResultFeaturedPlaylist>>>()?
             }
             SearchResultType::CommunityPlaylists => {
                 community_playlists = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| {
-                        parse_community_playlist_basic_search_result_from_music_shelf_contents(r)
-                    })
+                    .try_into_iter()?
+                    .map(|r| parse_community_playlist_basic_search_result_from_mrlir(r))
                     .collect::<Result<Vec<BasicSearchResultCommunityPlaylist>>>()?
             }
             SearchResultType::Songs => {
                 songs = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| parse_song_search_result_from_music_shelf_contents(r))
+                    .try_into_iter()?
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_song_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<SearchResultSong>>>()?
             }
             SearchResultType::Videos => {
                 videos = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .filter_map(|r| {
-                        parse_video_search_result_from_music_shelf_contents(r).transpose()
-                    })
+                    .try_into_iter()?
+                    .filter_map(|r| parse_video_search_result_from_mrlir(r).transpose())
                     .collect::<Result<Vec<SearchResultVideo>>>()?
             }
             SearchResultType::Podcasts => {
                 podcasts = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| parse_podcast_search_result_from_music_shelf_contents(r))
+                    .try_into_iter()?
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_podcast_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<SearchResultPodcast>>>()?
             }
             SearchResultType::Episodes => {
                 episodes = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| parse_episode_search_result_from_music_shelf_contents(r))
+                    .try_into_iter()?
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_episode_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<SearchResultEpisode>>>()?
             }
             SearchResultType::Profiles => {
                 profiles = category
                     .navigate_pointer("/contents")?
-                    .try_iter_mut()?
-                    .map(|r| parse_profile_search_result_from_mrlir(r))
+                    .try_into_iter()?
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_profile_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<SearchResultProfile>>>()?
             }
         }
@@ -481,12 +491,11 @@ fn parse_top_result_from_music_shelf_contents(
         byline: None,
     }))
 }
-// TODO: Type safety
 // TODO: Tests
-fn parse_artist_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_artist_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultArtist> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let artist = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let subscribers = parse_flex_column_item(&mut mrlir, 1, 2).ok();
     let browse_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
@@ -498,11 +507,11 @@ fn parse_artist_search_result_from_music_shelf_contents(
         browse_id,
     })
 }
-// TODO: Type safety
 // TODO: Tests
 fn parse_profile_search_result_from_mrlir(
-    MusicResponsiveListItemRenderer(mut mrlir): MusicResponsiveListItemRenderer,
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultProfile> {
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let username = parse_flex_column_item(&mut mrlir, 1, 2)?;
     let profile_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
@@ -514,12 +523,11 @@ fn parse_profile_search_result_from_mrlir(
         thumbnails,
     })
 }
-// TODO: Type safety
 // TODO: Tests
-fn parse_album_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_album_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultAlbum> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let album_type = parse_flex_column_item(&mut mrlir, 1, 0)?;
 
@@ -560,8 +568,8 @@ fn parse_album_search_result_from_music_shelf_contents(
         explicit,
     })
 }
-fn parse_song_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_song_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultSong> {
     // The byline comprises multiple fields delimited by " • ".
     // See https://github.com/nick42d/youtui/issues/171.
@@ -596,7 +604,7 @@ fn parse_song_search_result_from_music_shelf_contents(
         Ok(Some((artist, None, album_or_duration)))
     }
 
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
 
     let (artist, album, duration) = mrlir
@@ -626,12 +634,11 @@ fn parse_song_search_result_from_music_shelf_contents(
         duration,
     })
 }
-// TODO: Type safety
 // TODO: Tests
-fn parse_video_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_video_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<Option<SearchResultVideo>> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     // Handle not available case
     if let Ok("MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT") = mrlir
         .take_value_pointer::<String>(DISPLAY_POLICY)
@@ -706,12 +713,11 @@ fn parse_video_search_result_from_music_shelf_contents(
         }
     }
 }
-// TODO: Type safety
 // TODO: Tests
-fn parse_podcast_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_podcast_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultPodcast> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let publisher = parse_flex_column_item(&mut mrlir, 1, 0)?;
     let podcast_id = mrlir.take_value_pointer(NAVIGATION_BROWSE_ID)?;
@@ -723,12 +729,11 @@ fn parse_podcast_search_result_from_music_shelf_contents(
         thumbnails,
     })
 }
-// TODO: Type safety
 // TODO: Tests
-fn parse_episode_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_episode_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultEpisode> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let date = if mrlir.path_exists(LIVE_BADGE_LABEL) {
         EpisodeDate::Live
@@ -751,12 +756,11 @@ fn parse_episode_search_result_from_music_shelf_contents(
         thumbnails,
     })
 }
-// TODO: Type safety
 // TODO: Tests
-fn parse_featured_playlist_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_featured_playlist_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultFeaturedPlaylist> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let author = parse_flex_column_item(&mut mrlir, 1, 0)?;
     let songs = parse_flex_column_item(&mut mrlir, 1, 2)?;
@@ -770,25 +774,25 @@ fn parse_featured_playlist_search_result_from_music_shelf_contents(
         thumbnails,
     })
 }
-fn parse_community_playlist_basic_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_community_playlist_basic_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<BasicSearchResultCommunityPlaylist> {
-    let result_type: YoutubeMusicPageType = music_shelf_contents
-        .borrow_value_pointer(concatcp!(MRLIR, NAVIGATION_BROWSE, PAGE_TYPE))?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
+    let result_type = mrlir.borrow_value_pointer(concatcp!(NAVIGATION_BROWSE, PAGE_TYPE))?;
     let result = match result_type {
         YoutubeMusicPageType::Podcast => BasicSearchResultCommunityPlaylist::Podcast(
-            parse_podcast_search_result_from_music_shelf_contents(music_shelf_contents)?,
+            parse_podcast_search_result_from_mrlir(mrlir)?,
         ),
         YoutubeMusicPageType::Playlist => BasicSearchResultCommunityPlaylist::Playlist(
-            parse_community_playlist_search_result_from_music_shelf_contents(music_shelf_contents)?,
+            parse_community_playlist_search_result_from_mrlir(mrlir)?,
         ),
     };
     Ok(result)
 }
-fn parse_community_playlist_search_result_from_music_shelf_contents(
-    music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_community_playlist_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultCommunityPlaylist> {
-    let mut mrlir = music_shelf_contents.navigate_pointer("/musicResponsiveListItemRenderer")?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
     let title = parse_flex_column_item(&mut mrlir, 0, 0)?;
     let author = parse_flex_column_item(&mut mrlir, 1, 0)?;
     let views = parse_flex_column_item(&mut mrlir, 1, 2)?;
@@ -803,37 +807,32 @@ fn parse_community_playlist_search_result_from_music_shelf_contents(
     })
 }
 
-fn parse_playlist_search_result_from_music_shelf_contents(
-    mut music_shelf_contents: JsonCrawlerBorrowed<'_>,
+fn parse_playlist_search_result_from_mrlir(
+    mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultPlaylist> {
-    let result_type: YoutubeMusicPageType = music_shelf_contents
-        .borrow_value_pointer(concatcp!(MRLIR, NAVIGATION_BROWSE, PAGE_TYPE))?;
+    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
+    let result_type: YoutubeMusicPageType =
+        mrlir.borrow_value_pointer(concatcp!(NAVIGATION_BROWSE, PAGE_TYPE))?;
 
     // Search result for this query can be Podcast or Playlist.
     match result_type {
         YoutubeMusicPageType::Podcast => {
-            let res = parse_podcast_search_result_from_music_shelf_contents(music_shelf_contents)?;
+            let res = parse_podcast_search_result_from_mrlir(mrlir)?;
             Ok(SearchResultPlaylist::Podcast(res))
         }
         YoutubeMusicPageType::Playlist => {
             // The playlist search contains a mix of Community and Featured playlists.
-            let playlist_params: PlaylistEndpointParams =
-                music_shelf_contents.take_value_pointer(concatcp!(
-                    MRLIR,
-                    PLAY_BUTTON,
-                    "/playNavigationEndpoint/watchPlaylistEndpoint/params"
-                ))?;
+            let playlist_params: PlaylistEndpointParams = mrlir.take_value_pointer(concatcp!(
+                PLAY_BUTTON,
+                "/playNavigationEndpoint/watchPlaylistEndpoint/params"
+            ))?;
             let playlist = match playlist_params {
                 PlaylistEndpointParams::Featured => {
-                    let res = parse_featured_playlist_search_result_from_music_shelf_contents(
-                        music_shelf_contents,
-                    )?;
+                    let res = parse_featured_playlist_search_result_from_mrlir(mrlir)?;
                     SearchResultPlaylist::Featured(res)
                 }
                 PlaylistEndpointParams::Community => {
-                    let res = parse_community_playlist_search_result_from_music_shelf_contents(
-                        music_shelf_contents,
-                    )?;
+                    let res = parse_community_playlist_search_result_from_mrlir(mrlir)?;
                     SearchResultPlaylist::Community(res)
                 }
             };
@@ -923,17 +922,15 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
         Ok(FilteredSearchSectionContents(section_contents))
     }
 }
+fn get_mrlir_at_location(location: JsonCrawlerOwned) -> Result<MusicResponsiveListItemRenderer> {
+    location
+        .navigate_pointer(MRLIR)
+        .map_err(Into::into)
+        .map(MusicResponsiveListItemRenderer)
+}
 fn get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
     mut section_contents: FilteredSearchSectionContents,
 ) -> Result<impl Iterator<Item = Result<MusicResponsiveListItemRenderer>>> {
-    fn get_mrlir_at_location(
-        location: JsonCrawlerOwned,
-    ) -> Result<MusicResponsiveListItemRenderer> {
-        location
-            .navigate_pointer(MRLIR)
-            .map_err(Into::into)
-            .map(MusicResponsiveListItemRenderer)
-    }
     let parsers: [fn(&mut JsonCrawlerOwned) -> _; 2] = [
         |contents| {
             let iter = contents
@@ -968,7 +965,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultAlbum> {
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_album_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_album_search_result_from_mrlir(a))
             .collect()
     }
 }
@@ -994,7 +991,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultArtist> {
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_artist_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_artist_search_result_from_mrlir(a))
             .collect()
     }
 }
@@ -1007,7 +1004,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultSong> {
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_song_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_song_search_result_from_mrlir(a))
             .collect()
     }
 }
@@ -1020,7 +1017,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultVideo> {
         value
             .0
             .try_iter_mut()?
-            .filter_map(|a| parse_video_search_result_from_music_shelf_contents(a).transpose())
+            .filter_map(|a| parse_video_search_result_from_mrlir(a).transpose())
             .collect()
     }
 }
@@ -1033,7 +1030,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultEpisode> {
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_episode_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_episode_search_result_from_mrlir(a))
             .collect()
     }
 }
@@ -1046,7 +1043,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultPodcast> {
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_podcast_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_podcast_search_result_from_mrlir(a))
             .collect()
     }
 }
@@ -1059,7 +1056,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultPlaylist> {
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_playlist_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_playlist_search_result_from_mrlir(a))
             .collect()
     }
 }
@@ -1072,7 +1069,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultCommunityPlay
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_community_playlist_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_community_playlist_search_result_from_mrlir(a))
             .collect()
     }
 }
@@ -1085,7 +1082,7 @@ impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultFeaturedPlayl
         value
             .0
             .try_iter_mut()?
-            .map(|a| parse_featured_playlist_search_result_from_music_shelf_contents(a))
+            .map(|a| parse_featured_playlist_search_result_from_mrlir(a))
             .collect()
     }
 }
