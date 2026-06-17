@@ -296,7 +296,9 @@ fn parse_basic_search_result_from_section_list_contents(
                 community_playlists = category
                     .navigate_pointer("/contents")?
                     .try_into_iter()?
-                    .map(|r| parse_community_playlist_basic_search_result_from_mrlir(r))
+                    .map(get_mrlir_at_location)
+                    .map_ok(parse_community_playlist_basic_search_result_from_mrlir)
+                    .flatten()
                     .collect::<Result<Vec<BasicSearchResultCommunityPlaylist>>>()?
             }
             SearchResultType::Songs => {
@@ -312,7 +314,9 @@ fn parse_basic_search_result_from_section_list_contents(
                 videos = category
                     .navigate_pointer("/contents")?
                     .try_into_iter()?
-                    .filter_map(|r| parse_video_search_result_from_mrlir(r).transpose())
+                    .map(get_mrlir_at_location)
+                    .filter_map_ok(|r| parse_video_search_result_from_mrlir(r).transpose())
+                    .flatten()
                     .collect::<Result<Vec<SearchResultVideo>>>()?
             }
             SearchResultType::Podcasts => {
@@ -777,8 +781,9 @@ fn parse_featured_playlist_search_result_from_mrlir(
 fn parse_community_playlist_basic_search_result_from_mrlir(
     mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<BasicSearchResultCommunityPlaylist> {
-    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
-    let result_type = mrlir.borrow_value_pointer(concatcp!(NAVIGATION_BROWSE, PAGE_TYPE))?;
+    let result_type = mrlir
+        .0
+        .borrow_value_pointer(concatcp!(NAVIGATION_BROWSE, PAGE_TYPE))?;
     let result = match result_type {
         YoutubeMusicPageType::Podcast => BasicSearchResultCommunityPlaylist::Podcast(
             parse_podcast_search_result_from_mrlir(mrlir)?,
@@ -808,11 +813,11 @@ fn parse_community_playlist_search_result_from_mrlir(
 }
 
 fn parse_playlist_search_result_from_mrlir(
-    mrlir: MusicResponsiveListItemRenderer,
+    mut mrlir: MusicResponsiveListItemRenderer,
 ) -> Result<SearchResultPlaylist> {
-    let MusicResponsiveListItemRenderer(mut mrlir) = mrlir;
-    let result_type: YoutubeMusicPageType =
-        mrlir.borrow_value_pointer(concatcp!(NAVIGATION_BROWSE, PAGE_TYPE))?;
+    let result_type: YoutubeMusicPageType = mrlir
+        .0
+        .borrow_value_pointer(concatcp!(NAVIGATION_BROWSE, PAGE_TYPE))?;
 
     // Search result for this query can be Podcast or Playlist.
     match result_type {
@@ -822,7 +827,7 @@ fn parse_playlist_search_result_from_mrlir(
         }
         YoutubeMusicPageType::Playlist => {
             // The playlist search contains a mix of Community and Featured playlists.
-            let playlist_params: PlaylistEndpointParams = mrlir.take_value_pointer(concatcp!(
+            let playlist_params: PlaylistEndpointParams = mrlir.0.take_value_pointer(concatcp!(
                 PLAY_BUTTON,
                 "/playNavigationEndpoint/watchPlaylistEndpoint/params"
             ))?;
@@ -867,19 +872,53 @@ fn take_continuation_params_from_section_contents(
         .transpose()
         .map_err(Into::into)
 }
-fn get_filtered_search_continuation_music_shelf_contents_and_params(
+fn get_mrlir_at_location(location: JsonCrawlerOwned) -> Result<MusicResponsiveListItemRenderer> {
+    location
+        .navigate_pointer(MRLIR)
+        .map_err(Into::into)
+        .map(MusicResponsiveListItemRenderer)
+}
+fn get_filtered_search_continuation_mrlirs_and_params(
     crawler: JsonCrawlerOwned,
 ) -> Result<(
-    FilteredSearchMusicShelfContents,
+    impl Iterator<Item = Result<MusicResponsiveListItemRenderer>>,
     Option<ContinuationParams<'static>>,
 )> {
     let mut music_shelf = crawler.navigate_pointer(MUSIC_SHELF_CONTINUATION)?;
     let continuation_params = music_shelf.take_value_pointer(CONTINUATION_PARAMS).ok();
-    let contents = music_shelf.navigate_pointer("/contents")?;
-    Ok((
-        FilteredSearchMusicShelfContents(contents),
-        continuation_params,
-    ))
+    let mrlirs = music_shelf
+        .navigate_pointer("/contents")?
+        .try_into_iter()?
+        .map(get_mrlir_at_location);
+    Ok((mrlirs, continuation_params))
+}
+fn get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+    mut section_contents: FilteredSearchSectionContents,
+) -> Result<impl Iterator<Item = Result<MusicResponsiveListItemRenderer>>> {
+    let parsers: [fn(&mut JsonCrawlerOwned) -> _; 2] = [
+        |contents| {
+            let iter = contents
+                .try_iter_mut()?
+                .find_path(concatcp!(MUSIC_SHELF, "/contents"))?
+                .take_crawler()
+                .try_into_iter()?
+                .map(get_mrlir_at_location);
+            Ok(Either::Left(iter))
+        },
+        |contents| {
+            let iter = contents
+                .borrow_mut()
+                .take_crawler()
+                .try_into_iter()?
+                .map(|content| Ok(content.navigate_pointer("/itemSectionRenderer/contents/0")?))
+                .map(|maybe_content| maybe_content.and_then(get_mrlir_at_location));
+            Ok(Either::Right(iter))
+        },
+    ];
+    section_contents
+        .0
+        .try_functions(parsers)
+        .map_err(Into::into)
 }
 // TODO: Consolidate these two functions into single function.
 // TODO: This could be implemented with a non-mutable array also.
@@ -922,170 +961,6 @@ impl<'a, F: FilteredSearchType> TryFrom<ProcessedResult<'a, SearchQuery<'a, Filt
         Ok(FilteredSearchSectionContents(section_contents))
     }
 }
-fn get_mrlir_at_location(location: JsonCrawlerOwned) -> Result<MusicResponsiveListItemRenderer> {
-    location
-        .navigate_pointer(MRLIR)
-        .map_err(Into::into)
-        .map(MusicResponsiveListItemRenderer)
-}
-fn get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
-    mut section_contents: FilteredSearchSectionContents,
-) -> Result<impl Iterator<Item = Result<MusicResponsiveListItemRenderer>>> {
-    let parsers: [fn(&mut JsonCrawlerOwned) -> _; 2] = [
-        |contents| {
-            let iter = contents
-                .try_iter_mut()?
-                .find_path(concatcp!(MUSIC_SHELF, "/contents"))?
-                .take_crawler()
-                .try_into_iter()?
-                .map(get_mrlir_at_location);
-            Ok(Either::Left(iter))
-        },
-        |contents| {
-            let iter = contents
-                .borrow_mut()
-                .take_crawler()
-                .try_into_iter()?
-                .map(|content| Ok(content.navigate_pointer("/itemSectionRenderer/contents/0")?))
-                .map(|maybe_content| maybe_content.and_then(get_mrlir_at_location));
-            Ok(Either::Right(iter))
-        },
-    ];
-    section_contents
-        .0
-        .try_functions(parsers)
-        .map_err(Into::into)
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultAlbum> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_album_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultProfile> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_profile_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultArtist> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_artist_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultSong> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_song_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultVideo> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .filter_map(|a| parse_video_search_result_from_mrlir(a).transpose())
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultEpisode> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_episode_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultPodcast> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_podcast_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultPlaylist> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_playlist_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultCommunityPlaylist> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_community_playlist_search_result_from_mrlir(a))
-            .collect()
-    }
-}
-impl TryFrom<FilteredSearchMusicShelfContents> for Vec<SearchResultFeaturedPlaylist> {
-    type Error = Error;
-    fn try_from(
-        mut value: FilteredSearchMusicShelfContents,
-    ) -> std::prelude::v1::Result<Self, Self::Error> {
-        // TODO: Make this a From method.
-        value
-            .0
-            .try_iter_mut()?
-            .map(|a| parse_featured_playlist_search_result_from_mrlir(a))
-            .collect()
-    }
-}
 impl<'a, S: UnfilteredSearchType> ParseFrom<SearchQuery<'a, S>> for SearchResults {
     fn parse_from(p: ProcessedResult<SearchQuery<'a, S>>) -> crate::Result<Self> {
         let mut section_list_contents = BasicSearchSectionListContents::try_from(p)?;
@@ -1108,7 +983,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_artist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1118,8 +999,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<ArtistsFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_artist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1139,8 +1023,9 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>
             get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
                 section_contents,
             )?
-            .map(|maybe_mrlir| maybe_mrlir.and_then(parse_profile_search_result_from_mrlir))
-            .collect()?;
+            .map_ok(parse_profile_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1150,8 +1035,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<ProfilesFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_profile_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1167,7 +1055,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_album_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1177,8 +1071,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<AlbumsFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_album_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1194,7 +1091,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<SongsFilter>>>
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_song_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1202,8 +1105,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<SongsFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_song_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1219,7 +1125,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<VideosFilter>>>
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .filter_map_ok(|mrlir| parse_video_search_result_from_mrlir(mrlir).transpose())
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1229,8 +1141,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<VideosFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .filter_map_ok(|mrlir| parse_video_search_result_from_mrlir(mrlir).transpose())
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1246,7 +1161,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_episode_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1256,8 +1177,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<EpisodesFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_episode_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1273,7 +1197,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_podcast_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1283,8 +1213,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<PodcastsFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_podcast_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1300,7 +1233,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<CommunityPlaylistsF
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_playlist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1310,8 +1249,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<CommunityPlaylistsF
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_playlist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1327,7 +1269,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFi
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_featured_playlist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1337,8 +1285,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<FeaturedPlaylistsFi
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_featured_playlist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
@@ -1354,7 +1305,13 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>
         }
         let continuation_params =
             take_continuation_params_from_section_contents(&mut section_contents)?;
-        let results = FilteredSearchMusicShelfContents::try_from(section_contents)?.try_into()?;
+        let results =
+            get_music_responsive_list_item_renderers_from_filtered_search_section_contents(
+                section_contents,
+            )?
+            .map_ok(parse_playlist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
     fn parse_continuation(
@@ -1364,8 +1321,11 @@ impl<'a> ParseFromContinuable<SearchQuery<'a, FilteredSearch<PlaylistsFilter>>>
     ) -> crate::Result<(Self, Option<crate::common::ContinuationParams<'static>>)> {
         let crawler: JsonCrawlerOwned = p.into();
         let (contents, continuation_params) =
-            get_filtered_search_continuation_music_shelf_contents_and_params(crawler)?;
-        let results = contents.try_into()?;
+            get_filtered_search_continuation_mrlirs_and_params(crawler)?;
+        let results = contents
+            .map_ok(parse_playlist_search_result_from_mrlir)
+            .flatten()
+            .collect::<Result<_>>()?;
         Ok((results, continuation_params))
     }
 }
