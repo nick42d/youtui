@@ -75,6 +75,10 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
         let command = self.yt_dlp_command.clone();
         async move {
             let args = vec![
+                // Force yt-dlp to stick to youtube downloading - sometimes its inferred if the ID
+                // doesn't start with a number but this is safer.
+                "--default-search",
+                "ytsearch",
                 // First, print filesize in bytes to stderr
                 "--print",
                 "filesize",
@@ -88,6 +92,9 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                 // Output song bytes to stdout
                 "-o",
                 "-",
+                // If the id starts with a hyphen yt-dlp will think that this its a command line
+                // argument instead of an ID; "--" escapes it.
+                "--",
                 song_video_id.as_ref(),
             ];
             let proc = tokio::process::Command::new(command.deref())
