@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.38](https://github.com/nick42d/youtui/compare/youtui/v0.0.37...youtui/v0.0.38) - 2026-07-05
+
+### Added
+- Use cached album art images ([#372](https://github.com/nick42d/youtui/pull/372))
+
+### Fixed
+- fix yt-dlp failing when song id starts with a hyphen ([#380](https://github.com/nick42d/youtui/pull/380))
+- scrolling widgets should scroll based in unicode width, not numb… ([#370](https://github.com/nick42d/youtui/pull/370))
+- Prevent playback ending when seeking back repeatedly ([#364](https://github.com/nick42d/youtui/pull/364))
+
+
+
+
 ## [0.0.37](https://github.com/nick42d/youtui/compare/youtui/v0.0.36...youtui/v0.0.37) - 2026-05-15
 
 ### Fixed
