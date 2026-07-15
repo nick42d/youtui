@@ -177,8 +177,16 @@ impl ParseFromContinuable<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
         // TODO: Implement count and author fields
         let json_crawler = p.into();
         let maybe_grid_renderer = process_library_contents_grid(json_crawler);
-        if let Some(grid_renderer) = maybe_grid_renderer {
-            parse_library_playlists(grid_renderer)
+        if let Some(mut grid_renderer) = maybe_grid_renderer {
+            let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
+            let playlists = grid_renderer
+                .navigate_pointer("/items")?
+                .try_into_iter()?
+                // First result is just a link to create a new playlist.
+                .skip(1)
+                .filter_map(|item| parse_content_list_playlist(item).transpose())
+                .collect::<Result<_>>()?;
+            Ok((playlists, continuation_params))
         } else {
             Ok((vec![], None))
         }
@@ -187,8 +195,14 @@ impl ParseFromContinuable<GetLibraryPlaylistsQuery> for Vec<LibraryPlaylist> {
         p: ProcessedResult<GetContinuationsQuery<'_, GetLibraryPlaylistsQuery>>,
     ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
         let json_crawler: JsonCrawlerOwned = p.into();
-        let grid_renderer = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
-        parse_library_playlists(grid_renderer)
+        let mut grid_renderer = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
+        let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
+        let playlists = grid_renderer
+            .navigate_pointer("/items")?
+            .try_into_iter()?
+            .filter_map(|item| parse_content_list_playlist(item).transpose())
+            .collect::<Result<_>>()?;
+        Ok((playlists, continuation_params))
     }
 }
 
