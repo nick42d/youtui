@@ -632,6 +632,7 @@ fn get_playlist_details(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylistDet
 mod tests {
     use crate::auth::BrowserToken;
     use crate::common::{ApiOutcome, PlaylistID, VideoID, YoutubeID};
+    use crate::parse::GetPlaylistDetails;
     use crate::query::playlist::GetPlaylistDetailsQuery;
     use crate::query::{
         AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistTracksQuery, GetWatchPlaylistQuery,
@@ -701,6 +702,36 @@ mod tests {
             "./test_json/get_playlist_no_channel_thumbnail_20240818.json",
             "./test_json/get_playlist_details_no_channel_thumbnail_20240818_output.txt",
             GetPlaylistDetailsQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_playlist_details_when_no_tracks() {
+        parse_test_value!(
+            "./test_json/get_playlist_no_tracks_20260821.json",
+            GetPlaylistDetails {
+                id: todo!(),
+                privacy: todo!(),
+                title: todo!(),
+                description: todo!(),
+                author: todo!(),
+                author_avatar_url: todo!(),
+                year: todo!(),
+                duration: todo!(),
+                track_count_text: todo!(),
+                views: todo!(),
+                thumbnails: todo!()
+            },
+            GetPlaylistDetailsQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_playlist_tracks_when_no_tracks() {
+        parse_test_value!(
+            "./test_json/get_playlist_no_tracks_20260821.json",
+            vec![],
+            GetPlaylistTracksQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
     }
