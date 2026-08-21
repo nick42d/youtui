@@ -205,7 +205,12 @@ impl ParseFromContinuable<GetLibraryPodcastsQuery> for Vec<LibraryPodcast> {
         let json_crawler: JsonCrawlerOwned = p.into();
         let maybe_grid_renderer = process_library_contents_grid(json_crawler);
         if let Some(grid_renderer) = maybe_grid_renderer {
-            parse_library_podcasts(grid_renderer)
+            let (podcasts_iter, continuation_params) = parse_library_podcasts(grid_renderer)?;
+            let podcasts = podcasts_iter
+                // First result is just a link to create a new podcast.
+                .skip(1)
+                .collect::<Result<_>>()?;
+            Ok((podcasts, continuation_params))
         } else {
             Ok((vec![], None))
         }
@@ -215,7 +220,8 @@ impl ParseFromContinuable<GetLibraryPodcastsQuery> for Vec<LibraryPodcast> {
     ) -> crate::Result<(Self, Option<ContinuationParams<'static>>)> {
         let json_crawler: JsonCrawlerOwned = p.into();
         let grid_renderer = json_crawler.navigate_pointer(GRID_CONTINUATION)?;
-        parse_library_podcasts(grid_renderer)
+        let (podcasts_iter, continuation_params) = parse_library_podcasts(grid_renderer)?;
+        Ok((podcasts_iter.collect::<Result<_>>()?, continuation_params))
     }
 }
 
@@ -324,15 +330,15 @@ fn parse_library_playlists(
 }
 fn parse_library_podcasts(
     mut grid_renderer: impl JsonCrawler,
-) -> Result<(Vec<LibraryPodcast>, Option<ContinuationParams<'static>>)> {
+) -> Result<(
+    impl Iterator<Item = Result<LibraryPodcast>>,
+    Option<ContinuationParams<'static>>,
+)> {
     let continuation_params = grid_renderer.take_value_pointer(CONTINUATION_PARAMS).ok();
     let res = grid_renderer
         .navigate_pointer("/items")?
         .try_into_iter()?
-        // First result is just a link to create a new podcast.
-        .skip(1)
-        .filter_map(|item| parse_content_list_podcast(item).transpose())
-        .collect::<Result<_>>()?;
+        .filter_map(|item| parse_content_list_podcast(item).transpose());
     Ok((res, continuation_params))
 }
 
