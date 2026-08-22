@@ -712,21 +712,9 @@ mod tests {
     }
     #[tokio::test]
     async fn test_get_playlist_details_when_no_tracks() {
-        parse_test_value!(
+        parse_test!(
             "./test_json/get_playlist_no_tracks_20260821.json",
-            GetPlaylistDetails {
-                id: todo!(),
-                privacy: todo!(),
-                title: todo!(),
-                description: todo!(),
-                author: todo!(),
-                author_avatar_url: todo!(),
-                year: todo!(),
-                duration: todo!(),
-                track_count_text: todo!(),
-                views: todo!(),
-                thumbnails: todo!()
-            },
+            "./test_json/get_playlist_details_no_tracks_20260821_output.txt",
             GetPlaylistDetailsQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
