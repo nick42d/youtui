@@ -207,6 +207,7 @@ impl<'a> SearchQuery<'a, UploadSearch> {
         }
     }
     /// Change scope to search generally instead of Uploads.
+    #[deprecated = "To be removed in future release - see issue #353"]
     pub fn with_scope_public(self) -> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
@@ -225,6 +226,7 @@ impl<'a> SearchQuery<'a, LibrarySearch> {
         }
     }
     /// Change scope to search generally instead of Library.
+    #[deprecated = "To be removed in future release - see issue #353"]
     pub fn with_scope_public(self) -> SearchQuery<'a, BasicSearch> {
         SearchQuery {
             query: self.query,
