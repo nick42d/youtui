@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.3.3](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.3.2...ytmapi-rs/v0.3.3) - 2026-08-22
+
+### Fixed
+- Dont return error for empty playlist ([#386](https://github.com/nick42d/youtui/pull/386))
+- Dont skip first playlist/podcast for continuations, only the first result ([#382](https://github.com/nick42d/youtui/pull/382))
+
+### Other
+- Add some missed BasicSearch method deprecations ([#387](https://github.com/nick42d/youtui/pull/387))
+
+
+
+
 ## [0.3.2](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.3.1...ytmapi-rs/v0.3.2) - 2026-05-15
 
 ### Fixed
