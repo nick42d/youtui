@@ -1,0 +1,35 @@
+GetPlaylistDetails {
+    id: PlaylistID(
+        "PLSIdqov890HQ",
+    ),
+    privacy: Some(
+        Public,
+    ),
+    title: "test_empty",
+    description: None,
+    author: "Nick",
+    author_avatar_url: Some(
+        "https://yt3.ggpht.com/ytc/AIdro_nAxy8ai22_vftsGEITvLxNGrrvp0bZpfuCk_jlEDevcAs=s48-c-k-c0x00000000-no-cc-rj-rp",
+    ),
+    year: "2026",
+    duration: "0 seconds",
+    track_count_text: "0 tracks",
+    views: None,
+    thumbnails: [
+        Thumbnail {
+            height: 192,
+            width: 192,
+            url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/playlist-empty-state-@192.png",
+        },
+        Thumbnail {
+            height: 576,
+            width: 576,
+            url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/playlist-empty-state-@576.png",
+        },
+        Thumbnail {
+            height: 1200,
+            width: 1200,
+            url: "https://www.gstatic.com/youtube/media/ytm/images/pbg/playlist-empty-state-@1200.png",
+        },
+    ],
+}

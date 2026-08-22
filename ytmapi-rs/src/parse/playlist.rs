@@ -214,9 +214,13 @@ impl<'a> ParseFromContinuable<GetPlaylistTracksQuery<'a>> for Vec<PlaylistItem> 
             SECONDARY_SECTION_LIST_RENDERER,
             CONTENT,
             MUSIC_PLAYLIST_SHELF,
-            "/contents"
         ))?;
-        parse_playlist_items(music_playlist_shelf)
+        // If there are no tracks, contents path doesn't exist but its not necessarily
+        // an error. Return empty vec in this case.
+        music_playlist_shelf
+            .navigate_pointer("/contents")
+            .map(parse_playlist_items)
+            .unwrap_or(Ok((Vec::new(), None)))
     }
     fn parse_continuation(
         p: ProcessedResult<crate::query::GetContinuationsQuery<'_, GetPlaylistTracksQuery<'a>>>,
@@ -552,6 +556,12 @@ where
 // NOTE: Similar code to get_album_2024
 fn get_playlist_details(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylistDetails> {
     let mut columns = json_crawler.navigate_pointer(TWO_COLUMN)?;
+    let id = columns.take_value_pointer(concatcp!(
+        SECONDARY_SECTION_LIST_RENDERER,
+        CONTENT,
+        MUSIC_PLAYLIST_SHELF,
+        "/playlistId",
+    ))?;
     let header =
         columns.borrow_pointer(concatcp!(TAB_CONTENT, SECTION_LIST_ITEM, RESPONSIVE_HEADER));
     // TODO: Utilise a crawler library function here.
@@ -608,11 +618,6 @@ fn get_playlist_details(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylistDet
         .nth(4)
         .map(|mut item| item.take_value_pointer("/text"))
         .transpose()?;
-    let id = header
-        .navigate_pointer("/buttons")?
-        .try_into_iter()?
-        .find_path("/musicPlayButtonRenderer")?
-        .take_value_pointer("/playNavigationEndpoint/watchEndpoint/playlistId")?;
     Ok(GetPlaylistDetails {
         id,
         privacy,
@@ -632,6 +637,7 @@ fn get_playlist_details(json_crawler: JsonCrawlerOwned) -> Result<GetPlaylistDet
 mod tests {
     use crate::auth::BrowserToken;
     use crate::common::{ApiOutcome, PlaylistID, VideoID, YoutubeID};
+    use crate::parse::GetPlaylistDetails;
     use crate::query::playlist::GetPlaylistDetailsQuery;
     use crate::query::{
         AddPlaylistItemsQuery, EditPlaylistQuery, GetPlaylistTracksQuery, GetWatchPlaylistQuery,
@@ -701,6 +707,26 @@ mod tests {
             "./test_json/get_playlist_no_channel_thumbnail_20240818.json",
             "./test_json/get_playlist_details_no_channel_thumbnail_20240818_output.txt",
             GetPlaylistDetailsQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    #[tokio::test]
+    async fn test_get_playlist_details_when_no_tracks() {
+        parse_test!(
+            "./test_json/get_playlist_no_tracks_20260821.json",
+            "./test_json/get_playlist_details_no_tracks_20260821_output.txt",
+            GetPlaylistDetailsQuery::new(PlaylistID::from_raw("")),
+            BrowserToken
+        );
+    }
+    // NOTE: A playlist with no tracks shouldn't have continuation params / be
+    // continuable, so the corresponding continuation test is omitted.
+    #[tokio::test]
+    async fn test_get_playlist_tracks_when_no_tracks() {
+        parse_test_value!(
+            "./test_json/get_playlist_no_tracks_20260821.json",
+            vec![],
+            GetPlaylistTracksQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
     }
