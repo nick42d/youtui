@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.39](https://github.com/nick42d/youtui/compare/youtui/v0.0.38...youtui/v0.0.39) - 2026-08-22
+
+### Other
+- update Cargo.lock dependencies
+
+
+
+
 ## [0.0.38](https://github.com/nick42d/youtui/compare/youtui/v0.0.37...youtui/v0.0.38) - 2026-07-05
 
 ### Added
