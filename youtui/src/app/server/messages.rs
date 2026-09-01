@@ -17,7 +17,7 @@ use futures::{Future, Stream};
 use std::sync::Arc;
 use std::time::Duration;
 use ytmapi_rs::common::{ArtistChannelID, PlaylistID, SearchSuggestion, VideoID};
-use ytmapi_rs::parse::{SearchResultArtist, SearchResultPlaylist, SearchResultSong};
+use ytmapi_rs::parse::{Lyrics, SearchResultArtist, SearchResultPlaylist, SearchResultSong};
 
 #[derive(PartialEq, Debug)]
 pub enum TaskMetadata {
@@ -119,6 +119,8 @@ pub struct GetSongThumbnail {
     pub thumbnail_url: String,
     pub thumbnail_id: SongThumbnailID<'static>,
 }
+#[derive(Debug, PartialEq)]
+pub struct GetLyrics(pub VideoID<'static>);
 
 impl BackendTask<ArcServer> for HandleApiError {
     // Infallible - assumption is that even if this task fails, caller won't care.
@@ -393,6 +395,17 @@ impl BackendTask<ArcServer> for GetSongThumbnail {
                 .download_song_thumbnail(self.thumbnail_id, self.thumbnail_url)
                 .await
         }
+    }
+}
+impl BackendTask<ArcServer> for GetLyrics {
+    type Output = anyhow::Result<(Lyrics, VideoID<'static>)>;
+    type MetadataType = TaskMetadata;
+    fn into_future(
+        self,
+        backend: &ArcServer,
+    ) -> impl Future<Output = Self::Output> + Send + 'static {
+        let backend = backend.clone();
+        async move { backend.api.get_lyrics(self.0).await }
     }
 }
 

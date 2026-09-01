@@ -13,9 +13,9 @@ use ratatui::widgets::{Block, Borders, Clear, Row, Table};
 use ratatui_image::picker::Picker;
 
 fn draw_lyrics(f: &mut Frame, chunk: Rect, lyrics: &super::lyrics::Lyrics) {
-    if let Some(lyrics) = lyrics.lyrics.as_deref() {
+    if let Some(ref lyrics) = lyrics.lyrics {
         f.render_widget(
-            ratatui::widgets::Paragraph::new(lyrics).block(Block::bordered()),
+            ratatui::widgets::Paragraph::new(lyrics.lyrics.as_str()).block(Block::bordered()),
             chunk,
         );
     } else {

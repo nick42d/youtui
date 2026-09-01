@@ -9,6 +9,7 @@ use super::component::actionhandler::{
 };
 use super::server::{IncreaseVolume, SetVolume};
 use super::structures::*;
+use crate::app::server::GetLyrics;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
@@ -19,6 +20,7 @@ use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
 use std::time::Duration;
+use ytmapi_rs::common::VideoID;
 
 pub mod action;
 pub mod browser;
@@ -34,7 +36,7 @@ pub mod lyrics {
 
     #[derive(Default)]
     pub struct Lyrics {
-        pub lyrics: Option<String>,
+        pub lyrics: Option<ytmapi_rs::parse::Lyrics>,
         last_song_id: Option<crate::app::structures::ListSongID>,
     }
 
@@ -44,7 +46,8 @@ pub mod lyrics {
             config: &'a crate::config::Config,
         ) -> impl Iterator<Item = &'a crate::config::keymap::Keymap<super::action::AppAction>> + 'a
         {
-            todo!()
+            // TODO: Update
+            std::iter::empty()
         }
 
         fn get_all_keybinds<'a>(
@@ -52,7 +55,8 @@ pub mod lyrics {
             config: &'a crate::config::Config,
         ) -> impl Iterator<Item = &'a crate::config::keymap::Keymap<super::action::AppAction>> + 'a
         {
-            todo!()
+            // TODO: Update
+            std::iter::empty()
         }
     }
 }
@@ -335,7 +339,7 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a).into(),
             AppAction::List(a) => return self.handle_list_action(a).into(),
             AppAction::NoOp => (),
-            AppAction::ToggleLyrics => self.toggle_lyrics(),
+            AppAction::ToggleLyrics => return self.toggle_lyrics().into(),
         };
         AsyncTask::new_no_op().into()
     }
@@ -606,19 +610,31 @@ impl YoutuiWindow {
     fn set_volume(&mut self, new_vol: u8) {
         self.playlist.set_volume(new_vol);
     }
-    pub fn toggle_lyrics(&mut self) {
+    pub fn toggle_lyrics(&mut self) -> ComponentEffect<YoutuiWindow> {
         // fetch lyrics here
         if self.context == WindowContext::Lyrics {
-            self._revert_context();
+            self.revert_context();
+            AsyncTask::new_no_op()
         } else {
             self.handle_change_context(WindowContext::Lyrics);
+            AsyncTask::new_future(
+                GetLyrics(
+                    self.playlist
+                        .get_cur_playing_song()
+                        .unwrap()
+                        .video_id
+                        .clone(),
+                ),
+                HandleLyricsReceived,
+                None,
+            )
         }
     }
     pub fn handle_change_context(&mut self, new_context: WindowContext) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
         self.context = new_context;
     }
-    fn _revert_context(&mut self) {
+    fn revert_context(&mut self) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
     }
     // The downside of this approach is that if draw_popup is calling this function,
@@ -652,5 +668,23 @@ impl_youtui_task_handler!(
     |_, update| |this: &mut YoutuiWindow| {
         YoutuiWindow::handle_volume_update(this, update);
         AsyncTask::new_no_op()
+    }
+);
+#[derive(Debug, PartialEq, Clone)]
+struct HandleLyricsReceived;
+
+impl_youtui_task_handler!(
+    HandleLyricsReceived,
+    anyhow::Result<(ytmapi_rs::parse::Lyrics, VideoID<'static>)>,
+    YoutuiWindow,
+    |_, input| |this: &mut YoutuiWindow| {
+        match input {
+            Ok((lyrics, song_id)) => {
+                this.lyrics.lyrics = Some(lyrics);
+            }
+            Err(e) => {
+                tracing::error!("Error {e} received when trying to get lyrics");
+            }
+        }
     }
 );

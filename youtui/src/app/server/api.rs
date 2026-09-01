@@ -57,8 +57,8 @@ impl Api {
     ) -> Result<(Vec<SearchSuggestion>, String)> {
         get_search_suggestions(self.get_api().await?, text).await
     }
-    pub async fn get_lyrics(&self, song: VideoID<'static>) -> Result<Lyrics> {
-        get_lyrics(self.get_api().await?, text).await
+    pub async fn get_lyrics(&self, song: VideoID<'static>) -> Result<(Lyrics, VideoID<'static>)> {
+        get_lyrics(self.get_api().await?, song).await
     }
     pub async fn search_playlists(&self, text: String) -> Result<Vec<SearchResultPlaylist>> {
         search_playlists(self.get_api().await?, text).await
