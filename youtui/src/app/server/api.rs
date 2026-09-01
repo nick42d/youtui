@@ -15,9 +15,11 @@ use tokio::io::AsyncWriteExt;
 use tokio::sync::RwLock;
 use tracing::{error, info};
 use ytmapi_rs::auth::{BrowserToken, OAuthToken};
-use ytmapi_rs::common::{AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail};
+use ytmapi_rs::common::{
+    AlbumID, ArtistChannelID, PlaylistID, SearchSuggestion, Thumbnail, VideoID,
+};
 use ytmapi_rs::parse::{
-    AlbumSong, GetAlbum, GetArtistAlbums, ParsedSongAlbum, ParsedSongArtist, PlaylistItem,
+    AlbumSong, GetAlbum, GetArtistAlbums, Lyrics, ParsedSongAlbum, ParsedSongArtist, PlaylistItem,
     SearchResultArtist, SearchResultPlaylist, SearchResultSong,
 };
 use ytmapi_rs::query::{GetAlbumQuery, GetArtistAlbumsQuery};
@@ -54,6 +56,9 @@ impl Api {
         text: String,
     ) -> Result<(Vec<SearchSuggestion>, String)> {
         get_search_suggestions(self.get_api().await?, text).await
+    }
+    pub async fn get_lyrics(&self, song: VideoID<'static>) -> Result<(Lyrics, VideoID<'static>)> {
+        get_lyrics(self.get_api().await?, song).await
     }
     pub async fn search_playlists(&self, text: String) -> Result<Vec<SearchResultPlaylist>> {
         search_playlists(self.get_api().await?, text).await
@@ -190,6 +195,19 @@ pub async fn get_search_suggestions(
     let query = ytmapi_rs::query::GetSearchSuggestionsQuery::new(&text);
     let results = query_api_with_retry(&api, query).await?;
     Ok((results, text))
+}
+
+pub async fn get_lyrics(
+    api: ConcurrentApi,
+    song: VideoID<'static>,
+) -> Result<(Lyrics, VideoID<'static>)> {
+    tracing::info!("Getting lyrics id for {song:?}");
+    let query = ytmapi_rs::query::GetLyricsIDQuery::new((&song).into());
+    let lyrics_id = query_api_with_retry(&api, query).await?;
+    tracing::info!("Getting lyrics for {lyrics_id:?}");
+    let query = ytmapi_rs::query::GetLyricsQuery::new(lyrics_id);
+    let lyrics = query_api_with_retry(&api, query).await?;
+    Ok((lyrics, song))
 }
 
 pub enum GetArtistSongsProgressUpdate {

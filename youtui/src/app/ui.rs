@@ -9,6 +9,7 @@ use super::component::actionhandler::{
 };
 use super::server::{IncreaseVolume, SetVolume};
 use super::structures::*;
+use crate::app::server::GetLyrics;
 use crate::async_rodio_sink::{SeekDirection, VolumeUpdate};
 use crate::config::Config;
 use crate::config::keymap::Keymap;
@@ -19,6 +20,7 @@ use async_callback_manager::{AsyncTask, Constraint};
 use crossterm::event::{Event, KeyEvent};
 use itertools::Either;
 use std::time::Duration;
+use ytmapi_rs::common::VideoID;
 
 pub mod action;
 pub mod browser;
@@ -29,14 +31,45 @@ mod header;
 pub mod logger;
 pub mod playlist;
 
+pub mod lyrics {
+    use crate::app::component::actionhandler::KeyRouter;
+
+    #[derive(Default)]
+    pub struct Lyrics {
+        pub lyrics: Option<ytmapi_rs::parse::Lyrics>,
+        last_song_id: Option<crate::app::structures::ListSongID>,
+    }
+
+    impl KeyRouter<super::action::AppAction> for Lyrics {
+        fn get_active_keybinds<'a>(
+            &self,
+            config: &'a crate::config::Config,
+        ) -> impl Iterator<Item = &'a crate::config::keymap::Keymap<super::action::AppAction>> + 'a
+        {
+            // TODO: Update
+            std::iter::empty()
+        }
+
+        fn get_all_keybinds<'a>(
+            &self,
+            config: &'a crate::config::Config,
+        ) -> impl Iterator<Item = &'a crate::config::keymap::Keymap<super::action::AppAction>> + 'a
+        {
+            // TODO: Update
+            std::iter::empty()
+        }
+    }
+}
+
 // Which app level keyboard shortcuts function.
 // What is displayed in header
 // The main pane of the application
 // XXX: This is a bit like a route.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum WindowContext {
     Browser,
     Playlist,
+    Lyrics,
     Logs,
 }
 
@@ -46,6 +79,7 @@ pub struct YoutuiWindow {
     playlist: Playlist,
     browser: Browser,
     logger: Logger,
+    lyrics: lyrics::Lyrics,
     config: Config,
     key_stack: Vec<KeyEvent>,
     help: HelpMenu,
@@ -91,6 +125,7 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
                 WindowContext::Browser => self.browser.dominant_keybinds_active(),
                 WindowContext::Playlist => false,
                 WindowContext::Logs => false,
+                WindowContext::Lyrics => false,
             }
     }
 
@@ -99,20 +134,21 @@ impl DominantKeyRouter<AppAction> for YoutuiWindow {
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
         if self.help.shown {
-            return Either::Right(Either::Right(
-                [&config.keybinds.help, &config.keybinds.list].into_iter(),
-            ));
+            return Either::Left([&config.keybinds.help, &config.keybinds.list].into_iter());
         }
         match self.context {
-            WindowContext::Browser => {
-                Either::Left(Either::Left(self.browser.get_dominant_keybinds(config)))
-            }
-            WindowContext::Playlist => {
-                Either::Left(Either::Right(self.playlist.get_active_keybinds(config)))
-            }
-            WindowContext::Logs => {
-                Either::Right(Either::Left(self.logger.get_active_keybinds(config)))
-            }
+            WindowContext::Browser => Either::Right(Either::Left(Either::Left(
+                self.browser.get_dominant_keybinds(config),
+            ))),
+            WindowContext::Playlist => Either::Right(Either::Left(Either::Right(
+                self.playlist.get_active_keybinds(config),
+            ))),
+            WindowContext::Logs => Either::Right(Either::Right(Either::Left(
+                self.logger.get_active_keybinds(config),
+            ))),
+            WindowContext::Lyrics => Either::Right(Either::Right(Either::Right(
+                self.lyrics.get_active_keybinds(config),
+            ))),
         }
     }
 }
@@ -126,6 +162,7 @@ impl Scrollable for YoutuiWindow {
             WindowContext::Browser => self.browser.increment_list(amount),
             WindowContext::Playlist => self.playlist.increment_list(amount),
             WindowContext::Logs => (),
+            WindowContext::Lyrics => (),
         }
     }
     fn is_scrollable(&self) -> bool {
@@ -134,6 +171,7 @@ impl Scrollable for YoutuiWindow {
                 WindowContext::Browser => self.browser.is_scrollable(),
                 WindowContext::Playlist => self.playlist.is_scrollable(),
                 WindowContext::Logs => false,
+                WindowContext::Lyrics => false,
             }
     }
 }
@@ -167,6 +205,10 @@ impl KeyRouter<AppAction> for YoutuiWindow {
             WindowContext::Logs => Either::Right(Either::Left(
                 kb.chain(self.logger.get_active_keybinds(config)),
             )),
+            // TO CORRECT
+            WindowContext::Lyrics => Either::Right(Either::Left(
+                kb.chain(self.logger.get_active_keybinds(config)),
+            )),
         }
     }
     fn get_all_keybinds<'a>(
@@ -189,6 +231,7 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Browser => self.browser.is_text_handling(),
             WindowContext::Playlist => self.playlist.is_text_handling(),
             WindowContext::Logs => self.logger.is_text_handling(),
+            WindowContext::Lyrics => false,
         }
     }
     fn get_text(&self) -> std::option::Option<&str> {
@@ -196,6 +239,7 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Browser => self.browser.get_text(),
             WindowContext::Playlist => self.playlist.get_text(),
             WindowContext::Logs => self.logger.get_text(),
+            WindowContext::Lyrics => None,
         }
     }
     fn replace_text(&mut self, text: impl Into<String>) {
@@ -203,6 +247,7 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Browser => self.browser.replace_text(text),
             WindowContext::Playlist => self.playlist.replace_text(text),
             WindowContext::Logs => self.logger.replace_text(text),
+            WindowContext::Lyrics => (),
         }
     }
     fn clear_text(&mut self) -> bool {
@@ -210,6 +255,7 @@ impl TextHandler for YoutuiWindow {
             WindowContext::Browser => self.browser.clear_text(),
             WindowContext::Playlist => self.playlist.clear_text(),
             WindowContext::Logs => self.logger.clear_text(),
+            WindowContext::Lyrics => false,
         }
     }
     fn handle_text_event_impl(&mut self, event: &Event) -> Option<ComponentEffect<Self>> {
@@ -226,6 +272,7 @@ impl TextHandler for YoutuiWindow {
                 .logger
                 .handle_text_event_impl(event)
                 .map(|effect| effect.map_frontend(|this: &mut YoutuiWindow| &mut this.logger)),
+            WindowContext::Lyrics => None,
         }
     }
 }
@@ -292,6 +339,7 @@ impl ActionHandler<AppAction> for YoutuiWindow {
             AppAction::TextEntry(a) => return self.handle_text_entry_action(a).into(),
             AppAction::List(a) => return self.handle_list_action(a).into(),
             AppAction::NoOp => (),
+            AppAction::ToggleLyrics => return self.toggle_lyrics().into(),
         };
         AsyncTask::new_no_op().into()
     }
@@ -309,6 +357,7 @@ impl YoutuiWindow {
             logger: Logger::new(),
             key_stack: Vec::new(),
             help: HelpMenu::new(),
+            lyrics: lyrics::Lyrics::default(),
             tick: 0,
         };
         (
@@ -325,6 +374,10 @@ impl YoutuiWindow {
                 self.playlist.get_all_keybinds(&self.config),
             )),
             WindowContext::Logs => Either::Left(Either::Left(
+                get_visible_keybinds_as_readable_iter(self.logger.get_all_keybinds(&self.config)),
+            )),
+            // TO FIX
+            WindowContext::Lyrics => Either::Left(Either::Left(
                 get_visible_keybinds_as_readable_iter(self.logger.get_all_keybinds(&self.config)),
             )),
         }
@@ -433,6 +486,7 @@ impl YoutuiWindow {
                 .map_frontend(|this: &mut Self| &mut this.browser),
             WindowContext::Playlist => AsyncTask::new_no_op(),
             WindowContext::Logs => AsyncTask::new_no_op(),
+            WindowContext::Lyrics => AsyncTask::new_no_op(),
         }
     }
     pub fn pauseplay(&mut self) -> ComponentEffect<Self> {
@@ -556,11 +610,31 @@ impl YoutuiWindow {
     fn set_volume(&mut self, new_vol: u8) {
         self.playlist.set_volume(new_vol);
     }
+    pub fn toggle_lyrics(&mut self) -> ComponentEffect<YoutuiWindow> {
+        // fetch lyrics here
+        if self.context == WindowContext::Lyrics {
+            self.revert_context();
+            AsyncTask::new_no_op()
+        } else {
+            self.handle_change_context(WindowContext::Lyrics);
+            AsyncTask::new_future(
+                GetLyrics(
+                    self.playlist
+                        .get_cur_playing_song()
+                        .unwrap()
+                        .video_id
+                        .clone(),
+                ),
+                HandleLyricsReceived,
+                None,
+            )
+        }
+    }
     pub fn handle_change_context(&mut self, new_context: WindowContext) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
         self.context = new_context;
     }
-    fn _revert_context(&mut self) {
+    fn revert_context(&mut self) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
     }
     // The downside of this approach is that if draw_popup is calling this function,
@@ -594,5 +668,23 @@ impl_youtui_task_handler!(
     |_, update| |this: &mut YoutuiWindow| {
         YoutuiWindow::handle_volume_update(this, update);
         AsyncTask::new_no_op()
+    }
+);
+#[derive(Debug, PartialEq, Clone)]
+struct HandleLyricsReceived;
+
+impl_youtui_task_handler!(
+    HandleLyricsReceived,
+    anyhow::Result<(ytmapi_rs::parse::Lyrics, VideoID<'static>)>,
+    YoutuiWindow,
+    |_, input| |this: &mut YoutuiWindow| {
+        match input {
+            Ok((lyrics, song_id)) => {
+                this.lyrics.lyrics = Some(lyrics);
+            }
+            Err(e) => {
+                tracing::error!("Error {e} received when trying to get lyrics");
+            }
+        }
     }
 );
