@@ -199,6 +199,23 @@ pub struct JsonCrawlerBorrowed<'a> {
     path: PathList,
 }
 
+impl<'a> JsonCrawlerBorrowed<'a> {
+    /// Take the contents of the currently crawled location as an owned crawler,
+    /// leaving a null in its place.
+    pub fn take_crawler(self) -> JsonCrawlerOwned {
+        let Self {
+            source,
+            crawler,
+            path,
+        } = self;
+        JsonCrawlerOwned {
+            source,
+            crawler: crawler.take(),
+            path,
+        }
+    }
+}
+
 impl JsonCrawlerOwned {
     /// Create a new JsonCrawler, where 'json' is the `serde_json::Value` that
     /// you wish to crawl and 'source' represents a serialized copy of the same
