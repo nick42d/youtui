@@ -15,35 +15,29 @@ pub struct NoAuthToken {
 
 impl NoAuthToken {
     pub async fn new(client: &Client) -> Result<Self> {
-        let initial_headers = [
-            // TODO: Confirm if parsing for expired user agent also relevant here.
-            ("User-Agent", USER_AGENT.into()),
-            ("X-Origin", YTM_URL.into()),
-            ("Content-Type", "application/json".into()),
-        ];
-        let result_text = client.get_query(YTM_URL, initial_headers, &()).await?.text;
-        // Extract the parameter from inside the ytcfg.set() function.
-        // Original implementation: https://github.com/sigma67/ytmusicapi/blob/459bc40e4ce31584f9d87cf75838a1f404aa472d/ytmusicapi/helpers.py#L44
-        let ytcfg_raw = result_text
-            .split_once("ytcfg.set({")
-            .ok_or_else(|| Error::ytcfg(&result_text))?
-            .1
-            .split_once("})")
-            .ok_or_else(|| Error::ytcfg(&result_text))?
-            .0
-            .trim();
-        let mut ytcfg: serde_json::Map<String, serde_json::Value> =
-            serde_json::from_str(&format!("{{{ytcfg_raw}}}"))
-                .map_err(|_| Error::ytcfg(ytcfg_raw))?;
-        let visitor_id = serde_json::from_value(
-            ytcfg
-                .remove("VISITOR_DATA")
-                .ok_or_else(Error::no_visitor_data)?,
-        )
-        .map_err(|_| Error::no_visitor_data())?;
+        let initial_headers = [("User-Agent", USER_AGENT.into())];
+        let result_text = client
+            .get_query([YTM_URL, "/sw.js_data"].concat(), initial_headers, &())
+            .await?
+            .text;
+        let mut objs = result_text.split("\",\"");
+        let mut visitor_id = Option::None;
+        loop {
+            let current = match objs.next() {
+                Some(val) => val,
+                None => break,
+            };
+            if current.contains(USER_AGENT) {
+                break;
+            }
+            visitor_id = Some(current);
+        }
         Ok(Self {
             create_time: Utc::now(),
-            visitor_id,
+            visitor_id: match visitor_id {
+                Some(id) => id.to_string(),
+                None => return Result::Err(Error::no_visitor_data()),
+            },
         })
     }
 }
