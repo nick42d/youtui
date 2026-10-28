@@ -194,7 +194,8 @@ mod tests {
         let area = Rect::new(0, 0, 3, 2);
         let mut buf = ratatui::buffer::Buffer::empty(area);
 
-        // Frame 6 - should be same as frame 1 expect max_times_to_scroll is set.
+        // Frame 6 - should be same as frame 1 expect max_times_to_scroll is
+        // set.
         let list_frame_6 = ScrollingList::new(list_items, 6)
             .ticker_gap(1)
             .max_times_to_scroll(Some(1));

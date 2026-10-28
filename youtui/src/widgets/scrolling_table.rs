@@ -183,9 +183,9 @@ where
             rects.iter().map(|c| c.width).collect()
         }
 
-        // This is a guess only, because table_widths.len() may not necessarily be the
-        // true number of columns in the table. Header, footer or rows may have more
-        // columns.
+        // This is a guess only, because table_widths.len() may not necessarily
+        // be the true number of columns in the table. Header, footer or
+        // rows may have more columns.
         let guessed_column_widths = get_column_widths(
             column_spacing,
             &table_widths,

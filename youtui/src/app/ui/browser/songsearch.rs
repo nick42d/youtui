@@ -92,7 +92,8 @@ impl Scrollable for SongSearchBrowser {
     fn increment_list(&mut self, amount: isize) {
         match self.input_routing {
             InputRouting::List => {
-                // Naive check using iterator - consider using exact size iterator
+                // Naive check using iterator - consider using exact size
+                // iterator
                 self.cur_selected = self
                     .cur_selected
                     .saturating_add_signed(amount)
@@ -288,9 +289,9 @@ impl AdvancedTableView for SongSearchBrowser {
             get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
             sort_command.direction,
         );
-        // Remove commands that already exist for the same column, as this new command
-        // will trump the old ones. Slightly naive - loops the whole vec, could
-        // short circuit.
+        // Remove commands that already exist for the same column, as this new
+        // command will trump the old ones. Slightly naive - loops the
+        // whole vec, could short circuit.
         self.sort
             .sort_commands
             .retain(|cmd| cmd.column != sort_command.column);
@@ -421,8 +422,8 @@ impl SongSearchBrowser {
         // Clamp current selected row to length of list.
         let new_max_cur = self.get_filtered_items().count().saturating_sub(1);
         self.cur_selected = self.cur_selected.min(new_max_cur);
-        // Adjust offset accordingly to ensure if list fits on the screen, offset is
-        // zero.
+        // Adjust offset accordingly to ensure if list fits on the screen,
+        // offset is zero.
         *self.widget_state.offset_mut() = get_offset_after_list_resize(
             prev_offset,
             prev_cur,
@@ -443,8 +444,9 @@ impl SongSearchBrowser {
     pub fn toggle_filter(&mut self) {
         let shown = self.filter.shown;
         if !shown {
-            // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
-            // it at the time of showing, so it cannot be missed.
+            // We need to set cur back to 0  and clear text somewhere and I'd
+            // prefer to do it at the time of showing, so it cannot
+            // be missed.
             self.filter.filter_text.clear();
             self.input_routing = InputRouting::Filter;
         } else {
@@ -551,7 +553,8 @@ impl SongSearchBrowser {
         (AsyncTask::new_no_op(), None)
     }
     pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.get_selected_item();
         let song_list = self
             .get_filtered_list_iter()
@@ -564,7 +567,8 @@ impl SongSearchBrowser {
         )
     }
     pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.get_selected_item();
         let song_list = self
             .get_filtered_list_iter()

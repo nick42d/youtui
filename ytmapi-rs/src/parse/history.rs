@@ -143,7 +143,8 @@ impl ParseFrom<RemoveHistoryItemsQuery<'_>> for Vec<ApiOutcome> {
 }
 impl ParseFrom<AddHistoryItemQuery<'_>> for () {
     fn parse_from(_: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
-        // Api only returns an empty string, no way of validating if correct or not.
+        // Api only returns an empty string, no way of validating if correct or
+        // not.
         Ok(())
     }
 }

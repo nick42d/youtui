@@ -444,8 +444,9 @@ fn parse_top_result_from_music_shelf_contents(
             artist = Some(parse_flex_column_item(&mut mrlir, 1, 2)?);
             album = Some(parse_flex_column_item(&mut mrlir, 1, 4)?);
             duration = Some(parse_flex_column_item(&mut mrlir, 1, 6)?);
-            // This does not show up in all Card renderer results and so we'll define it as
-            // optional. TODO: Could make this more type safe in future.
+            // This does not show up in all Card renderer results and so we'll
+            // define it as optional. TODO: Could make this more
+            // type safe in future.
             plays = parse_flex_column_item(&mut mrlir, 1, 8).ok();
         }
         Some(TopResultType::Video) => todo!(),
@@ -461,8 +462,9 @@ fn parse_top_result_from_music_shelf_contents(
             } else {
                 duration = Some(flex_1_2);
             }
-            // This does not show up in all Card renderer results and so we'll define it as
-            // optional. TODO: Could make this more type safe in future.
+            // This does not show up in all Card renderer results and so we'll
+            // define it as optional. TODO: Could make this more
+            // type safe in future.
             plays = parse_flex_column_item(&mut mrlir, 1, 6).ok();
         }
     }
@@ -817,7 +819,8 @@ fn parse_playlist_search_result_from_music_shelf_contents(
             Ok(SearchResultPlaylist::Podcast(res))
         }
         YoutubeMusicPageType::Playlist => {
-            // The playlist search contains a mix of Community and Featured playlists.
+            // The playlist search contains a mix of Community and Featured
+            // playlists.
             let playlist_params: PlaylistEndpointParams =
                 music_shelf_contents.take_value_pointer(concatcp!(
                     MRLIR,

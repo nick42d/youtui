@@ -328,7 +328,8 @@ impl KeyRouter<AppAction> for Browser {
         &self,
         config: &'a Config,
     ) -> impl Iterator<Item = &'a Keymap<AppAction>> + 'a {
-        // TODO: Verify if I want to show sort/filter keybinds even when not selected.
+        // TODO: Verify if I want to show sort/filter keybinds even when not
+        // selected.
         [
             &config.keybinds.browser,
             &config.keybinds.browser_search,

@@ -549,8 +549,8 @@ fn parse_content_list_playlist(item: JsonCrawlerOwned) -> Result<Option<LibraryP
 fn parse_content_list_podcast(item: impl JsonCrawler) -> Result<Option<LibraryPodcast>> {
     let mut mtrir = item.navigate_pointer(MTRIR)?;
     let title: String = mtrir.take_value_pointer(TITLE_TEXT)?;
-    // There are some potential non-podcast special playlist results. This is one
-    // way to filter them out.
+    // There are some potential non-podcast special playlist results. This is
+    // one way to filter them out.
     // TODO: i18n or more robust method of filtering.
     if title.eq_ignore_ascii_case("new episodes")
         || title.eq_ignore_ascii_case("Episodes for Later")

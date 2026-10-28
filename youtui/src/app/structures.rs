@@ -526,8 +526,8 @@ impl BrowserSongsList {
         id
     }
     pub fn add_song_thumbnail(&mut self, song_thumbnail: SongThumbnail) {
-        // Thumbnail is refcounted since it could be shared by multiple songs on the
-        // playlist (even if its a video thumbnail).
+        // Thumbnail is refcounted since it could be shared by multiple songs on
+        // the playlist (even if its a video thumbnail).
         let thumbnail_shared = Rc::new(song_thumbnail);
         for song in &mut self.list {
             if !matches!(song.album_art, AlbumArtState::Downloaded(_))

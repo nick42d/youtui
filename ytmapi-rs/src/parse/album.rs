@@ -65,8 +65,8 @@ impl<'a> ParseFrom<GetAlbumQuery<'a>> for GetAlbum {
 
 fn parse_album_track(json: &mut JsonCrawlerBorrowed) -> Result<Option<AlbumSong>> {
     let mut data = json.borrow_pointer(MRLIR)?;
-    // A playlist item could be greyed out, and in this case we'll ignore the song
-    // from the list of tracks.
+    // A playlist item could be greyed out, and in this case we'll ignore the
+    // song from the list of tracks.
     if let Ok("MUSIC_ITEM_RENDERER_DISPLAY_POLICY_GREY_OUT") = data
         .take_value_pointer::<String>("/musicItemRendererDisplayPolicy")
         .as_deref()

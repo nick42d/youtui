@@ -68,8 +68,9 @@ impl SearchType for UploadSearch {
 }
 impl SearchType for LibrarySearch {
     fn specialised_params(&self, _: &SpellingMode) -> Option<Cow<'_, str>> {
-        // XXX: It may be possible to actually filter these, see sigma67/ytmusicapi for
-        // details. TODO: Investigate if spelling suggestions take affect here.
+        // XXX: It may be possible to actually filter these, see
+        // sigma67/ytmusicapi for details. TODO: Investigate if spelling
+        // suggestions take affect here.
         Some("agIYBA%3D%3D".into())
     }
 }

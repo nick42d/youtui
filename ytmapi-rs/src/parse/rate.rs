@@ -4,18 +4,20 @@ use json_crawler::{JsonCrawler, JsonCrawlerIterator, JsonCrawlerOwned};
 
 impl<'a> ParseFrom<RateSongQuery<'a>> for () {
     fn parse_from(_: super::ProcessedResult<RateSongQuery<'a>>) -> crate::Result<Self> {
-        // Passing an invalid video ID with Like or Dislike will throw a 400 error which
-        // is caught by AuthToken. Youtube does no checking on Indifferent, even
-        // an invalid video ID will return no error code. Therefore, if we've
-        // passed error validation at AuthToken, it's OK to return ApiSuccess here.
+        // Passing an invalid video ID with Like or Dislike will throw a 400
+        // error which is caught by AuthToken. Youtube does no checking
+        // on Indifferent, even an invalid video ID will return no error
+        // code. Therefore, if we've passed error validation at
+        // AuthToken, it's OK to return ApiSuccess here.
         Ok(())
     }
 }
 impl<'a> ParseFrom<RatePlaylistQuery<'a>> for () {
     fn parse_from(p: super::ProcessedResult<RatePlaylistQuery<'a>>) -> crate::Result<Self> {
-        // Passing an invalid playlist ID to Like or Indifferent will throw a 404 error
-        // which is caught by AuthToken. Youtube does no checking on
-        // Indifferent, even an invalid PlaylistID will return success.
+        // Passing an invalid playlist ID to Like or Indifferent will throw a
+        // 404 error which is caught by AuthToken. Youtube does no
+        // checking on Indifferent, even an invalid PlaylistID will
+        // return success.
         let json_crawler = JsonCrawlerOwned::from(p);
         // TODO: Error type
         json_crawler

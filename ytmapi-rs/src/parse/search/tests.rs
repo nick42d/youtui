@@ -20,9 +20,9 @@ async fn test_search_basic_top_result_no_type() {
 }
 #[tokio::test]
 async fn test_search_basic_radio() {
-    // Case where topmost result is a special 'radio' playlist. Doesn't contain a
-    // type and only has a single subtitle. Seems to show up when searching for
-    // genres like classical and metal.
+    // Case where topmost result is a special 'radio' playlist. Doesn't contain
+    // a type and only has a single subtitle. Seems to show up when
+    // searching for genres like classical and metal.
     parse_test!(
         "./test_json/search_basic_radio_20240830.json",
         "./test_json/search_basic_radio_20240830_output.txt",
@@ -42,7 +42,8 @@ async fn test_search_basic_top_result_card() {
 }
 #[tokio::test]
 async fn test_basic_search_no_results_suggestions() {
-    // Case where there are no results, but there are 'Did You Mean' suggestions.
+    // Case where there are no results, but there are 'Did You Mean'
+    // suggestions.
     parse_test_value!(
         "./test_json/search_basic_no_results_suggestions_20240104.json",
         SearchResults::default(),

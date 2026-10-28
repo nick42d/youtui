@@ -98,8 +98,9 @@ impl MediaController {
     pub fn new() -> anyhow::Result<(Self, impl Stream<Item = MediaControlEvent>)> {
         let (tx, rx) = mpsc::channel(super::EVENT_CHANNEL_SIZE);
 
-        // On windows, a hwnd window handle is required, so we create a non-visible
-        // window using winit. See souvlaki docs for more information.
+        // On windows, a hwnd window handle is required, so we create a
+        // non-visible window using winit. See souvlaki docs for more
+        // information.
         #[cfg(target_os = "windows")]
         use raw_window_handle::HasWindowHandle;
         #[cfg(target_os = "windows")]
@@ -140,8 +141,8 @@ impl MediaController {
         };
 
         let mut controls = souvlaki::MediaControls::new(config).map_err(MediaControlsError)?;
-        // Assumption - event handler runs in another thread, and blocking send is
-        // acceptable.
+        // Assumption - event handler runs in another thread, and blocking send
+        // is acceptable.
         controls
             .attach(move |event| {
                 blocking_send_or_error(&tx, event);

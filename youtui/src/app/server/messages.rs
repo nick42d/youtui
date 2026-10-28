@@ -121,7 +121,8 @@ pub struct GetSongThumbnail {
 }
 
 impl BackendTask<ArcServer> for HandleApiError {
-    // Infallible - assumption is that even if this task fails, caller won't care.
+    // Infallible - assumption is that even if this task fails, caller won't
+    // care.
     type Output = ();
     // TODO: Review if TaskMetadata needs new enum cases.
     type MetadataType = TaskMetadata;
@@ -138,7 +139,8 @@ impl BackendTask<ArcServer> for HandleApiError {
 }
 
 impl BackendTask<ArcServer> for GetSearchSuggestions {
-    // TODO: Consider alternative where the text isn't returned back to the caller.
+    // TODO: Consider alternative where the text isn't returned back to the
+    // caller.
     type Output = Result<(Vec<SearchSuggestion>, String)>;
     type MetadataType = TaskMetadata;
     fn into_future(

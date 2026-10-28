@@ -186,11 +186,12 @@ where
     pub fn new() -> Self {
         let (tx, rx) = std::sync::mpsc::channel::<AsyncRodioRequest<S, I>>();
         let _handle = tokio::task::spawn_blocking(move || {
-            // Rodio can produce output to stderr when we don't want it to, so we use Gag to
-            // suppress stdout/stderr. The downside is that even though this runs in
-            // a seperate thread all stderr for the whole app may be gagged.
-            // Also seems to spew out characters?
-            // TODO: Try to handle the errors from Rodio or write to a file.
+            // Rodio can produce output to stderr when we don't want it to, so
+            // we use Gag to suppress stdout/stderr. The downside is
+            // that even though this runs in a seperate thread all
+            // stderr for the whole app may be gagged. Also seems to
+            // spew out characters? TODO: Try to handle the errors
+            // from Rodio or write to a file.
             let _gag = match gag::Gag::stderr() {
                 Ok(gag) => gag,
                 Err(e) => {
@@ -206,8 +207,9 @@ where
             let mut next_song_duration = None;
             let mut cur_song_id = None;
             let mut next_song_id = None;
-            // There is no need for a drop implementation on AsyncRodio, since if AsyncRodio
-            // has dropped with it's sender, receive loop will receive Err and end.
+            // There is no need for a drop implementation on AsyncRodio, since
+            // if AsyncRodio has dropped with it's sender, receive
+            // loop will receive Err and end.
             while let Ok(msg) = rx.recv() {
                 match msg {
                     AsyncRodioRequest::AutoplaySong(song, song_id, tx) => {
@@ -252,13 +254,14 @@ where
                         let on_done = on_done_cb(&tx);
                         sink.append(song);
                         sink.append(on_done);
-                        // Handle case were we've received a play message but queue was paused.
+                        // Handle case were we've received a play message but
+                        // queue was paused.
                         if sink.is_paused() {
                             sink.play();
                         }
                         debug!("Now playing {:?}", song_id);
-                        // Send the Now Playing message for good orders sake to avoid
-                        // synchronization issues.
+                        // Send the Now Playing message for good orders sake to
+                        // avoid synchronization issues.
                         blocking_send_or_error(
                             tx.0,
                             AsyncRodioResponse::StartedPlaying(cur_song_duration),
@@ -312,13 +315,14 @@ where
                         let on_done = on_done_cb(&tx);
                         sink.append(song);
                         sink.append(on_done);
-                        // Handle case were we've received a play message but queue was paused.
+                        // Handle case were we've received a play message but
+                        // queue was paused.
                         if sink.is_paused() {
                             sink.play();
                         }
                         debug!("Now playing {:?}", song_id);
-                        // Send the Now Playing message for good orders sake to avoid
-                        // synchronization issues.
+                        // Send the Now Playing message for good orders sake to
+                        // avoid synchronization issues.
                         blocking_send_or_error(
                             tx.0,
                             AsyncRodioResponse::StartedPlaying(cur_song_duration),
@@ -413,7 +417,8 @@ where
                             continue;
                         };
                         let cur_pos = sink.get_pos();
-                        // The `min` is used because Rodio always you to seek past song end when
+                        // The `min` is used because Rodio always you to seek
+                        // past song end when
                         // paused, and will report back an incorrect
                         // position for sink.get_pos().
                         //
@@ -434,10 +439,12 @@ where
                         if let Err(e) = sink.try_seek(new_pos) {
                             error!("Failed to seek {:?}", e);
                         }
-                        // It seems that there is a race condition with seeking a paused track in
-                        // rodio itself. This delay is sufficient to ensure sink.get_pos() gets the
-                        // right position.
-                        // TODO: Report upstream
+                        // It seems that there is a race condition with seeking
+                        // a paused track in
+                        // rodio itself. This delay is sufficient to ensure
+                        // sink.get_pos() gets the right
+                        // position. TODO: Report
+                        // upstream
                         std::thread::sleep(Duration::from_millis(5));
                         oneshot_send_or_error(tx.0, (sink.get_pos(), cur_song_id));
                     }
@@ -449,7 +456,8 @@ where
                         if cur_song_id != Some(song_id) {
                             continue;
                         }
-                        // Rodio always you to seek past song end when paused, and will report back
+                        // Rodio always you to seek past song end when paused,
+                        // and will report back
                         // an incorrect position for sink.get_pos().
                         // TODO: Report upstream
                         let res =
@@ -457,10 +465,12 @@ where
                         if let Err(e) = res {
                             error!("Failed to seek {:?}", e);
                         }
-                        // It seems that there is a race condition with seeking a paused track in
-                        // rodio itself. This delay is sufficient to ensure sink.get_pos() gets the
-                        // right position.
-                        // TODO: Report upstream
+                        // It seems that there is a race condition with seeking
+                        // a paused track in
+                        // rodio itself. This delay is sufficient to ensure
+                        // sink.get_pos() gets the right
+                        // position. TODO: Report
+                        // upstream
                         std::thread::sleep(Duration::from_millis(5));
                         oneshot_send_or_error(tx.0, (sink.get_pos(), song_id));
                     }
@@ -519,8 +529,8 @@ where
                     }
                 }
             }
-            // Should never reach here! Player should send either Error, Stopped or Playing
-            // message first.
+            // Should never reach here! Player should send either Error, Stopped
+            // or Playing message first.
             error!(
                 "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
                 identifier
@@ -571,8 +581,8 @@ where
                     }
                 }
             }
-            // Should never reach here! Player should send either Error, Stopped or Playing
-            // message first.
+            // Should never reach here! Player should send either Error, Stopped
+            // or Playing message first.
             error!(
                 "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
                 identifier
@@ -624,8 +634,8 @@ where
                     }
                 }
             }
-            // Should never reach here! Player should send either Error, Stopped or Playing
-            // message first.
+            // Should never reach here! Player should send either Error, Stopped
+            // or Playing message first.
             error!(
                 "The sender has been dropped and there are no further messages while I was waiting for a play song outcome for {:?}",
                 identifier
@@ -642,8 +652,8 @@ where
         std_send_or_error(&self.tx, AsyncRodioRequest::Seek(duration, direction, tx)).await;
         let Ok((current_duration, song_id)) = rx.await else {
             // This happens intentionally - when a seek is requested for a song
-            // but all songs have finished, instead of sending a reply, rodio will drop
-            // sender.
+            // but all songs have finished, instead of sending a reply, rodio
+            // will drop sender.
             info!("The song I tried to seek is no longer playing");
             return None;
         };
@@ -657,8 +667,8 @@ where
         std_send_or_error(&self.tx, AsyncRodioRequest::SeekTo(seek_to_pos, id, tx)).await;
         let Ok((current_duration, song_id)) = rx.await else {
             // This happens intentionally - when a seek is requested for a song
-            // that's no longer playing, instead of sending a reply, rodio will drop
-            // sender.
+            // that's no longer playing, instead of sending a reply, rodio will
+            // drop sender.
             info!("The song I tried to seek is no longer playing");
             return None;
         };
@@ -672,7 +682,8 @@ where
         std_send_or_error(&self.tx, AsyncRodioRequest::Stop(identifier, tx)).await;
         let Ok(_) = rx.await else {
             // This happens intentionally - when a stop is requested for a song
-            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            // that's no longer playing, instead of sending a reply, rodio will
+            // drop sender.
             info!("The song I tried to stop is no longer playing");
             return None;
         };
@@ -692,8 +703,9 @@ where
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::PausePlay(identifier, tx)).await;
         let Ok(play_action_taken) = rx.await else {
-            // This happens intentionally - when a pauseplay is requested for a song
-            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            // This happens intentionally - when a pauseplay is requested for a
+            // song that's no longer playing, instead of sending a
+            // reply, rodio will drop sender.
             info!("The song I tried to pause/play was no longer selected",);
             return None;
         };
@@ -706,8 +718,9 @@ where
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::Pause(identifier, tx)).await;
         let Ok(_) = rx.await else {
-            // This happens intentionally - when a pauseplay is requested for a song
-            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            // This happens intentionally - when a pauseplay is requested for a
+            // song that's no longer playing, instead of sending a
+            // reply, rodio will drop sender.
             info!("The song I tried to pause/play was no longer selected",);
             return None;
         };
@@ -717,8 +730,9 @@ where
         let (tx, rx) = rodio_oneshot_channel();
         std_send_or_error(&self.tx, AsyncRodioRequest::Resume(identifier, tx)).await;
         let Ok(_) = rx.await else {
-            // This happens intentionally - when a pauseplay is requested for a song
-            // that's no longer playing, instead of sending a reply, rodio will drop sender.
+            // This happens intentionally - when a pauseplay is requested for a
+            // song that's no longer playing, instead of sending a
+            // reply, rodio will drop sender.
             info!("The song I tried to pause/play was no longer selected",);
             return None;
         };

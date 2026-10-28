@@ -281,7 +281,8 @@ impl ArtistSearchBrowser {
         )
     }
     pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_song_idx = self.album_songs_panel.get_selected_item();
         if let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_song_idx) {
             return (
@@ -294,7 +295,8 @@ impl ArtistSearchBrowser {
         (AsyncTask::new_no_op(), None)
     }
     pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let song_list = self
             .album_songs_panel
@@ -310,7 +312,8 @@ impl ArtistSearchBrowser {
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let song_list = self
             .album_songs_panel
@@ -324,7 +327,8 @@ impl ArtistSearchBrowser {
         )
     }
     pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         if let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) {
             return (
@@ -335,13 +339,14 @@ impl ArtistSearchBrowser {
         (AsyncTask::new_no_op(), None)
     }
     pub fn add_album_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
             return (AsyncTask::new_no_op(), None);
         };
-        // Assert: If you're calling this function, all the songs in list must have an
-        // album field!
+        // Assert: If you're calling this function, all the songs in list must
+        // have an album field!
         let Some(ref cur_album) = cur_song.album else {
             error!("Expected album details to be in list but they are missing!");
             return (AsyncTask::new_no_op(), None);
@@ -364,13 +369,14 @@ impl ArtistSearchBrowser {
         )
     }
     pub fn play_album(&mut self) -> impl Into<YoutuiEffect<Self>> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.album_songs_panel.get_selected_item();
         let Some(cur_song) = self.album_songs_panel.get_song_from_idx(cur_idx) else {
             return (AsyncTask::new_no_op(), None);
         };
-        // Assert: If you're calling this function, all the songs in list must have an
-        // album field!
+        // Assert: If you're calling this function, all the songs in list must
+        // have an album field!
         let Some(ref cur_album) = cur_song.album else {
             error!("Expected album details to be in list but they are missing!");
             return (AsyncTask::new_no_op(), None);
@@ -457,7 +463,8 @@ impl ArtistSearchBrowser {
             .list
             .append_raw_album_songs(song_list, album, year, artists, thumbnails);
         // If sort commands exist, sort the list.
-        // Naive - can result in multiple calls to sort every time songs are appended.
+        // Naive - can result in multiple calls to sort every time songs are
+        // appended.
         if let Err(e) = self.album_songs_panel.apply_all_sort_commands() {
             error!("Error <{e}> sorting album songs panel");
         }

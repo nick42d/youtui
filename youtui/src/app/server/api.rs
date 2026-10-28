@@ -116,19 +116,21 @@ where
                 Ok(ytmapi_rs::error::ErrorKind::OAuthTokenExpired { token_hash }) => {
                     // Take a clone to re-use later.
                     let api_clone = api.to_owned();
-                    // First take an exclusive lock - prevent others from doing the same.
+                    // First take an exclusive lock - prevent others from doing
+                    // the same.
                     let api_owned = api_clone.clone();
                     let mut api_locked = api_owned.write_owned().await;
-                    // Then check to see if the token_hash hasn't changed since calling the
-                    // query. If it hasn't, we were the first one and are responsible for
+                    // Then check to see if the token_hash hasn't changed since
+                    // calling the query. If it hasn't, we
+                    // were the first one and are responsible for
                     // refreshing. If it has, that means another query must have
                     // already refreshed the token, and we don't need to do
                     // anything.
                     let api_token_hash = api_locked.get_token_hash()?;
                     if api_token_hash == Some(token_hash) {
-                        // A task is spawned to refresh the token, to ensure that it still
-                        // refreshes even if this task is
-                        // cancelled.
+                        // A task is spawned to refresh the token, to ensure
+                        // that it still refreshes even
+                        // if this task is cancelled.
                         tokio::spawn(async {
                             info!("Refreshing oauth token");
                             let tok = api_locked.refresh_token().await?.expect("Expected to be able to refresh token if I got an OAuthTokenExpired error");
@@ -294,7 +296,8 @@ fn get_artist_songs(
         send_or_error(&tx, GetArtistSongsProgressUpdate::SongsFound).await;
         // Request all albums, concurrently but retaining order.
         // Future improvement: instead of using a FuturesOrdered, we could send
-        // willy-nilly but with an index, so the caller can insert songs in place.
+        // willy-nilly but with an index, so the caller can insert songs in
+        // place.
         let mut stream = browse_id_list
             .into_iter()
             .inspect(|a_id| {

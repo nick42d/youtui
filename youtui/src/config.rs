@@ -109,8 +109,8 @@ impl Config {
         let config_dir = get_config_dir()?;
         let config_file_location = config_dir.join(CONFIG_FILE_NAME);
         if let Ok(config_file) = tokio::fs::read_to_string(&config_file_location).await {
-            // NOTE: This happens before logging / app is initialised, so `println!` is
-            // used instead of `tracing::info!`
+            // NOTE: This happens before logging / app is initialised, so
+            // `println!` is used instead of `tracing::info!`
             if debug {
                 println!(
                     "Loading config from {}",

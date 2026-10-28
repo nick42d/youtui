@@ -49,8 +49,8 @@ pub struct MoodPlaylist {
 
 impl<'a> ParseFrom<SetTasteProfileQuery<'a>> for () {
     fn parse_from(_: super::ProcessedResult<SetTasteProfileQuery<'a>>) -> Result<Self> {
-        // Doesn't seem to be an identifier in the response to determine if success or
-        // failure - so always assume success.
+        // Doesn't seem to be an identifier in the response to determine if
+        // success or failure - so always assume success.
         Ok(())
     }
 }

@@ -103,8 +103,8 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
             receiver: waiter,
             metadata,
         };
-        // At one task per nanosecond, it would take 584.6 years for a library user to
-        // trigger overflow.
+        // At one task per nanosecond, it would take 584.6 years for a library
+        // user to trigger overflow.
         //
         // https://www.wolframalpha.com/input?i=2%5E64+nanoseconds
         let new_id = self

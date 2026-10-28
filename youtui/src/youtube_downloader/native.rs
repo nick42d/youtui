@@ -21,8 +21,9 @@ impl NativeYoutubeDownloader {
         po_token: Option<String>,
         client: reqwest::Client,
     ) -> Self {
-        // Custom rusty_ytdl filter that downloads audio but prevents downloading webm
-        // files - the contained Opus codec is not supported by Symphonia.
+        // Custom rusty_ytdl filter that downloads audio but prevents
+        // downloading webm files - the contained Opus codec is not
+        // supported by Symphonia.
         let custom_filter = |video_format: &VideoFormat| {
             video_format.has_audio
                 && !video_format.has_video
@@ -56,7 +57,8 @@ impl YoutubeMusicDownloader for NativeYoutubeDownloader {
         let options = self.options.clone();
         let song_video_id: String = song_video_id.as_ref().into();
         let video = Video::new_with_options(song_video_id, options.as_ref())?;
-        // NOTE: This can ony fail if rusty_ytdl fails to build a reqwest::Client.
+        // NOTE: This can ony fail if rusty_ytdl fails to build a
+        // reqwest::Client.
         let stream = video.stream().await?;
         let total_size_bytes = stream.content_length();
         let stream = into_futures_stream(stream);
@@ -73,9 +75,9 @@ impl YoutubeMusicDownloader for NativeYoutubeDownloader {
 pub fn into_futures_stream(
     youtube_stream: Box<dyn rusty_ytdl::stream::Stream + Send>,
 ) -> impl futures::Stream<Item = Result<Bytes, VideoError>> + Send {
-    // Second value of initialisation tuple represents if the previous iteration of
-    // the stream errored. If so, stream will close, as no future iterations of
-    // the stream are expected to return Ok.
+    // Second value of initialisation tuple represents if the previous iteration
+    // of the stream errored. If so, stream will close, as no future
+    // iterations of the stream are expected to return Ok.
     futures::stream::unfold((youtube_stream, false), |(state, err)| async move {
         if err {
             return None;

@@ -203,7 +203,8 @@ impl JsonCrawlerOwned {
     /// Create a new JsonCrawler, where 'json' is the `serde_json::Value` that
     /// you wish to crawl and 'source' represents a serialized copy of the same
     /// `serde_json::Value`.
-    // TODO: Safer constructor that avoids 'source' being out of sync with 'json'
+    // TODO: Safer constructor that avoids 'source' being out of sync with
+    // 'json'
     pub fn new(source: String, json: serde_json::Value) -> Self {
         Self {
             source: Arc::new(source),

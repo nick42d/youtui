@@ -338,8 +338,8 @@ fn draw_sort_popup(f: &mut Frame, table: &mut impl AdvancedTableView, chunk: Rec
         // TODO: Remove allocation
         .collect();
     let max_header_len = headers.iter().fold(0, |acc, e| acc.max(e.width()));
-    // List looks a bit nicer with a minimum width, so passing a hardcoded minimum
-    // here.
+    // List looks a bit nicer with a minimum width, so passing a hardcoded
+    // minimum here.
     let width = max_header_len.max(title.len()).max(MIN_POPUP_WIDTH) + 2;
     let height = sortable_columns.len() + 2;
     let popup_chunk = crate::drawutils::centered_rect(height as u16, width as u16, chunk);

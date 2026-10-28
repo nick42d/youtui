@@ -45,11 +45,11 @@ pub fn draw_header(f: &mut Frame, w: &super::YoutuiWindow, chunk: Rect) {
     let commands_block = Block::default().borders(Borders::ALL).title("Commands");
     let commands_widget = Paragraph::new(help_string).wrap(Wrap { trim: true });
     // Only render the tab menu if Browser is selected.
-    // Ideally, this would be less hardcoded - ie, YoutuiWindow could implement a
-    // trait like OptDelegateHasTabs that allows you to get an Option<&dyn
+    // Ideally, this would be less hardcoded - ie, YoutuiWindow could implement
+    // a trait like OptDelegateHasTabs that allows you to get an Option<&dyn
     // HasTabs> depending on which context pane is selected.
-    // However, HasTabs is not currently dyn compatible so I have stuck with this
-    // approach for now.
+    // However, HasTabs is not currently dyn compatible so I have stuck with
+    // this approach for now.
     if !matches!(w.context, WindowContext::Browser) {
         f.render_widget(commands_widget, commands_block.inner(chunk));
         f.render_widget(commands_block, chunk);

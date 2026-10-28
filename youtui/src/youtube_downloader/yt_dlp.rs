@@ -106,8 +106,8 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                     message: format!("{e}"),
                 })?;
             // Consider no stdout and/or no stdout to be an error.
-            // In future, could consider reading stderr if no stdout as it may contain an
-            // error message.
+            // In future, could consider reading stderr if no stdout as it may
+            // contain an error message.
             let Child {
                 stderr: Some(stderr),
                 stdout: Some(stdout),

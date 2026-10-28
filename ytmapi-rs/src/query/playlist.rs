@@ -169,7 +169,8 @@ impl<A: AuthToken> Query<A> for GetPlaylistTracksQuery<'_> {
 }
 impl PostQuery for GetPlaylistTracksQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        // TODO: Confirm if processing required to add 'VL' portion of playlistId
+        // TODO: Confirm if processing required to add 'VL' portion of
+        // playlistId
         let serde_json::Value::Object(map) = json!({
             "browseId" : self.id.get_raw(),
         }) else {
@@ -193,7 +194,8 @@ impl<A: AuthToken> Query<A> for GetPlaylistDetailsQuery<'_> {
 }
 impl PostQuery for GetPlaylistDetailsQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        // TODO: Confirm if processing required to add 'VL' portion of playlistId
+        // TODO: Confirm if processing required to add 'VL' portion of
+        // playlistId
         let serde_json::Value::Object(map) = json!({
             "browseId" : self.id.get_raw(),
         }) else {
@@ -215,7 +217,8 @@ impl<A: LoggedIn> Query<A> for DeletePlaylistQuery<'_> {
 }
 impl PostQuery for DeletePlaylistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        // TODO: Confirm if processing required to remove 'VL' portion of playlistId
+        // TODO: Confirm if processing required to remove 'VL' portion of
+        // playlistId
         let serde_json::Value::Object(map) = json!({
             "playlistId" : self.id.get_raw(),
         }) else {

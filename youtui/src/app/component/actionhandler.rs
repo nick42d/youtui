@@ -274,9 +274,10 @@ where
             mut modifiers,
             ..
         } = k;
-        // If the keycode is a character, then the shift modifier should be removed. It
-        // will be encoded in the character already. This same stripping occurs when
-        // parsing the keycode in Keybind::from_str(..).
+        // If the keycode is a character, then the shift modifier should be
+        // removed. It will be encoded in the character already. This
+        // same stripping occurs when parsing the keycode in
+        // Keybind::from_str(..).
         if let KeyCode::Char(_) = code {
             modifiers = modifiers.difference(KeyModifiers::SHIFT);
         }

@@ -171,8 +171,8 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
     }
     // TODO: Tests
     pub(crate) fn handle_constraint(&mut self, constraint: Constraint<Md>, type_id: TypeId) {
-        // TODO: Consider the situation where one component kills tasks belonging to
-        // another component.
+        // TODO: Consider the situation where one component kills tasks
+        // belonging to another component.
         //
         // Assuming here that kill implies block also.
         let task_doesnt_match_constraint = |task: &SpawnedTask<_, _, _>| task.type_id != type_id;

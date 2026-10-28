@@ -137,7 +137,8 @@ impl SongThumbnailDownloader {
         thumbnail_id: SongThumbnailID<'static>,
         thumbnail_url: String,
     ) -> anyhow::Result<SongThumbnail> {
-        // Do not download album art until directory setup and clean has completed.
+        // Do not download album art until directory setup and clean has
+        // completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
 
         // Return early if thumbnail already exists in disk cache.

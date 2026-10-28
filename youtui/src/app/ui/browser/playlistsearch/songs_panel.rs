@@ -136,8 +136,8 @@ impl PlaylistSongsPanel {
         // Clamp current selected row to length of list.
         let new_max_cur = self.get_filtered_items().count().saturating_sub(1);
         self.cur_selected = self.cur_selected.min(new_max_cur);
-        // Adjust offset accordingly to ensure if list fits on the screen, offset is
-        // zero.
+        // Adjust offset accordingly to ensure if list fits on the screen,
+        // offset is zero.
         *self.widget_state.offset_mut() = get_offset_after_list_resize(
             prev_offset,
             prev_cur,
@@ -158,8 +158,9 @@ impl PlaylistSongsPanel {
     pub fn toggle_filter(&mut self) {
         let shown = self.filter.shown;
         if !shown {
-            // We need to set cur back to 0  and clear text somewhere and I'd prefer to do
-            // it at the time of showing, so it cannot be missed.
+            // We need to set cur back to 0  and clear text somewhere and I'd
+            // prefer to do it at the time of showing, so it cannot
+            // be missed.
             self.filter.filter_text.clear();
             self.route = PlaylistSongsInputRouting::Filter;
         } else {
@@ -320,7 +321,8 @@ impl TableView for PlaylistSongsPanel {
     }
 }
 impl AdvancedTableView for PlaylistSongsPanel {
-    // TODO: Consider if perhaps this table should not be sortable or filterable!
+    // TODO: Consider if perhaps this table should not be sortable or
+    // filterable!
     fn get_sortable_columns(&self) -> &[usize] {
         &[0, 1, 2, 3]
     }
@@ -334,9 +336,9 @@ impl AdvancedTableView for PlaylistSongsPanel {
             get_adjusted_list_column(sort_command.column, Self::subcolumns_of_vec())?,
             sort_command.direction,
         );
-        // Remove commands that already exist for the same column, as this new command
-        // will trump the old ones. Slightly naive - loops the whole vec, could
-        // short circuit.
+        // Remove commands that already exist for the same column, as this new
+        // command will trump the old ones. Slightly naive - loops the
+        // whole vec, could short circuit.
         self.sort
             .sort_commands
             .retain(|cmd| cmd.column != sort_command.column);

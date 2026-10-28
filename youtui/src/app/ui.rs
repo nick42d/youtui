@@ -232,10 +232,10 @@ impl TextHandler for YoutuiWindow {
 
 impl ActionHandler<AppAction> for YoutuiWindow {
     fn apply_action(&mut self, action: AppAction) -> impl Into<YoutuiEffect<Self>> {
-        // NOTE: This is the place to check if we _should_ be handling an action.
-        // For example if a user has set custom 'playlist' keybinds that trigger
-        // 'browser' actions, but browser is not shown currently, this could be filtered
-        // out here.
+        // NOTE: This is the place to check if we _should_ be handling an
+        // action. For example if a user has set custom 'playlist'
+        // keybinds that trigger 'browser' actions, but browser is not
+        // shown currently, this could be filtered out here.
         match action {
             AppAction::VolUp => {
                 return Into::<YoutuiEffect<Self>>::into(self.handle_increase_volume(5));
@@ -338,8 +338,8 @@ impl YoutuiWindow {
         &mut self,
         event: crossterm::event::Event,
     ) -> YoutuiEffect<Self> {
-        // TODO: This should be intercepted and keycodes mapped by us instead of going
-        // direct to rat-text.
+        // TODO: This should be intercepted and keycodes mapped by us instead of
+        // going direct to rat-text.
         if let Some(effect) = self.try_handle_text(&event) {
             return effect.into();
         };
@@ -355,8 +355,8 @@ impl YoutuiWindow {
         &mut self,
         event: souvlaki::MediaControlEvent,
     ) -> YoutuiEffect<Self> {
-        // This conversion function is written here as this is expected to be the only
-        // location it is used.
+        // This conversion function is written here as this is expected to be
+        // the only location it is used.
         let convert_dir = |dir| match dir {
             souvlaki::SeekDirection::Forward => SeekDirection::Forward,
             souvlaki::SeekDirection::Backward => SeekDirection::Back,
@@ -542,8 +542,8 @@ impl YoutuiWindow {
             self.help.shown = true;
             // Setup Help menu parameters
             self.help.cur = 0;
-            // We have to get the keybind length this way as the help menu iterator is not
-            // ExactSized
+            // We have to get the keybind length this way as the help menu
+            // iterator is not ExactSized
             self.help.len = self.get_help_list_items().count();
         }
     }
@@ -563,8 +563,8 @@ impl YoutuiWindow {
     fn _revert_context(&mut self) {
         std::mem::swap(&mut self.context, &mut self.prev_context);
     }
-    // The downside of this approach is that if draw_popup is calling this function,
-    // it is gettign called every tick.
+    // The downside of this approach is that if draw_popup is calling this
+    // function, it is gettign called every tick.
     // Consider a way to set this in the in state memory.
     fn get_cur_displayable_mode(
         &self,

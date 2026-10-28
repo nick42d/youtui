@@ -82,13 +82,13 @@ pub fn get_offset_after_list_resize(
     let prev_offset_rel_cur = isize::try_from(prev_offset)
         .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_cur))
         .unwrap_or(0);
-    // Calculate previous offset relative to the previous max cur (as a signed int),
-    // defaulting to zero if any issues with cast required.
+    // Calculate previous offset relative to the previous max cur (as a signed
+    // int), defaulting to zero if any issues with cast required.
     let prev_offset_rel_max = isize::try_from(prev_offset)
         .map(|prev_offset| prev_offset.saturating_sub_unsigned(prev_max_cur))
         .unwrap_or(0);
-    // Adjust offset accordingly to ensure the offset relative to cur is the same as
-    // it was previously.
+    // Adjust offset accordingly to ensure the offset relative to cur is the
+    // same as it was previously.
     let Ok(new_cur_isize) = isize::try_from(new_cur) else {
         return 0;
     };

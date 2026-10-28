@@ -511,8 +511,8 @@ async fn test_add_remove_history_items() {
         parse::HistoryItem::Episode(i) => i.title.as_str(),
         parse::HistoryItem::UploadSong(i) => i.title.as_str(),
     };
-    // It's not enough to check last song isn't the one we added - as it may exist
-    // on the previous day too :)
+    // It's not enough to check last song isn't the one we added - as it may
+    // exist on the previous day too :)
     pretty_assertions::assert_ne!(
         (first_history_item_name_new, first_history_item_period),
         (song.title.as_str(), first_history_item_period_new)
@@ -524,8 +524,8 @@ async fn test_add_remove_history_items() {
 #[ignore = "Ignored by default due to quota"]
 async fn test_delete_create_playlist_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
+    // Don't stuff around trying the keep the local OAuth secret up to date,
+    // just refresh it each time.
     api.refresh_token().await.unwrap();
     let id = api
         .create_playlist(CreatePlaylistQuery::new(
@@ -730,8 +730,8 @@ async fn test_edit_playlist() {
 #[tokio::test]
 async fn test_get_library_playlists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
+    // Don't stuff around trying the keep the local OAuth secret up to date,
+    // just refresh it each time.
     api.refresh_token().await.unwrap();
     let res = api.get_library_playlists().await.unwrap();
     assert!(!res.is_empty());
@@ -746,8 +746,8 @@ async fn test_get_library_playlists() {
 #[tokio::test]
 async fn test_get_library_artists_oauth() {
     let mut api = new_standard_oauth_api().await.unwrap();
-    // Don't stuff around trying the keep the local OAuth secret up to date, just
-    // refresh it each time.
+    // Don't stuff around trying the keep the local OAuth secret up to date,
+    // just refresh it each time.
     api.refresh_token().await.unwrap();
     let res = api.get_library_artists().await.unwrap();
     assert!(!res.is_empty());
