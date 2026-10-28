@@ -35,8 +35,8 @@ pub struct SearchQuery<'a, S: SearchType> {
 // XXX: May actually affect Library. To confirm.
 #[derive(PartialEq, Debug, Clone, Default)]
 pub enum SpellingMode {
-    // My personal preference is to use ExactMatch by default, so that's what I've set.
-    // Google's is WithSuggestions.
+    // My personal preference is to use ExactMatch by default, so that's what
+    // I've set. Google's is WithSuggestions.
     #[default]
     ExactMatch,
     WithSuggestions,

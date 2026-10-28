@@ -12,8 +12,9 @@ pub mod keymap;
 #[derive(Serialize, Deserialize)]
 pub enum ApiKey {
     OAuthToken(OAuthToken),
-    // BrowserToken takes the cookie, not the BrowserToken itself. This is because to obtain the
-    // BrowserToken you must make a web request, and we want to obtain it as lazily as possible.
+    // BrowserToken takes the cookie, not the BrowserToken itself. This is
+    // because to obtain the BrowserToken you must make a web request, and we
+    // want to obtain it as lazily as possible.
     BrowserToken(String),
     None,
 }

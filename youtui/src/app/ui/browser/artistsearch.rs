@@ -219,8 +219,8 @@ impl ArtistSearchBrowser {
                 }
                 // Handled by old handle_text_event_impl.
                 //
-                // TODO: remove the duplication of responsibilities between this function and
-                // handle_text_event_impl.
+                // TODO: remove the duplication of responsibilities between this
+                // function and handle_text_event_impl.
                 TextEntryAction::Left => (),
                 TextEntryAction::Right => (),
                 TextEntryAction::Backspace => (),
@@ -513,8 +513,8 @@ impl_youtui_task_handler!(
             AsyncTask::new_future(
                 HandleApiError {
                     error,
-                    // To avoid needing to clone search query to use in the error message, this
-                    // error message is minimal.
+                    // To avoid needing to clone search query to use in the
+                    // error message, this error message is minimal.
                     message: "Error recieved getting artists".to_string(),
                 },
                 NoOpHandler,

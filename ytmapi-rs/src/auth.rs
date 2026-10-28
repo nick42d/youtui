@@ -34,8 +34,8 @@ pub struct RawResult<'a, Q, A>
 where
     A: AuthToken,
 {
-    // A PhantomData is held to ensure token is processed correctly depending on the AuthToken that
-    // generated it.
+    // A PhantomData is held to ensure token is processed correctly depending on
+    // the AuthToken that generated it.
     token: PhantomData<A>,
     /// The query that generated this RawResult.
     pub query: &'a Q,

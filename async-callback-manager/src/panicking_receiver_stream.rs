@@ -30,7 +30,8 @@ impl<T> Stream for PanickingReceiverStream<T> {
             Poll::Ready(Some(item)) => Poll::Ready(Some(item)),
             Poll::Ready(None) => {
                 match Pin::new(&mut self.handle).poll(cx) {
-                    // Task is still tearing down; wait for it to finish to capture the panic.
+                    // Task is still tearing down; wait for it to finish to
+                    // capture the panic.
                     Poll::Pending => Poll::Pending,
                     // Task panicked! Rethrow it.
                     Poll::Ready(Err(e)) if e.is_panic() => {

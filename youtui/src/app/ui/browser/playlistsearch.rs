@@ -226,8 +226,8 @@ impl PlaylistSearchBrowser {
                 }
                 // Handled by old handle_text_event_impl.
                 //
-                // TODO: remove the duplication of responsibilities between this function and
-                // handle_text_event_impl.
+                // TODO: remove the duplication of responsibilities between this
+                // function and handle_text_event_impl.
                 TextEntryAction::Left => (),
                 TextEntryAction::Right => (),
                 TextEntryAction::Backspace => (),
@@ -428,8 +428,8 @@ impl_youtui_task_handler!(
     |_, error| |_: &mut PlaylistSearchBrowser| AsyncTask::new_future(
         HandleApiError {
             error,
-            // To avoid needing to clone search query to use in the error message, this
-            // error message is minimal.
+            // To avoid needing to clone search query to use in the error
+            // message, this error message is minimal.
             message: "Error recieved getting playlists".to_string(),
         },
         NoOpHandler,

@@ -166,15 +166,16 @@ impl EventSpawner<CrosstermWatcher> {
         let _handler = tokio::spawn(async move {
             while let Some(Ok(event)) = events.next().await {
                 match event {
-                    // Don't send mouse move or drag events back to application -
-                    // Each application event causes a UI render.
+                    // Don't send mouse move or drag events back to application
+                    // - Each application event causes a UI render.
                     Event::Mouse(MouseEvent {
                         kind: MouseEventKind::Drag(_) | MouseEventKind::Moved,
                         ..
                     }) => (),
                     // Avoid duplicate keypresses on Windows.
                     // https://ratatui.rs/faq/duplicate-key-events-windows.html
-                    // NOTE: There is also a Repeat KeyEventKind which we aren't ignoring for now.
+                    // NOTE: There is also a Repeat KeyEventKind which we aren't
+                    // ignoring for now.
                     Event::Key(KeyEvent {
                         kind: KeyEventKind::Release,
                         ..

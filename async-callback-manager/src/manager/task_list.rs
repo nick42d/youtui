@@ -141,7 +141,8 @@ impl<Bkend, Frntend, Md: PartialEq> TaskList<Frntend, Bkend, Md> {
                                     task_id: task.task_id,
                                 },
                             ),
-                            // Ok case or Err case where Err is not a panic (ie, it's an abort).
+                            // Ok case or Err case where Err is not a panic (ie,
+                            // it's an abort).
                             _ => (
                                 Some(idx),
                                 TaskOutcome::StreamFinished {

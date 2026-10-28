@@ -99,7 +99,8 @@ impl std::fmt::Debug for SongThumbnail {
 
 pub struct SongThumbnailDownloader {
     client: reqwest::Client,
-    // For information about why this error is stringly typed, see DynamicApiError
+    // For information about why this error is stringly typed, see
+    // DynamicApiError
     status: Arc<AsyncCell<Result<(), String>>>,
 }
 

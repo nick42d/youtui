@@ -511,10 +511,10 @@ where
                         )
                         .await;
                     }
-                    // This is the case where the song we asked to play is already
-                    // queued. In this case, this task can finish, as the task that
-                    // added the song to the queue is responsible for the playback
-                    // updates.
+                    // This is the case where the song we asked to play is
+                    // already queued. In this case, this task can finish, as
+                    // the task that added the song to the queue is responsible
+                    // for the playback updates.
                     AsyncRodioResponse::AutoplayingQueued => {
                         send_or_error(&streamtx, AutoplayUpdate::AutoplayQueued(identifier)).await;
                         return;

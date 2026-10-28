@@ -152,8 +152,8 @@ where
                     info!("Retrying once");
                     Ok(api.read().await.query_browser_or_oauth(query).await?)
                 }
-                // If the DynamicApi didn't return a ytmapi_rs::Error, the error must be
-                // non-retryable.
+                // If the DynamicApi didn't return a ytmapi_rs::Error, the error
+                // must be non-retryable.
                 Err(e) => Err(e),
             }
         }
@@ -199,8 +199,8 @@ pub enum GetArtistSongsProgressUpdate {
     // Caller should know the ArtistChannelID already, as they provided it.
     // Stream closes here.
     GetArtistAlbumsError(Error),
-    // Stream doesn't close here - maybe some of the other albums were succesfully able to send
-    // songs.
+    // Stream doesn't close here - maybe some of the other albums were
+    // succesfully able to send songs.
     GetAlbumsSongsError {
         album_id: AlbumID<'static>,
         error: Error,
@@ -357,8 +357,8 @@ pub enum GetPlaylistSongsProgressUpdate {
     Loading,
     Songs(Vec<PlaylistItem>),
     // PlaylistID is returned to allow caller to reuse allocation if required.
-    // May occur before or after sending some songs, ie api could fail straight away or stream
-    // some songs then fail. Stream closes here.
+    // May occur before or after sending some songs, ie api could fail straight
+    // away or stream some songs then fail. Stream closes here.
     GetPlaylistSongsError {
         playlist_id: PlaylistID<'static>,
         error: Error,

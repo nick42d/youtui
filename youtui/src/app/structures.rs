@@ -456,7 +456,8 @@ impl BrowserSongsList {
                 thumbnails,
                 None,
             ),
-            // Episode has no video id, so we can't currently handle it as a ListSong...
+            // Episode has no video id, so we can't currently handle it as a
+            // ListSong...
             PlaylistItem::Episode(PlaylistEpisode { .. }) => unimplemented!(
                 "One of the playlist items is a podcast episode, handling these is not currently implemented"
             ),

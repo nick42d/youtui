@@ -246,8 +246,8 @@ impl_youtui_task_handler!(
     |_, error| |_: &mut SearchBlock| AsyncTask::new_future(
         HandleApiError {
             error,
-            // To avoid needing to clone search query to use in the error message, this
-            // error message is minimal.
+            // To avoid needing to clone search query to use in the error
+            // message, this error message is minimal.
             message: "Error recieved getting search suggestions".to_string(),
         },
         NoOpHandler,

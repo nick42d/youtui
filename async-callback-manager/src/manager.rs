@@ -15,8 +15,8 @@ pub(crate) type DynTaskSpawnCallback<Cstrnt> = dyn Fn(TaskInformation<Cstrnt>);
 pub struct AsyncCallbackManager<Frntend, Bkend, Md> {
     next_task_id: u64,
     tasks_list: TaskList<Frntend, Bkend, Md>,
-    // It could be possible to make this generic instead of dynamic, however this type would then
-    // require more type parameters.
+    // It could be possible to make this generic instead of dynamic, however
+    // this type would then require more type parameters.
     on_task_spawn: Box<DynTaskSpawnCallback<Md>>,
 }
 

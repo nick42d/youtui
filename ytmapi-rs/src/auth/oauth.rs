@@ -151,7 +151,8 @@ impl AuthToken for OAuthToken {
             return Err(Error::oauth_token_expired(self));
         }
         Ok([
-            // TODO: Confirm if parsing for expired user agent also relevant here.
+            // TODO: Confirm if parsing for expired user agent also relevant
+            // here.
             ("User-Agent", USER_AGENT.into()),
             ("X-Origin", YTM_URL.into()),
             ("Content-Type", "application/json".into()),

@@ -77,8 +77,9 @@ pub struct Seek {
 #[derive(Debug, PartialEq)]
 pub struct SeekTo {
     pub position: Duration,
-    // Unlike seeking forward or back, it would be odd if user was expecting to seek to pos x in
-    // song a but due to a race condition seek applied to song b.
+    // Unlike seeking forward or back, it would be odd if user was expecting to
+    // seek to pos x in song a but due to a race condition seek applied to song
+    // b.
     pub id: ListSongID,
 }
 /// Stop a song if it is still currently playing.

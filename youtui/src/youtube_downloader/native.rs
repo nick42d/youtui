@@ -84,7 +84,8 @@ pub fn into_futures_stream(
         };
         let chunk = state.chunk().await;
         match chunk {
-            // Return error value on this iteration, on the next iteration return None.
+            // Return error value on this iteration, on the next iteration
+            // return None.
             Err(e) => Some((Err(e), (state, true))),
             // Happy path
             Ok(Some(bytes)) => Some((Ok(bytes), (state, false))),

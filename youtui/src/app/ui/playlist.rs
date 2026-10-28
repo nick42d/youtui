@@ -243,8 +243,8 @@ impl Playlist {
     pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future_option(
-            // Since IncreaseVolume responds back with player volume after change, this is a
-            // neat hack.
+            // Since IncreaseVolume responds back with player volume after
+            // change, this is a neat hack.
             IncreaseVolume(0),
             HandleVolumeUpdate,
             Some(Constraint::new_block_same_type()),
