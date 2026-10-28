@@ -32,8 +32,9 @@ fn get_scrolled_line<'a>(
     }
     match text.content {
         Cow::Borrowed(b) => {
-            // TODO: Handle actual terminal with of string bytes. Currently, this ticker may
-            // render incorrectly for Strings containing multi-byte characters.
+            // TODO: Handle actual terminal with of string bytes. Currently,
+            // this ticker may render incorrectly for Strings
+            // containing multi-byte characters.
             let safe_split_point = b.floor_char_boundary(chars_to_remove);
             let (front, back) = b.split_at(safe_split_point);
             Line::from_iter([
@@ -43,8 +44,9 @@ fn get_scrolled_line<'a>(
             ])
         }
         Cow::Owned(mut o) => {
-            // TODO: Handle actual terminal with of string bytes. Currently, this ticker may
-            // render incorrectly for Strings containing multi-byte characters.
+            // TODO: Handle actual terminal with of string bytes. Currently,
+            // this ticker may render incorrectly for Strings
+            // containing multi-byte characters.
             let safe_split_point = o.floor_char_boundary(chars_to_remove);
             let back_half = o.split_off(safe_split_point);
             Line::from_iter([
@@ -73,16 +75,17 @@ fn get_split_point_and_blanks_and_wrapped(
     let n_frames_u64 = u64::try_from(n_frames_usize).unwrap_or(u64::MAX);
     let frame_u64 = cur_tick % n_frames_u64;
     let times_wrapped = cur_tick / n_frames_u64;
-    // Safe cast, since either usize is bigger than u64, or, frame no bigger than a
-    // usize (since the output of <u64> % <usize> can be no bigger than usize)
+    // Safe cast, since either usize is bigger than u64, or, frame no bigger
+    // than a usize (since the output of <u64> % <usize> can be no bigger
+    // than usize)
     let frame = frame_u64 as usize;
     let chars_to_remove = frame.min(string_len);
     let blank_chars = (string_len + gap_size as usize)
         .saturating_sub(frame)
         .min(gap_size as usize);
     debug_assert!(blank_chars <= gap_size as usize);
-    // Safe cast, since we are manually asserting gap size to be the maximum value
-    // of blank chars above.
+    // Safe cast, since we are manually asserting gap size to be the maximum
+    // value of blank chars above.
     (chars_to_remove, blank_chars as u16, times_wrapped)
 }
 
@@ -93,8 +96,8 @@ mod tests {
 
     #[test]
     fn test_split_point_in_middle() {
-        // On third tick frame, skip the first 3 characters, display rest of text, then
-        // blanks, then start of text.
+        // On third tick frame, skip the first 3 characters, display rest of
+        // text, then blanks, then start of text.
         let example = get_split_point_and_blanks_and_wrapped(3, 4, 22, 16);
         assert_eq!(example, (3, 4, 0));
     }
@@ -113,8 +116,8 @@ mod tests {
     }
     #[test]
     fn test_split_point_end_of_ticker_less_blanks() {
-        // when at the very end of the ticker, only a couple of blank characters then
-        // the entire string.
+        // when at the very end of the ticker, only a couple of blank characters
+        // then the entire string.
         let only_some_blanks = get_split_point_and_blanks_and_wrapped(24, 4, 22, 16);
         assert_eq!(only_some_blanks, (22, 2, 0));
     }

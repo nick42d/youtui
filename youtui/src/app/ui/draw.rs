@@ -46,8 +46,8 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities
 }
 
 fn draw_popup(f: &mut Frame, w: &YoutuiWindow, chunk: Rect) {
-    // NOTE: if there are more commands than we can fit on the screen, some will be
-    // cut off. If there are no commands, no need to draw anything.
+    // NOTE: if there are more commands than we can fit on the screen, some will
+    // be cut off. If there are no commands, no need to draw anything.
     let Some(DisplayableMode {
         displayable_commands: commands,
         description: title,

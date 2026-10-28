@@ -77,8 +77,9 @@ pub struct Seek {
 #[derive(Debug, PartialEq)]
 pub struct SeekTo {
     pub position: Duration,
-    // Unlike seeking forward or back, it would be odd if user was expecting to seek to pos x in
-    // song a but due to a race condition seek applied to song b.
+    // Unlike seeking forward or back, it would be odd if user was expecting to
+    // seek to pos x in song a but due to a race condition seek applied to song
+    // b.
     pub id: ListSongID,
 }
 /// Stop a song if it is still currently playing.
@@ -121,7 +122,8 @@ pub struct GetSongThumbnail {
 }
 
 impl BackendTask<ArcServer> for HandleApiError {
-    // Infallible - assumption is that even if this task fails, caller won't care.
+    // Infallible - assumption is that even if this task fails, caller won't
+    // care.
     type Output = ();
     // TODO: Review if TaskMetadata needs new enum cases.
     type MetadataType = TaskMetadata;
@@ -138,7 +140,8 @@ impl BackendTask<ArcServer> for HandleApiError {
 }
 
 impl BackendTask<ArcServer> for GetSearchSuggestions {
-    // TODO: Consider alternative where the text isn't returned back to the caller.
+    // TODO: Consider alternative where the text isn't returned back to the
+    // caller.
     type Output = Result<(Vec<SearchSuggestion>, String)>;
     type MetadataType = TaskMetadata;
     fn into_future(

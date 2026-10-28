@@ -147,10 +147,10 @@ impl ParseFrom<GetChannelQuery<'_>> for GetPodcastChannel {
         let mut episodes = Vec::new();
         let mut playlists = Vec::new();
         let mut episode_params = None;
-        // I spent a good few hours trying to make this declarative. It this stage this
-        // seems to be more readable and more efficient. The best declarative approach I
-        // could find used a collect into a HashMap and the process_results()
-        // function...
+        // I spent a good few hours trying to make this declarative. It this
+        // stage this seems to be more readable and more efficient. The
+        // best declarative approach I could find used a collect into a
+        // HashMap and the process_results() function...
         for carousel in json_crawler
             .borrow_pointer(concatcp!(SINGLE_COLUMN_TAB, SECTION_LIST))?
             .try_into_iter()?

@@ -226,8 +226,8 @@ impl PlaylistSearchBrowser {
                 }
                 // Handled by old handle_text_event_impl.
                 //
-                // TODO: remove the duplication of responsibilities between this function and
-                // handle_text_event_impl.
+                // TODO: remove the duplication of responsibilities between this
+                // function and handle_text_event_impl.
                 TextEntryAction::Left => (),
                 TextEntryAction::Right => (),
                 TextEntryAction::Backspace => (),
@@ -290,7 +290,8 @@ impl PlaylistSearchBrowser {
         )
     }
     pub fn play_song(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_song_idx = self.playlist_songs_panel.get_selected_item();
         if let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_song_idx) {
             return (
@@ -303,7 +304,8 @@ impl PlaylistSearchBrowser {
         (AsyncTask::new_no_op(), None)
     }
     pub fn play_songs(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.playlist_songs_panel.get_selected_item();
         let song_list = self
             .playlist_songs_panel
@@ -319,7 +321,8 @@ impl PlaylistSearchBrowser {
         // XXX: Do we want to indicate that song has been added to playlist?
     }
     pub fn add_songs_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.playlist_songs_panel.get_selected_item();
         let song_list = self
             .playlist_songs_panel
@@ -333,7 +336,8 @@ impl PlaylistSearchBrowser {
         )
     }
     pub fn add_song_to_playlist(&mut self) -> impl Into<YoutuiEffect<Self>> + use<> {
-        // Consider how resource intensive this is as it runs in the main thread.
+        // Consider how resource intensive this is as it runs in the main
+        // thread.
         let cur_idx = self.playlist_songs_panel.get_selected_item();
         if let Some(cur_song) = self.playlist_songs_panel.get_song_from_idx(cur_idx) {
             return (
@@ -379,7 +383,8 @@ impl PlaylistSearchBrowser {
             .list
             .append_raw_playlist_items(song_list);
         // If sort commands exist, sort the list.
-        // Naive - can result in multiple calls to sort every time songs are appended.
+        // Naive - can result in multiple calls to sort every time songs are
+        // appended.
         if let Err(e) = self.playlist_songs_panel.apply_all_sort_commands() {
             error!("Error <{e}> sorting album songs panel");
         }
@@ -423,8 +428,8 @@ impl_youtui_task_handler!(
     |_, error| |_: &mut PlaylistSearchBrowser| AsyncTask::new_future(
         HandleApiError {
             error,
-            // To avoid needing to clone search query to use in the error message, this
-            // error message is minimal.
+            // To avoid needing to clone search query to use in the error
+            // message, this error message is minimal.
             message: "Error recieved getting playlists".to_string(),
         },
         NoOpHandler,

@@ -409,10 +409,10 @@ pub async fn command_to_query(
         Command::EditSongLibraryStatus { feedback_tokens } => {
             get_string_output_of_query_browser_or_oauth(
                 yt,
-                // Internal knowledge: Even though the string tokens we are provided could be
-                // either Add or Remove tokens, it's OK to just provide
-                // FeedBackTokenAddToLibrary's, as the tokens themselves determine if they will add
-                // or remove.
+                // Internal knowledge: Even though the string tokens we are
+                // provided could be either Add or Remove tokens, it's OK to
+                // just provide FeedBackTokenAddToLibrary's, as the tokens
+                // themselves determine if they will add or remove.
                 EditSongLibraryStatusQuery::new_from_add_to_library_feedback_tokens(
                     feedback_tokens
                         .iter()
@@ -661,8 +661,8 @@ where
             query_type: QueryType::FromSourceFiles(sources),
             show_source: false,
         } => {
-            // Note - if multiple sources are provided, only the first is processed - the
-            // rest are ignored.
+            // Note - if multiple sources are provided, only the first is
+            // processed - the rest are ignored.
             if let Some(first_source) = sources.into_iter().next() {
                 process_json_based_on_dyn_api(&yt, first_source, q)
             } else {
@@ -702,8 +702,8 @@ where
             query_type: QueryType::FromSourceFiles(sources),
             show_source: false,
         } => {
-            // Note - if multiple sources are provided, only the first is processed - the
-            // rest are ignored.
+            // Note - if multiple sources are provided, only the first is
+            // processed - the rest are ignored.
             if let Some(first_source) = sources.into_iter().next() {
                 process_json_based_on_dyn_api_browser_or_oauth(&yt, first_source, q)
             } else {
@@ -845,9 +845,9 @@ where
     Q: Query<NoAuthToken, Output = O>,
     O: Debug,
 {
-    // The matching on yt is a neat hack to ensure process_json utilises the same
-    // AuthType as was set in config. This works as the config step sets
-    // the variant of DynamicYtMusic.
+    // The matching on yt is a neat hack to ensure process_json utilises the
+    // same AuthType as was set in config. This works as the config step
+    // sets the variant of DynamicYtMusic.
     match yt {
         DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
             .map(|r| format!("{r:#?}"))
@@ -871,9 +871,9 @@ where
     Q: Query<OAuthToken, Output = O>,
     O: Debug,
 {
-    // The matching on yt is a neat hack to ensure process_json utilises the same
-    // AuthType as was set in config. This works as the config step sets
-    // the variant of DynamicYtMusic.
+    // The matching on yt is a neat hack to ensure process_json utilises the
+    // same AuthType as was set in config. This works as the config step
+    // sets the variant of DynamicYtMusic.
     match yt {
         DynamicYtMusic::Browser(_) => process_json::<Q, BrowserToken>(source, query)
             .map(|r| format!("{r:#?}"))

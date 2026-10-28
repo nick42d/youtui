@@ -16,7 +16,8 @@ pub struct NoAuthToken {
 impl NoAuthToken {
     pub async fn new(client: &Client) -> Result<Self> {
         let initial_headers = [
-            // TODO: Confirm if parsing for expired user agent also relevant here.
+            // TODO: Confirm if parsing for expired user agent also relevant
+            // here.
             ("User-Agent", USER_AGENT.into()),
             ("X-Origin", YTM_URL.into()),
             ("Content-Type", "application/json".into()),
@@ -74,7 +75,8 @@ impl AuthToken for NoAuthToken {
     }
     fn headers(&self) -> Result<impl IntoIterator<Item = (&str, Cow<'_, str>)>> {
         Ok([
-            // TODO: Confirm if parsing for expired user agent also relevant here.
+            // TODO: Confirm if parsing for expired user agent also relevant
+            // here.
             ("User-Agent", USER_AGENT.into()),
             ("X-Origin", YTM_URL.into()),
             ("X-Goog-Visitor-Id", (&self.visitor_id).into()),

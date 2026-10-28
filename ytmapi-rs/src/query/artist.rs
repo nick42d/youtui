@@ -64,8 +64,8 @@ impl<A: AuthToken> Query<A> for GetArtistQuery<'_> {
 impl PostQuery for GetArtistQuery<'_> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
         // XXX: could do in new to avoid process every time called
-        // or even better, could do this first time called, and store state so not
-        // required after that.
+        // or even better, could do this first time called, and store state so
+        // not required after that.
         let value = self.channel_id.get_raw().replacen("MPLA", "", 1);
         let serde_json::Value::Object(map) = json!({
             "browseId" : value,

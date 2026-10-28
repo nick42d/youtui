@@ -85,8 +85,8 @@ impl Youtui {
             disable_media_controls,
         } = rt;
         // Setup tracing and link to tui_logger.
-        // NOTE: File logging is always enabled for now - I can't think of a use case
-        // where we wouldn't want this.
+        // NOTE: File logging is always enabled for now - I can't think of a use
+        // case where we wouldn't want this.
         init_tracing(debug, true).await?;
         match debug {
             true => info!("Starting in debug mode"),
@@ -101,8 +101,8 @@ impl Youtui {
         enable_raw_mode()?;
         let mut stdout = io::stdout();
         execute!(stdout, EnterAlternateScreen, EnableMouseCapture,)?;
-        // By only performing panic cleanup from the main thread, this largely prevents
-        // exits that occur part-way through a redraw.
+        // By only performing panic cleanup from the main thread, this largely
+        // prevents exits that occur part-way through a redraw.
         IS_MAIN_THREAD.with(|flag| flag.set(true));
         std::panic::set_hook(Box::new(|panic_info| {
             if IS_MAIN_THREAD.with(|flag| flag.get()) {
@@ -110,7 +110,8 @@ impl Youtui {
                     "Panic detected on main thread. \
                      Message: {panic_info}"
                 );
-                // If we fail to exit cleanly, ignore the error as panicking anyway.
+                // If we fail to exit cleanly, ignore the error as panicking
+                // anyway.
                 let _ = cleanup_tui_and_print_panic_message(&panic_info);
             } else {
                 tracing::warn!(
@@ -131,10 +132,10 @@ impl Youtui {
         let server = Arc::new(server::Server::new(api_key, po_token, &config));
         let backend = CrosstermBackend::new(stdout);
         let terminal = Terminal::new(backend)?;
-        // The docs for this function state that it must be run after entering alternate
-        // screen but before events are read, therefore this is hoisted for
-        // visibility. Note that this may briefly block, delaying startup, but likely
-        // unavoidable.
+        // The docs for this function state that it must be run after entering
+        // alternate screen but before events are read, therefore this
+        // is hoisted for visibility. Note that this may briefly block,
+        // delaying startup, but likely unavoidable.
         let terminal_image_capabilities = Picker::from_query_stdio()?;
         debug!("Terminal info: {terminal_image_capabilities:#?}");
         let (media_controls, media_control_event_stream) = if disable_media_controls {
@@ -147,8 +148,8 @@ impl Youtui {
         };
         let event_handler = EventHandler::new(EVENT_CHANNEL_SIZE, media_control_event_stream)?;
         let (window_state, effect) = YoutuiWindow::new(config);
-        // Even the creation of a YoutuiWindow causes an effect. We'll spawn it straight
-        // away.
+        // Even the creation of a YoutuiWindow causes an effect. We'll spawn it
+        // straight away.
         task_manager.spawn_task(&server, effect);
         Ok(Youtui {
             status: AppStatus::Running,
@@ -166,9 +167,10 @@ impl Youtui {
             match &self.status {
                 AppStatus::Running => {
                     // Write to terminal, using UI state as the input
-                    // We draw after handling the event, as the event could be a keypress we want to
-                    // instantly react to.
-                    // Draw occurs before the first event, to ensure up loads immediately.
+                    // We draw after handling the event, as the event could be a
+                    // keypress we want to instantly react
+                    // to. Draw occurs before the first
+                    // event, to ensure up loads immediately.
                     self.terminal.draw(|f| {
                         ui::draw::draw_app(
                             f,
@@ -181,8 +183,9 @@ impl Youtui {
                             ui::draw_media_controls::draw_app_media_controls(&self.window_state),
                         )?;
                     }
-                    // When running, the app is event based, and will block until one of the
-                    // following 2 message types is received.
+                    // When running, the app is event based, and will block
+                    // until one of the following 2 message
+                    // types is received.
                     tokio::select! {
                         // Get the next event from the event_handler and process it.
                         // TODO: Consider checking here if redraw is required.
@@ -194,7 +197,8 @@ impl Youtui {
                     }
                 }
                 AppStatus::Exiting(s) => {
-                    // Once we're done running, destruct the terminal and print the exit message.
+                    // Once we're done running, destruct the terminal and print
+                    // the exit message.
                     destruct_terminal()?;
                     println!("{s}");
                     break;

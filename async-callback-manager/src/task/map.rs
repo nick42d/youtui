@@ -45,8 +45,8 @@ where
     Bkend: 'static,
 {
     fn dyn_partial_eq(&self, other: &dyn dyn_task::DynPartialEq) -> bool {
-        // Note - map function is not checked. It's assumed that this doesn't change the
-        // equality in any meaningful way.
+        // Note - map function is not checked. It's assumed that this doesn't
+        // change the equality in any meaningful way.
         let Some(other) = (other as &dyn std::any::Any).downcast_ref::<Self>() else {
             return false;
         };
@@ -63,8 +63,8 @@ where
     Bkend: 'static,
 {
     fn dyn_partial_eq(&self, other: &dyn dyn_task::DynPartialEq) -> bool {
-        // Note - map function is not checked. It's assumed that this doesn't change the
-        // equality in any meaningful way.
+        // Note - map function is not checked. It's assumed that this doesn't
+        // change the equality in any meaningful way.
 
         let Some(other) = (other as &dyn std::any::Any).downcast_ref::<Self>() else {
             return false;

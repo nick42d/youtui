@@ -99,7 +99,8 @@ impl std::fmt::Debug for SongThumbnail {
 
 pub struct SongThumbnailDownloader {
     client: reqwest::Client,
-    // For information about why this error is stringly typed, see DynamicApiError
+    // For information about why this error is stringly typed, see
+    // DynamicApiError
     status: Arc<AsyncCell<Result<(), String>>>,
 }
 
@@ -137,7 +138,8 @@ impl SongThumbnailDownloader {
         thumbnail_id: SongThumbnailID<'static>,
         thumbnail_url: String,
     ) -> anyhow::Result<SongThumbnail> {
-        // Do not download album art until directory setup and clean has completed.
+        // Do not download album art until directory setup and clean has
+        // completed.
         self.status.get().await.map_err(|e| anyhow!(e))?;
 
         // Return early if thumbnail already exists in disk cache.

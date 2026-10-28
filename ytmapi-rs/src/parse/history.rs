@@ -143,7 +143,8 @@ impl ParseFrom<RemoveHistoryItemsQuery<'_>> for Vec<ApiOutcome> {
 }
 impl ParseFrom<AddHistoryItemQuery<'_>> for () {
     fn parse_from(_: crate::parse::ProcessedResult<AddHistoryItemQuery>) -> crate::Result<Self> {
-        // Api only returns an empty string, no way of validating if correct or not.
+        // Api only returns an empty string, no way of validating if correct or
+        // not.
         Ok(())
     }
 }
@@ -173,11 +174,13 @@ fn parse_history_item(mut json: JsonCrawlerOwned) -> Result<Option<HistoryItem>>
     );
     let video_type: YoutubeMusicVideoType = data.take_value_pointer(video_type_path)?;
     let item = match video_type {
-        // NOTE - Possible for History, but most likely not possible for Library.
+        // NOTE - Possible for History, but most likely not possible for
+        // Library.
         YoutubeMusicVideoType::Upload => Some(HistoryItem::UploadSong(
             parse_history_item_upload_song(title, data)?,
         )),
-        // NOTE - Possible for Library, but most likely not possible for History.
+        // NOTE - Possible for Library, but most likely not possible for
+        // History.
         YoutubeMusicVideoType::Episode => Some(HistoryItem::Episode(parse_history_item_episode(
             title, data,
         )?)),

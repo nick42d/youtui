@@ -15,8 +15,8 @@ pub(crate) type DynTaskSpawnCallback<Cstrnt> = dyn Fn(TaskInformation<Cstrnt>);
 pub struct AsyncCallbackManager<Frntend, Bkend, Md> {
     next_task_id: u64,
     tasks_list: TaskList<Frntend, Bkend, Md>,
-    // It could be possible to make this generic instead of dynamic, however this type would then
-    // require more type parameters.
+    // It could be possible to make this generic instead of dynamic, however
+    // this type would then require more type parameters.
     on_task_spawn: Box<DynTaskSpawnCallback<Md>>,
 }
 
@@ -103,8 +103,8 @@ impl<Frntend, Bkend, Md: PartialEq> AsyncCallbackManager<Frntend, Bkend, Md> {
             receiver: waiter,
             metadata,
         };
-        // At one task per nanosecond, it would take 584.6 years for a library user to
-        // trigger overflow.
+        // At one task per nanosecond, it would take 584.6 years for a library
+        // user to trigger overflow.
         //
         // https://www.wolframalpha.com/input?i=2%5E64+nanoseconds
         let new_id = self

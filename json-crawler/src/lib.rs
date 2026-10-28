@@ -98,7 +98,8 @@ where
                 crate::error::ParseTarget::Other(std::any::type_name::<O>().to_string()),
                 Some(msg.to_string()),
             )),
-            // In this case, we've got a nested error, and should display both sets of context.
+            // In this case, we've got a nested error, and should display both
+            // sets of context.
             Err(e) => {
                 let msg = format!("Expected {} but encountered '{e}'", msg.to_string());
                 Err(CrawlerError::parsing(
@@ -185,15 +186,15 @@ where
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct JsonCrawlerOwned {
-    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
-    // want it to be thread safe.
+    // Source is wrapped in an Arc as we are going to pass ownership when
+    // returning an error and we want it to be thread safe.
     source: Arc<String>,
     crawler: serde_json::Value,
     path: PathList,
 }
 pub struct JsonCrawlerBorrowed<'a> {
-    // Source is wrapped in an Arc as we are going to pass ownership when returning an error and we
-    // want it to be thread safe.
+    // Source is wrapped in an Arc as we are going to pass ownership when
+    // returning an error and we want it to be thread safe.
     source: Arc<String>,
     crawler: &'a mut serde_json::Value,
     path: PathList,
@@ -203,7 +204,8 @@ impl JsonCrawlerOwned {
     /// Create a new JsonCrawler, where 'json' is the `serde_json::Value` that
     /// you wish to crawl and 'source' represents a serialized copy of the same
     /// `serde_json::Value`.
-    // TODO: Safer constructor that avoids 'source' being out of sync with 'json'
+    // TODO: Safer constructor that avoids 'source' being out of sync with
+    // 'json'
     pub fn new(source: String, json: serde_json::Value) -> Self {
         Self {
             source: Arc::new(source),

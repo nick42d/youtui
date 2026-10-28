@@ -85,8 +85,8 @@ impl FromStr for Keybind {
                 c => Err(c),
             }
         }
-        // For ergonomics and to reduce edge cases, all whitespace is removed prior to
-        // parsing.
+        // For ergonomics and to reduce edge cases, all whitespace is removed
+        // prior to parsing.
         let s = s.split_whitespace().collect::<String>();
         if let Ok(code) = parse_unmodified(&s) {
             return Ok(Keybind::new(code, KeyModifiers::NONE));
@@ -98,8 +98,8 @@ impl FromStr for Keybind {
                 .map(|res| res.map(parse_modifier))
                 .collect::<Result<Result<KeyModifiers, char>, ParseCharError>>()
         {
-            // If the keycode is a character, then the shift modifier should be removed. It
-            // will be encoded in the character already.
+            // If the keycode is a character, then the shift modifier should be
+            // removed. It will be encoded in the character already.
             if let KeyCode::Char(_) = code {
                 modifiers = modifiers.difference(KeyModifiers::SHIFT);
             }

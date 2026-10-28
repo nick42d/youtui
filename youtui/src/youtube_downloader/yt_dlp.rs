@@ -75,8 +75,9 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
         let command = self.yt_dlp_command.clone();
         async move {
             let args = vec![
-                // Force yt-dlp to stick to youtube downloading - sometimes its inferred if the ID
-                // doesn't start with a number but this is safer.
+                // Force yt-dlp to stick to youtube downloading - sometimes its
+                // inferred if the ID doesn't start with a number but this is
+                // safer.
                 "--default-search",
                 "ytsearch",
                 // First, print filesize in bytes to stderr
@@ -92,8 +93,9 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                 // Output song bytes to stdout
                 "-o",
                 "-",
-                // If the id starts with a hyphen yt-dlp will think that this its a command line
-                // argument instead of an ID; "--" escapes it.
+                // If the id starts with a hyphen yt-dlp will think that this
+                // its a command line argument instead of an ID; "--" escapes
+                // it.
                 "--",
                 song_video_id.as_ref(),
             ];
@@ -106,8 +108,8 @@ impl YoutubeMusicDownloader for YtDlpDownloader {
                     message: format!("{e}"),
                 })?;
             // Consider no stdout and/or no stdout to be an error.
-            // In future, could consider reading stderr if no stdout as it may contain an
-            // error message.
+            // In future, could consider reading stderr if no stdout as it may
+            // contain an error message.
             let Child {
                 stderr: Some(stderr),
                 stdout: Some(stdout),

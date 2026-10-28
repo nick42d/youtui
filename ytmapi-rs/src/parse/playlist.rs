@@ -215,8 +215,8 @@ impl<'a> ParseFromContinuable<GetPlaylistTracksQuery<'a>> for Vec<PlaylistItem> 
             CONTENT,
             MUSIC_PLAYLIST_SHELF,
         ))?;
-        // If there are no tracks, contents path doesn't exist but its not necessarily
-        // an error. Return empty vec in this case.
+        // If there are no tracks, contents path doesn't exist but its not
+        // necessarily an error. Return empty vec in this case.
         music_playlist_shelf
             .navigate_pointer("/contents")
             .map(parse_playlist_items)

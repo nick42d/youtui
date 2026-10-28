@@ -96,7 +96,8 @@ impl FilterString {
     pub fn is_in<S: AsRef<str>>(&self, test_str: S) -> bool {
         match self {
             FilterString::CaseSensitive(s) => test_str.as_ref().contains(s),
-            // Ascii lowercase may not be correct but it avoids frequent allocations.
+            // Ascii lowercase may not be correct but it avoids frequent
+            // allocations.
             FilterString::CaseInsensitive(s) => test_str
                 .as_ref()
                 .to_ascii_lowercase()
@@ -106,7 +107,8 @@ impl FilterString {
     pub fn is_equal<S: AsRef<str>>(&self, test_str: S) -> bool {
         match self {
             FilterString::CaseSensitive(s) => test_str.as_ref() == s,
-            // Ascii lowercase may not be correct but it avoids frequent allocations.
+            // Ascii lowercase may not be correct but it avoids frequent
+            // allocations.
             FilterString::CaseInsensitive(s) => {
                 test_str.as_ref().to_ascii_lowercase() == s.to_ascii_uppercase()
             }

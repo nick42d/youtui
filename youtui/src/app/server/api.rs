@@ -116,19 +116,21 @@ where
                 Ok(ytmapi_rs::error::ErrorKind::OAuthTokenExpired { token_hash }) => {
                     // Take a clone to re-use later.
                     let api_clone = api.to_owned();
-                    // First take an exclusive lock - prevent others from doing the same.
+                    // First take an exclusive lock - prevent others from doing
+                    // the same.
                     let api_owned = api_clone.clone();
                     let mut api_locked = api_owned.write_owned().await;
-                    // Then check to see if the token_hash hasn't changed since calling the
-                    // query. If it hasn't, we were the first one and are responsible for
+                    // Then check to see if the token_hash hasn't changed since
+                    // calling the query. If it hasn't, we
+                    // were the first one and are responsible for
                     // refreshing. If it has, that means another query must have
                     // already refreshed the token, and we don't need to do
                     // anything.
                     let api_token_hash = api_locked.get_token_hash()?;
                     if api_token_hash == Some(token_hash) {
-                        // A task is spawned to refresh the token, to ensure that it still
-                        // refreshes even if this task is
-                        // cancelled.
+                        // A task is spawned to refresh the token, to ensure
+                        // that it still refreshes even
+                        // if this task is cancelled.
                         tokio::spawn(async {
                             info!("Refreshing oauth token");
                             let tok = api_locked.refresh_token().await?.expect("Expected to be able to refresh token if I got an OAuthTokenExpired error");
@@ -150,8 +152,8 @@ where
                     info!("Retrying once");
                     Ok(api.read().await.query_browser_or_oauth(query).await?)
                 }
-                // If the DynamicApi didn't return a ytmapi_rs::Error, the error must be
-                // non-retryable.
+                // If the DynamicApi didn't return a ytmapi_rs::Error, the error
+                // must be non-retryable.
                 Err(e) => Err(e),
             }
         }
@@ -197,8 +199,8 @@ pub enum GetArtistSongsProgressUpdate {
     // Caller should know the ArtistChannelID already, as they provided it.
     // Stream closes here.
     GetArtistAlbumsError(Error),
-    // Stream doesn't close here - maybe some of the other albums were succesfully able to send
-    // songs.
+    // Stream doesn't close here - maybe some of the other albums were
+    // succesfully able to send songs.
     GetAlbumsSongsError {
         album_id: AlbumID<'static>,
         error: Error,
@@ -294,7 +296,8 @@ fn get_artist_songs(
         send_or_error(&tx, GetArtistSongsProgressUpdate::SongsFound).await;
         // Request all albums, concurrently but retaining order.
         // Future improvement: instead of using a FuturesOrdered, we could send
-        // willy-nilly but with an index, so the caller can insert songs in place.
+        // willy-nilly but with an index, so the caller can insert songs in
+        // place.
         let mut stream = browse_id_list
             .into_iter()
             .inspect(|a_id| {
@@ -354,8 +357,8 @@ pub enum GetPlaylistSongsProgressUpdate {
     Loading,
     Songs(Vec<PlaylistItem>),
     // PlaylistID is returned to allow caller to reuse allocation if required.
-    // May occur before or after sending some songs, ie api could fail straight away or stream
-    // some songs then fail. Stream closes here.
+    // May occur before or after sending some songs, ie api could fail straight
+    // away or stream some songs then fail. Stream closes here.
     GetPlaylistSongsError {
         playlist_id: PlaylistID<'static>,
         error: Error,

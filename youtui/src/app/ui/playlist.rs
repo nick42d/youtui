@@ -243,8 +243,8 @@ impl Playlist {
     pub fn new() -> (Self, ComponentEffect<Self>) {
         // Ensure volume is synced with player.
         let task = AsyncTask::new_future_option(
-            // Since IncreaseVolume responds back with player volume after change, this is a
-            // neat hack.
+            // Since IncreaseVolume responds back with player volume after
+            // change, this is a neat hack.
             IncreaseVolume(0),
             HandleVolumeUpdate,
             Some(Constraint::new_block_same_type()),
@@ -288,8 +288,8 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                // This task has the metadata of both DecodeSong and PlaySong and returns
-                // Result<PlayUpdate>.
+                // This task has the metadata of both DecodeSong and PlaySong
+                // and returns Result<PlayUpdate>.
                 let task = DecodeSong(pointer.clone()).map_stream(PlayDecodedSong(id));
                 let constraint = Some(Constraint::new_block_matching_metadata(
                     TaskMetadata::PlayingSong,
@@ -332,7 +332,8 @@ impl Playlist {
                 .expect("Checked previously")
                 .download_status
             {
-                // This task has the metadata of both DecodeSong and AutoplaySong and returns
+                // This task has the metadata of both DecodeSong and
+                // AutoplaySong and returns
                 // Result<AutoplayUpdate>.
                 let task = DecodeSong(pointer.clone()).map_stream(AutoplayDecodedSong(id));
                 let effect = effect.push(AsyncTask::new_stream_try(
@@ -364,7 +365,8 @@ impl Playlist {
         let mut effect = AsyncTask::new_no_op();
         // Stop playback, if playing.
         if let Some(cur_id) = self.get_cur_playing_id() {
-            // TODO: Consider how race condition is supposed to be handled with this.
+            // TODO: Consider how race condition is supposed to be handled with
+            // this.
             effect = self.stop_song_id(cur_id);
         }
         self.clear();
@@ -561,8 +563,10 @@ impl Playlist {
                     None => {
                         info!("No next song - resetting play status");
                         self.queue_status = QueueState::NotQueued;
-                        // As a neat hack I only need to ask the player to stop current ID - even if
-                        // it's playing the queued track, it doesn't know about it.
+                        // As a neat hack I only need to ask the player to stop
+                        // current ID - even if
+                        // it's playing the queued track, it doesn't know about
+                        // it.
                         self.stop_song_id(*id)
                     }
                 }
@@ -583,8 +587,8 @@ impl Playlist {
                 song_ids_list.push(id);
             }
         }
-        // TODO: Don't love the way metadata and constraints are handled with this task
-        // type that is collected, find a better way.
+        // TODO: Don't love the way metadata and constraints are handled with
+        // this task type that is collected, find a better way.
         song_ids_list
             .into_iter()
             .map(|song_id| self.download_song_if_exists(song_id))
@@ -600,14 +604,14 @@ impl Playlist {
         let backwards_limit = song_index.saturating_sub(SONGS_BEHIND_TO_SAVE);
         for song in self.list.get_list_iter_mut().take(backwards_limit) {
             // TODO: Also cancel in progress downloads
-            // TODO: Write a change download status function that will warn if song is not
-            // dropped from memory.
+            // TODO: Write a change download status function that will warn if
+            // song is not dropped from memory.
             song.download_status = DownloadStatus::None
         }
         for song in self.list.get_list_iter_mut().skip(forward_limit) {
             // TODO: Also cancel in progress downloads
-            // TODO: Write a change download status function that will warn if song is not
-            // dropped from memory.
+            // TODO: Write a change download status function that will warn if
+            // song is not dropped from memory.
             song.download_status = DownloadStatus::None
         }
     }
@@ -724,8 +728,9 @@ impl Playlist {
             return_task = self.stop_song_id(cur_playing_id);
         }
         self.list.remove_song_index(cur_selected_idx);
-        // If we are removing a song at a position less than current index, decrement
-        // current index. NOTE: Ok to simply take, if list only had one element.
+        // If we are removing a song at a position less than current index,
+        // decrement current index. NOTE: Ok to simply take, if list
+        // only had one element.
         if self.cur_selected >= cur_selected_idx && cur_selected_idx != 0 {
             // Safe, as checked above that cur_idx >= 0
             self.cur_selected -= 1;
@@ -819,8 +824,8 @@ impl Playlist {
         update: DownloadProgressUpdateType,
         id: ListSongID,
     ) -> ComponentEffect<Self> {
-        // Not valid if song doesn't exist or hasn't initiated download (i.e - task
-        // cancelled).
+        // Not valid if song doesn't exist or hasn't initiated download (i.e -
+        // task cancelled).
         if let Some(song) = self.get_song_from_id(id) {
             match song.download_status {
                 DownloadStatus::None | DownloadStatus::Downloaded(_) | DownloadStatus::Failed => {
@@ -919,8 +924,9 @@ impl Playlist {
             return AsyncTask::new_no_op();
         }
         self.cur_played_dur = Some(d);
-        // If less than the gapless playback threshold remaining, queue up the next
-        // song, if it's downloaded, and hasn't already been queued.
+        // If less than the gapless playback threshold remaining, queue up the
+        // next song, if it's downloaded, and hasn't already been
+        // queued.
         if let Some(duration_dif) = {
             let cur_dur = self
                 .get_cur_playing_song()
@@ -936,8 +942,8 @@ impl Playlist {
             && let Some(next_song) = self.get_next_song()
             && let DownloadStatus::Downloaded(song) = &next_song.download_status
         {
-            // This task has the metadata of both DecodeSong and QueueSong and returns
-            // Result<QueueUpdate>.
+            // This task has the metadata of both DecodeSong and QueueSong and
+            // returns Result<QueueUpdate>.
             let task = DecodeSong(song.clone()).map_stream(QueueDecodedSong(id));
             info!("Queuing up song!");
             let effect = AsyncTask::new_stream_try(

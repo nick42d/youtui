@@ -114,7 +114,8 @@ impl<A: AuthToken, C: CreatePlaylistType> Query<A> for CreatePlaylistQuery<'_, C
 }
 impl<C: CreatePlaylistType> PostQuery for CreatePlaylistQuery<'_, C> {
     fn header(&self) -> serde_json::Map<String, serde_json::Value> {
-        // TODO: Confirm if processing required to remove 'VL' portion of playlistId
+        // TODO: Confirm if processing required to remove 'VL' portion of
+        // playlistId
         let serde_json::Value::Object(mut map) = json!({
             "title" : self.title,
             "privacyStatus" : self.privacy_status.to_string(),
@@ -122,8 +123,8 @@ impl<C: CreatePlaylistType> PostQuery for CreatePlaylistQuery<'_, C> {
             unreachable!()
         };
         if let Some(description) = &self.description {
-            // TODO: Process description to ensure it doesn't contain html. Google doesn't
-            // allow html.
+            // TODO: Process description to ensure it doesn't contain html.
+            // Google doesn't allow html.
             // https://github.com/sigma67/ytmusicapi/blob/main/ytmusicapi/mixins/playlists.py#L311
             map.insert("description".to_string(), description.as_ref().into());
         }

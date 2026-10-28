@@ -176,13 +176,16 @@ pub fn draw_footer(
                     .areas(album_art_and_progress_bar_chunk);
                 match album_art {
                     AlbumArtState::Downloaded(album_art) => {
-                        // TODO: consider hoist ability to panic here up to album_art_downloader
+                        // TODO: consider hoist ability to panic here up to
+                        // album_art_downloader
                         // server call.
                         // Since album art is fixed size, no
-                        // need to use resize protocol so this might be acceptable.
-                        // Drawback: This would mean relying on the server to provide a correctly
-                        // sized image.
-                        // Benefit: This includes an encoding step and so would be good to do that
+                        // need to use resize protocol so this might be
+                        // acceptable. Drawback: This
+                        // would mean relying on the server to provide a
+                        // correctly sized image.
+                        // Benefit: This includes an encoding step and so would
+                        // be good to do that
                         // on the backend.
                         let image = terminal_image_capabilities
                             .new_protocol(

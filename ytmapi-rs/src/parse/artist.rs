@@ -284,8 +284,8 @@ fn parse_artist_top_releases_from_section_list_contents(
     // TODO: Check if Carousel Title is in list of categories.
     // TODO: Actually pass these variables in the return
     // XXX: Looks to be two loops over results here.
-    // XXX: if there are multiple results for each category we only want to look at
-    // the first one.
+    // XXX: if there are multiple results for each category we only want to look
+    // at the first one.
     for mut r in contents
         .try_iter_mut()
         .into_iter()
@@ -379,8 +379,8 @@ pub(crate) fn parse_library_management_items_from_menu(
         })
         .filter_map(|mut toggle_menu| {
             let Ok(status) = toggle_menu.take_value_pointer("/defaultIcon/iconType") else {
-                // In this case the toggle_menu is not the right type, e.g might be Pin to
-                // Listen Again.
+                // In this case the toggle_menu is not the right type, e.g might
+                // be Pin to Listen Again.
                 //
                 // e.g: https://github.com/nick42d/youtui/issues/193
                 return None;
@@ -389,10 +389,11 @@ pub(crate) fn parse_library_management_items_from_menu(
                 .take_value_pointer::<String>(DEFAULT_ENDPOINT_MODAL_TEXT)
                 .as_deref()
             {
-                // In this case you are not signed in as so there are no add/remove from library
-                // tokens.
-                // NOTE: Since this is known at compile time, could specialise the
-                // ParseFrom and return a hard error when signed in.
+                // In this case you are not signed in as so there are no
+                // add/remove from library tokens.
+                // NOTE: Since this is known at compile time, could specialise
+                // the ParseFrom and return a hard error when
+                // signed in.
                 return None;
             }
             let (add_to_library_token, remove_from_library_token) = match status {
@@ -409,7 +410,8 @@ pub(crate) fn parse_library_management_items_from_menu(
         })
         .next()
     else {
-        // In this case there is no toggle_menu, so returning None is not an error.
+        // In this case there is no toggle_menu, so returning None is not an
+        // error.
         return Ok(None);
     };
     Ok(Some(LibraryManager {

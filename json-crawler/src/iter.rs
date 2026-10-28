@@ -45,8 +45,8 @@ impl<'a> Iterator for JsonCrawlerArrayIterMut<'a> {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,
-            // Ideally there should be a Borrowed version of this struct - otherwise we need to
-            // clone every time here.
+            // Ideally there should be a Borrowed version of this struct -
+            // otherwise we need to clone every time here.
             path: self.path.clone().with(JsonPath::IndexNum(self.cur_front)),
         });
         self.cur_front += 1;
@@ -68,8 +68,8 @@ impl DoubleEndedIterator for JsonCrawlerArrayIterMut<'_> {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,
-            // Ideally there should be a Borrowed version of this struct - otherwise we need to
-            // clone every time here.
+            // Ideally there should be a Borrowed version of this struct -
+            // otherwise we need to clone every time here.
             path: self.path.clone().with(JsonPath::IndexNum(self.cur_back)),
         });
         self.cur_back = self.cur_back.saturating_sub(1);
@@ -112,8 +112,8 @@ impl Iterator for JsonCrawlerArrayIntoIter {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,
-            // Ideally there should be a Borrowed version of this struct - otherwise we need to
-            // clone every time here.
+            // Ideally there should be a Borrowed version of this struct -
+            // otherwise we need to clone every time here.
             path: self.path.clone().with(JsonPath::IndexNum(self.cur_front)),
         });
         self.cur_front += 1;
@@ -134,8 +134,8 @@ impl DoubleEndedIterator for JsonCrawlerArrayIntoIter {
             // Low cost as this is an Arc
             source: self.source.clone(),
             crawler,
-            // Ideally there should be a Borrowed version of this struct - otherwise we need to
-            // clone every time here.
+            // Ideally there should be a Borrowed version of this struct -
+            // otherwise we need to clone every time here.
             path: self.path.clone().with(JsonPath::IndexNum(self.cur_back)),
         });
         self.cur_back = self.cur_back.saturating_sub(1);
