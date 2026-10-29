@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.3.4](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.3.3...ytmapi-rs/v0.3.4) - 2026-10-29
+
+### Other
+- Bulk cargo fmt update ([#392](https://github.com/nick42d/youtui/pull/392))
+
+
+
+
 ## [0.3.3](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.3.2...ytmapi-rs/v0.3.3) - 2026-08-22
 
 ### Fixed

@@ -258,7 +258,7 @@ dependencies = [
 
 [[package]]
 name = "async-callback-manager"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "crossterm",
  "futures",
@@ -3039,7 +3039,7 @@ dependencies = [
 
 [[package]]
 name = "json-crawler"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "serde",
  "serde_json",
@@ -7981,7 +7981,7 @@ dependencies = [
 
 [[package]]
 name = "youtui"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "anyhow",
  "async-callback-manager",
@@ -8053,7 +8053,7 @@ dependencies = [
 
 [[package]]
 name = "ytmapi-rs"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "chrono",
  "const_format",
