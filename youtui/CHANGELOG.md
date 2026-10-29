@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.0.40](https://github.com/nick42d/youtui/compare/youtui/v0.0.39...youtui/v0.0.40) - 2026-10-29
+
+### Other
+- Bulk cargo fmt update ([#392](https://github.com/nick42d/youtui/pull/392))
+
+
+
+
 ## [0.0.39](https://github.com/nick42d/youtui/compare/youtui/v0.0.38...youtui/v0.0.39) - 2026-08-22
 
 ### Other
