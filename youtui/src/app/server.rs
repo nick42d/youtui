@@ -31,6 +31,7 @@ impl Server {
         // Cheaply cloneable reqwest client to share amongst services.
         let client = reqwest::Client::builder()
             .use_rustls_tls()
+            .http2_max_header_list_size(1024 * 64)
             .build()
             .expect("Expected reqwest client build to succeed");
         let api = api::Api::new(api_key, client.clone());
