@@ -53,29 +53,44 @@ impl QueryResponse {
     }
 }
 
+// Default in reqwest/hyper is 16KiB, but music.youtube.com headers can exceed 18KiB.
+const HTTP2_MAX_HEADER_LIST_SIZE: u32 = 1024 * 64; // 64KiB
+
 impl Client {
     /// Utilises reqwest's default tls choice for the enabled set of options.
     pub fn new() -> Result<Self> {
-        let inner = reqwest::Client::builder().build()?;
+        let inner = reqwest::Client::builder()
+            .http2_max_header_list_size(HTTP2_MAX_HEADER_LIST_SIZE)
+            .build()?;
         Ok(Self { inner })
     }
     #[cfg(feature = "rustls")]
     #[cfg_attr(docsrs, doc(cfg(feature = "rustls")))]
     /// Force the use of rustls
     pub fn new_rustls_tls() -> Result<Self> {
-        let inner = reqwest::Client::builder().use_rustls_tls().build()?;
+        let inner = reqwest::Client::builder()
+            .use_rustls_tls()
+            .http2_max_header_list_size(HTTP2_MAX_HEADER_LIST_SIZE)
+            .build()?;
         Ok(Self { inner })
     }
     #[cfg(feature = "native-tls")]
     #[cfg_attr(docsrs, doc(cfg(feature = "native-tls")))]
     /// Force the use of native-tls
     pub fn new_native_tls() -> Result<Self> {
-        let inner = reqwest::Client::builder().use_native_tls().build()?;
+        let inner = reqwest::Client::builder()
+            .use_native_tls()
+            .http2_max_header_list_size(HTTP2_MAX_HEADER_LIST_SIZE)
+            .build()?;
         Ok(Self { inner })
     }
     #[cfg(feature = "reqwest")]
     #[cfg_attr(docsrs, doc(cfg(feature = "reqwest")))]
     /// Re-use a pre-existing reqwest::Client.
+    ///
+    /// Note: `music.youtube.com` response headers can exceed `reqwest`'s 16KiB
+    /// HTTP/2 default, so consider configuring `http2_max_header_list_size`
+    /// (e.g. to 64KiB) when building the provided `reqwest::Client`.
     pub fn new_from_reqwest_client(client: reqwest::Client) -> Self {
         Self { inner: client }
     }
