@@ -53,7 +53,8 @@ impl QueryResponse {
     }
 }
 
-// Default in reqwest/hyper is 16KiB, but music.youtube.com headers can exceed 18KiB.
+// Default in reqwest/hyper is 16KiB, but music.youtube.com headers can exceed
+// 18KiB.
 const HTTP2_MAX_HEADER_LIST_SIZE: u32 = 1024 * 64; // 64KiB
 
 impl Client {
