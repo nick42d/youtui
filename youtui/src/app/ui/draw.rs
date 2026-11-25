@@ -1,5 +1,5 @@
 use super::{WindowContext, YoutuiWindow, footer, header};
-use crate::app::view::draw::{draw_panel_mut_impl, draw_table_impl};
+use crate::app::view::draw::{draw_panel_mut, draw_panel_mut_impl, draw_table_impl};
 use crate::app::view::{BasicConstraint, Drawable, DrawableMut};
 use crate::drawutils::{SELECTED_BORDER_COLOUR, TEXT_COLOUR, left_bottom_corner_rect};
 use crate::keyaction::{DisplayableKeyAction, DisplayableMode};
@@ -11,6 +11,20 @@ use ratatui::prelude::Rect;
 use ratatui::style::Style;
 use ratatui::widgets::{Block, Borders, Clear, Row, Table};
 use ratatui_image::picker::Picker;
+
+fn draw_lyrics(f: &mut Frame, chunk: Rect, lyrics: &super::lyrics::Lyrics) {
+    if let Some(ref lyrics) = lyrics.lyrics {
+        f.render_widget(
+            ratatui::widgets::Paragraph::new(lyrics.lyrics.as_str()).block(Block::bordered()),
+            chunk,
+        );
+    } else {
+        f.render_widget(
+            ratatui::widgets::Paragraph::new("LOADING...").block(Block::bordered()),
+            chunk,
+        );
+    }
+}
 
 // Add tests to try and draw app with oddly sized windows.
 pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities: &Picker) {
@@ -35,6 +49,7 @@ pub fn draw_app(f: &mut Frame, w: &mut YoutuiWindow, terminal_image_capabilities
             w.playlist
                 .draw_mut_chunk(f, window_chunk, context_selected, w.tick);
         }
+        WindowContext::Lyrics => draw_lyrics(f, window_chunk, &w.lyrics),
     }
     if w.help.shown {
         draw_help(f, w, window_chunk);
