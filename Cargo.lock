@@ -7981,7 +7981,7 @@ dependencies = [
 
 [[package]]
 name = "youtui"
-version = "0.0.40"
+version = "0.0.41"
 dependencies = [
  "anyhow",
  "async-callback-manager",
@@ -8053,7 +8053,7 @@ dependencies = [
 
 [[package]]
 name = "ytmapi-rs"
-version = "0.3.4"
+version = "0.4.0"
 dependencies = [
  "chrono",
  "const_format",

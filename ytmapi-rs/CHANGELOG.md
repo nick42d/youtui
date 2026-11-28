@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.4.0](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.3.4...ytmapi-rs/v0.4.0) - 2026-11-28
+
+### Fixed
+- [**breaking**] make PlaylistVideo channel_id optional ([#397](https://github.com/nick42d/youtui/pull/397))
+- _make PlaylistVideo channel_id optional ([#397](https://github.com/nick42d/youtui/pull/397))_ 
+
+
+
+
 ## [0.3.4](https://github.com/nick42d/youtui/compare/ytmapi-rs/v0.3.3...ytmapi-rs/v0.3.4) - 2026-11-07
 
 ### Fixed
