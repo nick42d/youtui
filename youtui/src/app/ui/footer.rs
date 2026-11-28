@@ -190,11 +190,9 @@ pub fn draw_footer(
                         let image = terminal_image_capabilities
                             .new_protocol(
                                 album_art.in_mem_image.clone(),
-                                Rect {
-                                    x: 0,
-                                    y: 0,
-                                    width: ALBUM_ART_WIDTH,
-                                    height: ALBUM_ART_WIDTH - 1,
+                                ratatui::layout::Size {
+                                    width: album_art_chunk.width,
+                                    height: album_art_chunk.height,
                                 },
                                 ratatui_image::Resize::Fit(None),
                             )
