@@ -118,8 +118,10 @@
             duration: "8:10",
             title: "Hey Jude [blank]",
             channel_name: "The Beatles",
-            channel_id: ArtistChannelID(
-                "UC2XdaAVUannpujzv32jcouQ",
+            channel_id: Some(
+                ArtistChannelID(
+                    "UC2XdaAVUannpujzv32jcouQ",
+                ),
             ),
             like_status: Liked,
             thumbnails: [
@@ -199,8 +201,10 @@
             duration: "2:33",
             title: "Yesterday (With Spoken Word Intro / Live From Studio 50, New ...",
             channel_name: "The Beatles",
-            channel_id: ArtistChannelID(
-                "UC2XdaAVUannpujzv32jcouQ",
+            channel_id: Some(
+                ArtistChannelID(
+                    "UC2XdaAVUannpujzv32jcouQ",
+                ),
             ),
             like_status: Indifferent,
             thumbnails: [
@@ -225,8 +229,10 @@
             duration: "0:46",
             title: "On a Cherry Blossom Night (Very Short Movie)",
             channel_name: "あいみょん",
-            channel_id: ArtistChannelID(
-                "UCG8MvaPCa2ecKH3GZyFxduA",
+            channel_id: Some(
+                ArtistChannelID(
+                    "UCG8MvaPCa2ecKH3GZyFxduA",
+                ),
             ),
             like_status: Indifferent,
             thumbnails: [
@@ -251,8 +257,10 @@
             duration: "2:37",
             title: "I Want To Hold Your Hand - Performed Live On The Ed Sullivan ...",
             channel_name: "The Beatles",
-            channel_id: ArtistChannelID(
-                "UC2XdaAVUannpujzv32jcouQ",
+            channel_id: Some(
+                ArtistChannelID(
+                    "UC2XdaAVUannpujzv32jcouQ",
+                ),
             ),
             like_status: Indifferent,
             thumbnails: [
@@ -823,8 +831,10 @@
             duration: "3:28",
             title: "Revolution",
             channel_name: "The Beatles",
-            channel_id: ArtistChannelID(
-                "UC2XdaAVUannpujzv32jcouQ",
+            channel_id: Some(
+                ArtistChannelID(
+                    "UC2XdaAVUannpujzv32jcouQ",
+                ),
             ),
             like_status: Indifferent,
             thumbnails: [
@@ -5393,6 +5403,30 @@
                     url: "https://www.gstatic.com/youtube/media/ytm/images/cover_track_default@1200.png?sqp=CMnnx-oF-oaymwEGCHgQeFgB&rs=ALLJMcJMYVX-njU3_fFWsT7BvREyrfEBFQ",
                 },
             ],
+        },
+    ),
+    Video(
+        PlaylistVideo {
+            video_id: VideoID(
+                "YXe7GQnvzqY",
+            ),
+            track_no: 103,
+            duration: "0:46",
+            title: "On a Cherry Blossom Night (Very Short Movie)",
+            channel_name: "あいみょん",
+            channel_id: None,
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/YXe7GQnvzqY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nF095rwemtHbahxffp3icDCCBnng",
+                },
+            ],
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMYXe7GQnvzqY",
+            ),
         },
     ),
 ]

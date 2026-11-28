@@ -107,7 +107,7 @@ pub struct PlaylistVideo {
     pub title: String,
     // Could be 'ParsedVideoChannel'
     pub channel_name: String,
-    pub channel_id: ArtistChannelID<'static>,
+    pub channel_id: Option<ArtistChannelID<'static>>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
     pub thumbnails: Vec<Thumbnail>,
@@ -453,7 +453,8 @@ pub(crate) fn parse_playlist_video(
     let channel_name = parse_flex_column_item(&mut data, 1, 0)?;
     let channel_id = data
         .borrow_pointer(flex_column_item_pointer(1))?
-        .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))?;
+        .take_value_pointer(concatcp!(TEXT_RUN, NAVIGATION_BROWSE_ID))
+        .ok();
     let duration = data
         .borrow_pointer(fixed_column_item_pointer(0))?
         .take_value_pointers(&["/text/simpleText", "/text/runs/0/text"])?;
