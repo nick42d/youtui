@@ -107,8 +107,6 @@ pub struct PlaylistVideo {
     pub title: String,
     // Could be 'ParsedVideoChannel'
     pub channel_name: String,
-    /// None when YouTube Music doesn't link the uploader's channel (seen on
-    /// some videos, where the channel name is plain text everywhere).
     pub channel_id: Option<ArtistChannelID<'static>>,
     // TODO: Song like feedback tokens.
     pub like_status: LikeStatus,
@@ -742,35 +740,6 @@ mod tests {
             GetPlaylistTracksQuery::new(PlaylistID::from_raw("")),
             BrowserToken
         );
-    }
-    #[tokio::test]
-    async fn test_get_playlist_tracks_video_without_channel_id() {
-        // Some videos' uploader isn't linked anywhere in YouTube Music: the
-        // channel name is plain text with no browse endpoint (see #396).
-        use super::{PlaylistItem, PlaylistVideo};
-        let source =
-            tokio::fs::read_to_string("./test_json/get_playlist_video_no_channel_id_20261125.json")
-                .await
-                .unwrap();
-        let tracks = crate::process_json::<_, BrowserToken>(
-            source,
-            GetPlaylistTracksQuery::new(PlaylistID::from_raw("")),
-        )
-        .unwrap();
-        assert_eq!(tracks.len(), 8, "every item on the page parses");
-        let PlaylistItem::Video(video) = &tracks[5] else {
-            panic!("expected a video, got {:?}", tracks[5]);
-        };
-        assert_eq!(video.channel_name, "あいみょん");
-        assert_eq!(video.channel_id, None);
-        // Linked channels are still read.
-        assert!(tracks.iter().any(|t| matches!(
-            t,
-            PlaylistItem::Video(PlaylistVideo {
-                channel_id: Some(_),
-                ..
-            })
-        )));
     }
     #[tokio::test]
     async fn test_get_watch_playlist_query() {

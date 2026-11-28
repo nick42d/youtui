@@ -5405,4 +5405,28 @@
             ],
         },
     ),
+    Video(
+        PlaylistVideo {
+            video_id: VideoID(
+                "YXe7GQnvzqY",
+            ),
+            track_no: 103,
+            duration: "0:46",
+            title: "On a Cherry Blossom Night (Very Short Movie)",
+            channel_name: "あいみょん",
+            channel_id: None,
+            like_status: Indifferent,
+            thumbnails: [
+                Thumbnail {
+                    height: 225,
+                    width: 400,
+                    url: "https://i.ytimg.com/vi/YXe7GQnvzqY/sddefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCghqEJQEGHgg6AJIWg&rs=AMzJL3nF095rwemtHbahxffp3icDCCBnng",
+                },
+            ],
+            is_available: true,
+            playlist_id: PlaylistID(
+                "RDAMVMYXe7GQnvzqY",
+            ),
+        },
+    ),
 ]
